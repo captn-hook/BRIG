@@ -7,7 +7,9 @@ module.exports = {
     entry: path.resolve(__dirname, '../src/script.js'),
     output: {
         filename: 'bundle.[contenthash].js',
-        path: path.resolve(__dirname, '../dist')
+        path: path.resolve(__dirname, '../dist'),
+        libraryTarget: "var",
+        library: "FileExt",
     },
     devtool: 'source-map',
     plugins: [
@@ -54,7 +56,7 @@ module.exports = {
                 use: [{
                     loader: 'file-loader',
                     options: {
-                        outputPath: 'assets/images/'
+                        outputPath: 'assets/models/'
                     }
                 }]
             },
@@ -87,7 +89,22 @@ module.exports = {
 
             //OBJ
             {
-                test: /\.(obj|mtl)$/,
+                test: /\.(obj)$/,
+                use:
+                [
+                    {
+                        loader: 'file-loader',
+                        options:
+                        {
+                            outputPath: 'assets/models/'
+                        }
+                    }
+                ]
+            },
+
+            //MTL
+            {
+                test: /\.(mtl)$/,
                 use:
                 [
                     {
