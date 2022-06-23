@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as dat from 'dat.gui'
-import base from '../src/models/3.glb'  
+import base from '../models/3.glb'  
 
 // Debug
 const gui = new dat.GUI()
