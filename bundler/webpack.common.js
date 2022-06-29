@@ -4,10 +4,14 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 
 module.exports = {
-    entry: path.resolve(__dirname, '../src/script.js'),
+    entry: path.resolve(__dirname, '../src/index.js'),
     output: {
         filename: 'bundle.[contenthash].js',
-        path: path.resolve(__dirname, '../dist')
+        path: path.resolve(__dirname, '../dist'),
+        libraryTarget: "var",
+        library: "FileExt",
+        library: "TracerPoint",
+        library: "SpherePoint"
     },
     devtool: 'source-map',
     plugins: [
@@ -54,7 +58,7 @@ module.exports = {
                 use: [{
                     loader: 'file-loader',
                     options: {
-                        outputPath: 'assets/images/'
+                        outputPath: 'assets/models/'
                     }
                 }]
             },
@@ -87,7 +91,7 @@ module.exports = {
 
             //OBJ
             {
-                test: /\.(obj|mtl)$/,
+                test: /\.(obj)$/,
                 use:
                 [
                     {
@@ -98,7 +102,35 @@ module.exports = {
                         }
                     }
                 ]
+            },
+
+            //MTL
+            {
+                test: /\.(mtl)$/,
+                use:
+                [
+                    {
+                        loader: 'file-loader',
+                        options:
+                        {
+                            outputPath: 'assets/models/'
+                        }
+                    }
+                ]
+            },
+            //CSV, TXT
+            {
+                test: /\.(csv|txt)$/,
+                use:
+                [
+                    {
+                        loader: 'raw-loader'
+                    }
+                ]
             }
         ]
+    },
+    externals: {
+        fs: 'fs'
     }
 }
