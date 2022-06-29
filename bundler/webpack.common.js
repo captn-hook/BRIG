@@ -10,7 +10,8 @@ module.exports = {
         path: path.resolve(__dirname, '../dist'),
         libraryTarget: "var",
         library: "FileExt",
-        library: "TracerPoint"
+        library: "TracerPoint",
+        library: "SpherePoint"
     },
     devtool: 'source-map',
     plugins: [

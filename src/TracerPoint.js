@@ -1,34 +1,28 @@
 
+import * as THREE from 'three';
+
 export default class TracerPoint {
 
-    constructor(label = 'Unlabeled', color = 'red', x = 0, y = 0) {
-        this.label = label;
+    constructor(r = 2, w = .1, color = 'red', x = 0, y = 0, z = 0) {
+        this.w = w;
         this.color = color;
         this.x = x;
         this.y = y;
-        this.canvas = document.getElementById('canvas');
-        this.context = this.canvas.getContext('2d');
-        this.r = 20
+        this.z = z;
+        this.r = 2
     }
-
-    animate(x, y) {
-        this.x = x;
-        this.y = y;
-        this.context.beginPath();
-        this.context.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
-        this.context.fillStyle = this.color;
-        this.context.fill();
-        this.context.lineWidth = 5;
-        this.context.strokeStyle = '#003300';
-        this.context.stroke();
-    }
-
-    getName() {
-        return label;
-    }
-
-    setName(name) {
-        this.label = name;
+    
+    screenPt(camera, w, h) {
+        let pos = new THREE.Vector3(this.x, this.z, this.y);
+    
+        pos.project(camera);
+    
+        pos.x = (pos.x * w) + w;
+        pos.y = -(pos.y * h) + h;
+        pos.z = 0;
+    
+        return [pos.x, pos.y]
+    
     }
 
 }
