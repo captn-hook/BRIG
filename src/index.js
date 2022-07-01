@@ -1,10 +1,11 @@
-import './style.css';
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import {
     parse
 } from '@vanillaes/csv'
 //import * as fs from  'fs';
+
+import './style.css';
 
 import {
     OrbitControls
@@ -22,13 +23,20 @@ import {
 
 //custom modules
 import FileExt from './FileExt.js';
-import Point2d from './Point';
-import Point3d from './Point';
-import Tracer2d from './Tracer';
+import {
+    Point2d,
+    Point3d
+} from './Point';
+import {
+    Tracer2d,
+    Tracer3d
+} from './Tracer';
 
 //specific assets
 import data from '../data/Data.csv'
-import { Vector3 } from 'three';
+import {
+    Vector3
+} from 'three';
 
 /*
 Setup
@@ -46,6 +54,7 @@ const ctx = canvas2d.getContext('2d');
 
 // Scene
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0f0f0f);
 
 /*
 window resizing
@@ -125,20 +134,25 @@ for (var m = 0; m < dataArray[0].length; m++) {
 
             //CLM 1
         } else if (m == 1 && t > 1) {
-            var pos = new THREE.Vector3(dataArray[t][m].split('/'));
+
+            var xyz = dataArray[t][m].split('/');
+            var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
             ts.push(new Point2d('blue', pos));
 
             //ROW 1
         } else if (t == 1 && m > 1) {
-            var pos = new THREE.Vector3(dataArray[t][m].split('/'));
+
+            var xyz = dataArray[t][m].split('/');
+            var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
             ms.push(new Point2d('red', pos));
 
             //Main Transmission
         } else if (m > 1 && t > 1) {
-            
-            tracers.push(new Tracer2d(ms[m], ts[t], dataArray[t][m]));
+
+
+            tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
 
         } else {
             console.log('Error: ' + dataArray[t][m]);
@@ -146,15 +160,12 @@ for (var m = 0; m < dataArray[0].length; m++) {
     }
 }
 
-console.log(ms);
-console.log(ts);
-console.log(trans);
 
 /*
 Test OBJ
 */
 
-const sphere = new Point3d(0x000000, new Vector3(0, 0, 0), 3);
+const sphere = new Point3d(0x000000, new Vector3(0, 0, 0), .1);
 scene.add(sphere)
 
 /*
@@ -222,41 +233,71 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
 
-    console.log(elapsedTime);
+    //console.log(elapsedTime);
+    console.log(camera.position)
 
     //Render Points
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
 
-    tracers.forEach( function(t) {
+    /*
+    tracers.forEach(function (t) {
 
         var [x1, y1, x2, y2, x3, y3] = t.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
-let start = { x: 50,    y: 20  };
-let cp1 =   { x: 230,   y: 30  };
-let cp2 =   { x: 150,   y: 80  };
-let end =   { x: 250,   y: 100 };
+        let start = {
+            x: x1,
+            y: y1
+        };
+        let cp1 = {
+            x: x2,
+            y: y2
+        };
+        let cp2 = {
+            x: x2,
+            y: y2
+        };
+        let end = {
+            x: x3,
+            y: y3
+        };
 
-// Cubic Bézier curve
-ctx.beginPath();
-ctx.moveTo(start.x, start.y);
-ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
-ctx.stroke();
+        // Cubic Bézier curve
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+        ctx.stroke();
 
-// Start and end points
-ctx.fillStyle = 'blue';
-ctx.beginPath();
-ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI);  // Start point
-ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI);      // End point
-ctx.fill();
+        // Start and end points
+        ctx.fillStyle = 'blue';
+        ctx.beginPath();
+        ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI); // Start point
+        ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI); // End point
+        ctx.fill();
 
-// Control points
-ctx.fillStyle = 'red';
-ctx.beginPath();
-ctx.arc(cp1.x, cp1.y, 5, 0, 2 * Math.PI);  // Control point one
-ctx.arc(cp2.x, cp2.y, 5, 0, 2 * Math.PI);  // Control point two
-ctx.fill();
+        // Control points
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(cp1.x, cp1.y, 5, 0, 2 * Math.PI); // Control point one
+        ctx.arc(cp2.x, cp2.y, 5, 0, 2 * Math.PI); // Control point two
+        ctx.fill();
 
     });
+    */
+    function canvasPt(pt) {
+        var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2 );
+
+        ctx.beginPath();
+        ctx.arc(x, y, pt.r, 0, 2 * Math.PI, false);
+        ctx.fillStyle = pt.color;
+        ctx.fill();
+        ctx.lineWidth = pt.border;
+        ctx.strokeStyle = '#003300';
+        ctx.stroke();
+    }
+
+    ts.forEach(canvasPt)
+
+    ms.forEach(canvasPt)
 
     // Update Orbital Controls
     controls.update();
