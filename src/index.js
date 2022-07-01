@@ -22,14 +22,13 @@ import {
 
 //custom modules
 import FileExt from './FileExt.js';
-import TracerPoint from './TracerPoint';
+import Point2d from './Point';
+import Point3d from './Point';
+import Tracer2d from './Tracer';
 
 //specific assets
-import b1 from '../models/1.glb';
-import b2 from '../models/2.glb';
-import b3 from '../models/3.glb';
-//import m1 from '../models/Raw/matterpak_8MgMZZKRSGW/b6888d06856e429cade222b9bf32acb8.mtl';
 import data from '../data/Data.csv'
+import { Vector3 } from 'three';
 
 /*
 Setup
@@ -39,7 +38,11 @@ Setup
 const gui = new dat.GUI();
 
 // Canvas
-const canvas = document.querySelector('canvas.webgl');
+const canvas3d = document.querySelector('canvas.webgl');
+
+const canvas2d = document.getElementById('2d');
+
+const ctx = canvas2d.getContext('2d');
 
 // Scene
 const scene = new THREE.Scene();
@@ -56,6 +59,9 @@ window.addEventListener('resize', () => {
     // Update sizes
     sizes.width = window.innerWidth;
     sizes.height = window.innerHeight;
+
+    canvas2d.innerWidth = sizes.width;
+    canvas2d.innerHeight = sizes.height;
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -82,14 +88,14 @@ light.intensity = 3;
 scene.add(light);
 
 // Controls
-const controls = new OrbitControls(camera, canvas);
+const controls = new OrbitControls(camera, canvas2d);
 controls.enableDamping = true;
 
 /*
  Renderer
 */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas3d
 });
 
 renderer.setSize(sizes.width, sizes.height);
@@ -103,13 +109,7 @@ const dataArray = parse(data);
 
 const ms = [];
 const ts = [];
-const trans = [];
-
-const mPoints = [];
-const tPoints = [];
-
-let widthHalf = sizes.width / 2;
-let heightHalf = sizes.height / 2;
+const tracers = [];
 
 for (var m = 0; m < dataArray[0].length; m++) {
     for (var t = 0; t < dataArray.length; t++) {
@@ -125,23 +125,20 @@ for (var m = 0; m < dataArray[0].length; m++) {
 
             //CLM 1
         } else if (m == 1 && t > 1) {
-            var [x, y, z] = dataArray[t][m].split('/');
-            ts.push([x, y, z])
+            var pos = new THREE.Vector3(dataArray[t][m].split('/'));
 
-            tPoints.push(new TracerPoint(('T' + t), 'blue', x, y))
+            ts.push(new Point2d('blue', pos));
 
             //ROW 1
         } else if (t == 1 && m > 1) {
-            var [x, y, z] = dataArray[t][m].split('/');
-            ms.push([x, y, z])
+            var pos = new THREE.Vector3(dataArray[t][m].split('/'));
 
-            mPoints.push(new TracerPoint(('M' + m), 'red', x, y))
+            ms.push(new Point2d('red', pos));
 
             //Main Transmission
         } else if (m > 1 && t > 1) {
-            trans.push(dataArray[t][m]);
-
-            let pos = new THREE.Vector3();
+            
+            tracers.push(new Tracer2d(ms[m], ts[t], dataArray[t][m]));
 
         } else {
             console.log('Error: ' + dataArray[t][m]);
@@ -153,39 +150,17 @@ console.log(ms);
 console.log(ts);
 console.log(trans);
 
-function projPoint(x, y, z) {
-    let pos = new THREE.Vector3(x, y, z);
-
-    pos.project(camera);
-
-
-    pos.x = (pos.x * widthHalf) + widthHalf;
-    pos.y = -(pos.y * heightHalf) + heightHalf;
-    pos.z = 0;
-
-    console.log(pos);
-
-    return [pos.x, pos.y]
-
-}
 /*
 Test OBJ
 */
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
 
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
-
-const sphere = new THREE.Mesh(geometry,material)
+const sphere = new Point3d(0x000000, new Vector3(0, 0, 0), 3);
 scene.add(sphere)
 
 /*
 Loaded Objects
 */
 
-//load3DModel(b1);
-//load3DModel(b2);
-load3DModel(b3);
 
 // onLoad callback
 function onLoadLoad(obj) {
@@ -250,11 +225,38 @@ const tick = () => {
     console.log(elapsedTime);
 
     //Render Points
-    tPoints.forEach(function (pt) {
-        console.log(pt.label)
-        var [x, y] = projPoint(pt.x, pt.y, pt.z);
-        pt.animate(x, y, canvas);
-    })
+    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+
+    tracers.forEach( function(t) {
+
+        var [x1, y1, x2, y2, x3, y3] = t.screenPts(camera, sizes.width / 2, sizes.height / 2)
+
+let start = { x: 50,    y: 20  };
+let cp1 =   { x: 230,   y: 30  };
+let cp2 =   { x: 150,   y: 80  };
+let end =   { x: 250,   y: 100 };
+
+// Cubic Bézier curve
+ctx.beginPath();
+ctx.moveTo(start.x, start.y);
+ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+ctx.stroke();
+
+// Start and end points
+ctx.fillStyle = 'blue';
+ctx.beginPath();
+ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI);  // Start point
+ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI);      // End point
+ctx.fill();
+
+// Control points
+ctx.fillStyle = 'red';
+ctx.beginPath();
+ctx.arc(cp1.x, cp1.y, 5, 0, 2 * Math.PI);  // Control point one
+ctx.arc(cp2.x, cp2.y, 5, 0, 2 * Math.PI);  // Control point two
+ctx.fill();
+
+    });
 
     // Update Orbital Controls
     controls.update();
