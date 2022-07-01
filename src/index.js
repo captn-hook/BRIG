@@ -1,42 +1,25 @@
-import * as THREE from 'three';
-import * as dat from 'dat.gui';
-import {
-    parse
-} from '@vanillaes/csv'
-//import * as fs from  'fs';
 
 import './style.css';
 
-import {
-    OrbitControls
-} from 'three/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three';
+import * as dat from 'dat.gui';
+import { parse } from '@vanillaes/csv'
+//import * as fs from  'fs';
 
-import {
-    GLTFLoader
-} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {
-    OBJLoader
-} from 'three/examples/jsm/loaders/OBJLoader.js';
-import {
-    MTLLoader
-} from 'three/examples/jsm/loaders/MTLLoader.js';
+
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 
 //custom modules
 import FileExt from './FileExt.js';
-import {
-    Point2d,
-    Point3d
-} from './Point';
-import {
-    Tracer2d,
-    Tracer3d
-} from './Tracer';
+import { Point2d, Point3d } from './Point';
+import { Tracer2d, Tracer3d } from './Tracer';
 
 //specific assets
 import data from '../data/Data.csv'
-import {
-    Vector3
-} from 'three';
 
 /*
 Setup
@@ -63,6 +46,7 @@ const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
+
 canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
@@ -73,8 +57,6 @@ window.addEventListener('resize', () => {
 
     ctx.canvas.innerWidth = window.innerWidth;
     ctx.canvas.innerHeight = window.innerHeigh;
-
-    console.log(canvas2d.innerWidth);
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -124,6 +106,9 @@ const ms = [];
 const ts = [];
 const tracers = [];
 
+const ms3d = [];
+const ts3d = [];
+
 for (var m = 0; m < dataArray[0].length; m++) {
     for (var t = 0; t < dataArray.length; t++) {
 
@@ -144,6 +129,8 @@ for (var m = 0; m < dataArray[0].length; m++) {
 
             ts.push(new Point2d('blue', pos));
 
+            ts3d.push(new Point3d(0x0000ff, pos));
+
             //ROW 1
         } else if (t == 1 && m > 1) {
 
@@ -152,9 +139,10 @@ for (var m = 0; m < dataArray[0].length; m++) {
 
             ms.push(new Point2d('red', pos));
 
+            ms3d.push(new Point3d(0xff0000, pos, 3))
+
             //Main Transmission
         } else if (m > 1 && t > 1) {
-
 
             tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
 
@@ -164,18 +152,26 @@ for (var m = 0; m < dataArray[0].length; m++) {
     }
 }
 
+ms3d.forEach(pt => {
+    scene.add(pt.sphere);
+});
+
+
+ts3d.forEach(pt => {
+    scene.add(pt.sphere);
+});
+
 
 /*
 Test OBJ
 */
 
-const sphere = new Point3d(0x000000, new Vector3(0, 0, 0), 1);
-scene.add(sphere.sphere)
+const center = new Point3d(0x000000, new THREE.Vector3(0, 0, 0), 1);
+scene.add(center.sphere);
 
 /*
 Loaded Objects
 */
-
 
 // onLoad callback
 function onLoadLoad(obj) {
@@ -227,9 +223,24 @@ function load3DModel(base, mtlpath) {
     }
 }
 
+
 /*
 Animate
 */
+
+function canvasPt(pt) {
+    var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2 );
+
+    console.log(pt.pos)
+
+    ctx.beginPath();
+    ctx.arc(x, y, pt.r, 0, 2 * Math.PI, false);
+    ctx.fillStyle = pt.color;
+    ctx.fill();
+    ctx.lineWidth = pt.border;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
+}
 
 const clock = new THREE.Clock();
 
@@ -238,11 +249,17 @@ const tick = () => {
     const elapsedTime = clock.getElapsedTime();
 
     //console.log(elapsedTime);
-    console.log(camera.position);
+    //console.log(camera.position);
     //console.log(sphere);
 
+    //Test 
+    ctx.beginPath();
+    ctx.rect(20, 20, 150, 100);
+    ctx.stroke();
+
+
     //Render Points
-    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+    //ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
 
     /*
     tracers.forEach(function (t) {
@@ -288,18 +305,7 @@ const tick = () => {
 
     });
     */
-    function canvasPt(pt) {
-        var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2 );
-
-        ctx.beginPath();
-        ctx.arc(x, y, pt.r, 0, 2 * Math.PI, false);
-        ctx.fillStyle = pt.color;
-        ctx.fill();
-        ctx.lineWidth = pt.border;
-        ctx.strokeStyle = '#003300';
-        ctx.stroke();
-    }
-
+    
     ts.forEach(canvasPt)
 
     ms.forEach(canvasPt)
