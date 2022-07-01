@@ -12,14 +12,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 //custom modules
 import FileExt from './FileExt.js';
 import { Point2d, Point3d } from './Point';
-import { Tracer2d, Tracer3d } from './Tracer';
+import { Tracer2d } from './Tracer';
 
 //specific assets
-import data from '../data/Data.csv'
+import building from '../models/1.glb';
+import data from '../data/1.csv'
 
 /*
 Setup
@@ -71,10 +73,10 @@ window.addEventListener('resize', () => {
   Camera
 */
 
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 300);
-camera.position.x = 0;
-camera.position.y = 0;
-camera.position.z = 3;
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+camera.position.x = 10;
+camera.position.y = 10;
+camera.position.z = 30;
 scene.add(camera);
 
 // Lights
@@ -106,9 +108,6 @@ const ms = [];
 const ts = [];
 const tracers = [];
 
-const ms3d = [];
-const ts3d = [];
-
 for (var m = 0; m < dataArray[0].length; m++) {
     for (var t = 0; t < dataArray.length; t++) {
 
@@ -127,9 +126,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ts.push(new Point2d('blue', pos));
-
-            ts3d.push(new Point3d(0x0000ff, pos));
+            ts.push(new Point2d('blue', pos, 5));
 
             //ROW 1
         } else if (t == 1 && m > 1) {
@@ -137,9 +134,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ms.push(new Point2d('red', pos));
-
-            ms3d.push(new Point3d(0xff0000, pos, 3))
+            ms.push(new Point2d('red', pos, 10));
 
             //Main Transmission
         } else if (m > 1 && t > 1) {
@@ -152,29 +147,28 @@ for (var m = 0; m < dataArray[0].length; m++) {
     }
 }
 
-ms3d.forEach(pt => {
-    scene.add(pt.sphere);
-});
-
-
-ts3d.forEach(pt => {
-    scene.add(pt.sphere);
-});
-
-
 /*
 Test OBJ
 */
 
-const center = new Point3d(0x000000, new THREE.Vector3(0, 0, 0), 1);
+const center = new Point3d(0xffffff, new THREE.Vector3(0, 0, 0), 2);
 scene.add(center.sphere);
 
 /*
 Loaded Objects
 */
 
+load3DModel(building);
+
 // onLoad callback
 function onLoadLoad(obj) {
+
+    let thing = obj.scene.children[0];
+
+    //find out why this doesnt match pts and fix
+    thing.scale.y *= -1;
+    thing.position.z = -13;
+
     scene.add(obj.scene);
 }
 
@@ -188,10 +182,18 @@ function onErrorLog(err) {
     console.error(err)
 }
 
-function load3DModel(base, mtlpath) {
+function load3DModel(base, mtlpath = null) {
     //checks file type
     if (FileExt(base)) {
         const loader = new GLTFLoader();
+
+
+        //mesh decompression wip, using uncompressed mesh for now
+        /*
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/' );
+        loader.setDRACOLoader( dracoLoader );
+*/
         //loads with above loader
         //NOTE:      path  func on load     func on progress                         func on error 
         loader.load(base, onLoadLoad, onProgressLog, onErrorLog);
@@ -229,12 +231,12 @@ Animate
 */
 
 function canvasPt(pt) {
+    
     var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2 );
 
-    console.log(pt.pos)
 
     ctx.beginPath();
-    ctx.arc(x, y, pt.r, 0, 2 * Math.PI, false);
+    ctx.arc(x, y, pt.radius, 0, 2 * Math.PI, false);
     ctx.fillStyle = pt.color;
     ctx.fill();
     ctx.lineWidth = pt.border;
@@ -251,60 +253,26 @@ const tick = () => {
     //console.log(elapsedTime);
     //console.log(camera.position);
     //console.log(sphere);
+    
+    //console.log("1", sphere.position, sphere);
+    //console.log("2", center.position(), center.sphere)
 
     //Test 
-    ctx.beginPath();
-    ctx.rect(20, 20, 150, 100);
-    ctx.stroke();
-
 
     //Render Points
-    //ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
 
-    /*
+  
     tracers.forEach(function (t) {
 
         var [x1, y1, x2, y2, x3, y3] = t.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
-        let start = {
-            x: x1,
-            y: y1
-        };
-        let cp1 = {
-            x: x2,
-            y: y2
-        };
-        let cp2 = {
-            x: x2,
-            y: y2
-        };
-        let end = {
-            x: x3,
-            y: y3
-        };
-
         // Cubic Bézier curve
         ctx.beginPath();
-        ctx.moveTo(start.x, start.y);
-        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+        ctx.moveTo(x1, y1);
+        ctx.bezierCurveTo(x2, y2, x2, y2, x3, y3);
         ctx.stroke();
-
-        // Start and end points
-        ctx.fillStyle = 'blue';
-        ctx.beginPath();
-        ctx.arc(start.x, start.y, 5, 0, 2 * Math.PI); // Start point
-        ctx.arc(end.x, end.y, 5, 0, 2 * Math.PI); // End point
-        ctx.fill();
-
-        // Control points
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(cp1.x, cp1.y, 5, 0, 2 * Math.PI); // Control point one
-        ctx.arc(cp2.x, cp2.y, 5, 0, 2 * Math.PI); // Control point two
-        ctx.fill();
-
     });
-    */
     
     ts.forEach(canvasPt)
 

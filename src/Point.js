@@ -1,62 +1,76 @@
 import * as THREE from 'three';
+import { Vector3 } from 'three';
 
 class Point {
 
-    constructor(color = 'red', pos = new THREE.Vector3(0, 0, 0)) {
+    constructor(color = 'red', pos) {
         this.color = color;
         this.pos = pos;
     }
 
     position() {
-        return this.pos;
-    }
-
-    xyz() {
-        return [this.pos.x, this.pos.y, this.pos.z];
+        return [this.x, this.y, this.z];
     }
 
 }
 
 class Point2d extends Point {
 
-    constructor(color, pos, radius = 1, border = 1) {
+    constructor(color, pos, radius = 5, border = 2) {
+
         super(color, pos);
-        this.color = color;
-        this.pos = pos;
+
         this.radius = radius;
         this.border = border;
 
-        console.log(this.pos)
     }
 
     screenPt(camera, w, h) {
 
-        this.pos.project(camera);
+        var frustum = new THREE.Frustum();
 
-        var x = (this.pos.x * w) + w;
-        var y = -(this.pos.y * h) + h;
+        frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+        
 
-        return [x, y]
+        if (frustum.containsPoint(this.pos)) {
 
+            let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
+          
+            proj.project(camera);
+
+            var x = (proj.x * w) + w;
+            var y = -(proj.y * h) + h;
+
+            
+            return [x, y]
+
+
+        } else {
+            return [-20, -20]
+        }
     }
+
+
+
+
+
 
 }
 
 class Point3d extends Point {
     constructor(color, pos, radius = 1) {
+
         super(color, pos);
-        this.color = color;
-        this.pos = pos;
+        
         this.radius = radius;
 
-        this.geometry = new THREE.SphereGeometry(radius)
+        this.geometry = new THREE.SphereGeometry(radius);
 
-        this.material = new THREE.MeshBasicMaterial()
-        this.material.color = new THREE.Color(0xff0000)
+        this.material = new THREE.MeshBasicMaterial();
+        this.material.color = new THREE.Color(this.color);
+        this.sphere = new THREE.Mesh(this.geometry, this.material);
 
-        this.sphere = new THREE.Mesh(this.geometry, this.material)
-
-        this.sphere.position.set(pos);
+        this.sphere.position.set(this.pos.x, this.pos.z, this.pos.y);
     }
 
 

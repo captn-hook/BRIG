@@ -24,32 +24,41 @@ class Tracer2d extends Tracer {
 
     }
 
+
     screenPts(camera, w, h) {
 
         var frustum = new THREE.Frustum();
+
         frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+        
 
         if (frustum.containsPoint(this.m.pos)) {
-            var pos1 = this.m.pos.project(camera);
-            var pos2 = this.t.pos.project(camera);
 
-            var x1 = (pos1.x * w) + w;
-            var y1 = -(pos1.y * h) + h;
+            let proj1 = new THREE.Vector3(this.m.pos.x, this.m.pos.z, this.m.pos.y);
+          
+            proj1.project(camera);
 
-            var x3 = (pos2.x * w) + w;
-            var y3 = -(pos2.y * h) + h;
+            let proj2 = new THREE.Vector3(this.t.pos.x, this.t.pos.z, this.t.pos.y);
+          
+            proj2.project(camera);
+
+            var x1 = (proj1.x * w) + w;
+            var y1 = -(proj1.y * h) + h;
+
+            var x3 = (proj2.x * w) + w;
+            var y3 = -(proj2.y * h) + h;
 
             var x2 = (x1 + x3) / 2
 
-            var y2 = (y1 + y3) / 2 + (this.lift * 10)
+            var y2 = (y1 + y3) / 2 - (this.lift * 30)
 
             return [x1, y1, x2, y2, x3, y3]
 
-        } else {
 
+
+        } else {
             return [-20, -20, -20, -20, -20, -20]
         }
-
     }
 
     monitor() {
