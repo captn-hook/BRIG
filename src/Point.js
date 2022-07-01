@@ -49,17 +49,14 @@ class Point3d extends Point {
         this.pos = pos;
         this.radius = radius;
 
-        const geometry = new THREE.SphereGeometry(radius)
+        this.geometry = new THREE.SphereGeometry(radius)
 
-        const material = new THREE.MeshBasicMaterial()
-        material.color = new THREE.Color(0xff0000)
+        this.material = new THREE.MeshBasicMaterial()
+        this.material.color = new THREE.Color(0xff0000)
 
-        const sphere = new THREE.Mesh(geometry, material)
+        this.sphere = new THREE.Mesh(this.geometry, this.material)
 
-        sphere.position.set(pos);
-
-        return sphere;
-
+        this.sphere.position.set(pos);
     }
 
 

@@ -54,7 +54,7 @@ const ctx = canvas2d.getContext('2d');
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0f0f0f);
+scene.background = new THREE.Color(0x3f3f3f);
 
 /*
 window resizing
@@ -63,14 +63,18 @@ const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
+canvas2d.width = sizes.width;
+canvas2d.height = sizes.height;
 
 window.addEventListener('resize', () => {
     // Update sizes
-    sizes.width = window.innerWidth;
-    sizes.height = window.innerHeight;
+    sizes.width = sizes.width;
+    sizes.height = sizes.height;
 
-    canvas2d.innerWidth = sizes.width;
-    canvas2d.innerHeight = sizes.height;
+    ctx.canvas.innerWidth = window.innerWidth;
+    ctx.canvas.innerHeight = window.innerHeigh;
+
+    console.log(canvas2d.innerWidth);
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -88,7 +92,7 @@ window.addEventListener('resize', () => {
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 300);
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 2;
+camera.position.z = 3;
 scene.add(camera);
 
 // Lights
@@ -165,8 +169,8 @@ for (var m = 0; m < dataArray[0].length; m++) {
 Test OBJ
 */
 
-const sphere = new Point3d(0x000000, new Vector3(0, 0, 0), .1);
-scene.add(sphere)
+const sphere = new Point3d(0x000000, new Vector3(0, 0, 0), 1);
+scene.add(sphere.sphere)
 
 /*
 Loaded Objects
@@ -234,7 +238,8 @@ const tick = () => {
     const elapsedTime = clock.getElapsedTime();
 
     //console.log(elapsedTime);
-    console.log(camera.position)
+    console.log(camera.position);
+    //console.log(sphere);
 
     //Render Points
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
