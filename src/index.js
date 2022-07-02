@@ -139,14 +139,30 @@ for (var m = 0; m < dataArray[0].length; m++) {
             //Main Transmission
         } else if (m > 1 && t > 1) {
 
+            
             tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
-
+          
         } else {
             console.log('Error: ' + dataArray[t][m]);
         }
     }
 }
 
+function compare( a, b ) {
+    if ( a.last_nom < b.last_nom ){
+      return -1;
+    }
+    if ( a.last_nom > b.last_nom ){
+      return 1;
+    }
+    return 0;
+  }
+
+  tracers.sort((a, b) => {
+    return a.value - b.value;
+});
+
+console.log(tracers)
 /*
 Test OBJ
 */
