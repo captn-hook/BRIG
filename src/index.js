@@ -271,6 +271,7 @@ const tick = () => {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.bezierCurveTo(x2, y2, x2, y2, x3, y3);
+        ctx.strokeStyle = t.color;
         ctx.stroke();
     });
     
