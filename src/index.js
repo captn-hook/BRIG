@@ -20,8 +20,8 @@ import { Point2d, Point3d } from './Point';
 import { Tracer2d } from './Tracer';
 
 //specific assets
-import building from '../models/1.glb';
-import data from '../data/1.csv'
+//import building from '../models/1.glb';
+import data from '../data/Data.csv'
 
 /*
 Setup
@@ -126,7 +126,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ts.push(new Point2d('blue', pos, 5));
+            ts.push(new Point2d(String(t), 'blue', pos, 5));
 
             //ROW 1
         } else if (t == 1 && m > 1) {
@@ -134,7 +134,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ms.push(new Point2d('red', pos, 10));
+            ms.push(new Point2d(String(m), 'red', pos, 10));
 
             //Main Transmission
         } else if (m > 1 && t > 1) {
@@ -174,7 +174,7 @@ scene.add(center.sphere);
 Loaded Objects
 */
 
-load3DModel(building);
+//load3DModel(building);
 
 // onLoad callback
 function onLoadLoad(obj) {
@@ -258,6 +258,11 @@ function canvasPt(pt) {
     ctx.lineWidth = pt.border;
     ctx.strokeStyle = '#003300';
     ctx.stroke();
+
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.fillText(pt.name, x, y);
 }
 
 const clock = new THREE.Clock();

@@ -3,7 +3,8 @@ import { Vector3 } from 'three';
 
 class Point {
 
-    constructor(color = 'red', pos) {
+    constructor(name, color = 'red', pos) {
+        this.name = name;
         this.color = color;
         this.pos = pos;
     }
@@ -16,9 +17,9 @@ class Point {
 
 class Point2d extends Point {
 
-    constructor(color, pos, radius = 5, border = 2) {
+    constructor(name, color, pos, radius = 5, border = 2) {
 
-        super(color, pos);
+        super(name, color, pos);
 
         this.radius = radius;
         this.border = border;
@@ -58,9 +59,9 @@ class Point2d extends Point {
 }
 
 class Point3d extends Point {
-    constructor(color, pos, radius = 1) {
+    constructor(name, color, pos, radius = 1) {
 
-        super(color, pos);
+        super(name, color, pos);
         
         this.radius = radius;
 

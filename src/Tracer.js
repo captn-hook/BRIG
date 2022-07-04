@@ -25,7 +25,7 @@ class Tracer {
 
             if (groups[i] * 25 <= value <= groups[i + 1] * 25) {
 
-                console.log( this.hexToRgb(colors[i]))
+                //console.log( this.hexToRgb(colors[i]))
 
                 var c1 = this.hexToRgb(colors[i]);
                 var c2 = this.hexToRgb(colors[i + 1]);
