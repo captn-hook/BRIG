@@ -3,11 +3,10 @@ import Point2d from './Point';
 
 class Tracer {
 
-    constructor(m = 0, t = 0, value = 0, width = 1, headroom = 1, lift = 1) {
+    constructor(m = 0, t = 0, value = 0, headroom = 1, lift = 1) {
         this.m = m;
         this.t = t;
         this.value = value;
-        this.width = width;
         this.headroom = headroom;
         this.lift = lift;
 
@@ -63,9 +62,9 @@ class Tracer {
 
 class Tracer2d extends Tracer {
 
-    constructor(m, t, value, width, headroom, lift, outline = 1) {
+    constructor(m, t, value, headroom, lift, outline = 1) {
 
-        super(m, t, value, width, headroom, lift);
+        super(m, t, value, headroom, lift);
 
         this.outline = outline;
 

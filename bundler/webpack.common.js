@@ -11,7 +11,9 @@ module.exports = {
         libraryTarget: "var",
         library: "FileExt",
         library: "Point",
-        library: "Tracer"
+        library: "Tracer",
+        library: "Controls",
+        library: "Spreadsheet"
     },
     devtool: 'source-map',
     plugins: [

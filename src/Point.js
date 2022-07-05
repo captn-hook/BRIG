@@ -31,6 +31,8 @@ class Point2d extends Point {
         var frustum = new THREE.Frustum();
 
         frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+
+        //frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
         
 
         if (frustum.containsPoint(this.pos)) {
