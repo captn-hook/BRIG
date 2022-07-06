@@ -2,14 +2,13 @@ import './style.css';
 
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
+
 import {
     parse
 } from '@vanillaes/csv'
-
 import {
     OrbitControls
 } from 'three/examples/jsm/controls/OrbitControls.js';
-
 import {
     GLTFLoader
 } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -27,12 +26,15 @@ import {
 import {
     MinMaxGUIHelper
 } from './Controls';
+
 import FileExt from './FileExt.js';
-import Spreadsheet from './Spreadsheet';
+//import Spreadsheet from './Spreadsheet';
+
 import {
     Point2d,
     Point3d
 } from './Point';
+
 import {
     Tracer2d
 } from './Tracer';
@@ -42,7 +44,7 @@ import {
 import data from '../data/Data.csv'
 
 /*
-Setup
+    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
 const sizes = {
@@ -55,6 +57,12 @@ camera.position.x = 10;
 camera.position.y = 10;
 camera.position.z = 30;
 
+// Scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x3f3f3f);
+scene.add(camera);
+
+
 // Debug
 const gui = new dat.GUI();
 
@@ -66,8 +74,8 @@ gui.add(camera, 'fov', 1, 180).onChange(updateCamera);
 
 const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 
-gui.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near').onChange(updateCamera);
-gui.add(minMaxGUIHelper, 'max', 0.1, 50, 0.1).name('far').onChange(updateCamera);
+gui.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
+gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
@@ -78,29 +86,15 @@ const ctx = canvas2d.getContext('2d');
 
 const canvasleft = document.getElementById('left');
 
-const spr = canvasleft.getContext('2d');
+const spreadsheetContext = canvasleft.getContext('2d');
 
-
-// Scene
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x3f3f3f);
-scene.add(camera);
-
-/*
-window resizing
-*/
-
+//window resizing
 canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
 canvasleft.width = sizes.width / 4;
 canvasleft.height = sizes.height;
 
-
-
-/*
-  Camera
-*/
 
 // Lights
 const light = new THREE.AmbientLight(0x404040); // soft white light
@@ -120,6 +114,10 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+/*
+    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading
+*/
 
 /*
 Data
@@ -151,7 +149,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ts.push(new Point2d("T" + String(t), 'blue', pos, 5));
+            ts.push(new Point2d("T", t, 'blue', pos, 5));
 
             //ROW 1
         } else if (t == 1 && m > 1) {
@@ -159,12 +157,14 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ms.push(new Point2d("M" + String(m), 'red', pos, 10));
+            ms.push(new Point2d("M", m, 'red', pos, 10));
 
             //Main Transmission
         } else if (m > 1 && t > 1) {
 
-            tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
+            if (dataArray[t][m] > 1) {
+                tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
+            }
 
         } else {
             console.log('Error: ' + dataArray[t][m]);
@@ -172,7 +172,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
     }
 }
 
-const sheet = new Spreadsheet(ms.length, ts.length, sizes.width / 4, sizes.height);
+//const sheet = new Spreadsheet(ms.length, ts.length, sizes.width / 4, sizes.height);
 
 function compare(a, b) {
     if (a.last_nom < b.last_nom) {
@@ -189,17 +189,20 @@ tracers.sort((a, b) => {
 });
 
 console.log(tracers)
+
 /*
 Test OBJ
 */
 
-const center = new Point3d(0xffffff, new THREE.Vector3(0, 0, 0), 2);
+const center = new Point3d('Marker', 0, 0xffffff, new THREE.Vector3(0, 0, 0), 2);
 scene.add(center.sphere);
+
 
 /*
 Loaded Objects
 */
 
+//loadfunc 
 //load3DModel(building);
 
 // onLoad callback
@@ -267,6 +270,18 @@ function load3DModel(base, mtlpath = null) {
     }
 }
 
+/*
+Misc
+*/
+
+const clock = new THREE.Clock();
+
+
+/*
+    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
+
+*/
+
 window.addEventListener('resize', () => {
     // Update sizes
     sizes.width = window.innerWidth;
@@ -275,11 +290,11 @@ window.addEventListener('resize', () => {
     ctx.canvas.innerWidth = sizes.width;
     ctx.canvas.innerHeight = sizes.height;
 
-    spr.canvas.innerWidth = sizes.width / 4;
-    spr.canvas.innerHeight = sizes.height;
+    spreadsheetContext.canvas.innerWidth = sizes.width / 4;
+    spreadsheetContext.canvas.innerHeight = sizes.height;
 
-    sheet.w = (sizes.width / 4) / sheet.x;
-    sheet.h = sizes.height / sheet.y;
+    //sheet.w = (sizes.width / 4) / sheet.x;
+    //sheet.h = sizes.height / sheet.y;
 
 
     // Update camera
@@ -295,53 +310,49 @@ window.addEventListener('resize', () => {
 Animate
 */
 
-function canvasPt(pt, i, xy) {
-
+function drawPt(pt) {
+    //main canvas
     var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2);
 
+    if (x != null) {
 
-    ctx.beginPath();
-    ctx.arc(x, y, pt.radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = pt.color;
-    ctx.fill();
-    ctx.lineWidth = pt.border;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
 
-    ctx.font = "12px Arial";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.fillText(pt.name, x, y);
+        ctx.beginPath();
+        ctx.arc(x, y, pt.radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = pt.color;
+        ctx.fill();
+        ctx.lineWidth = pt.border;
+        ctx.strokeStyle = '#003300';
+        ctx.stroke();
 
-    spr.beginPath();
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(pt.name, x, y);
 
-    spr.font = "12px Arial";
-    spr.textAlign = "center";
-    spr.fillStyle = 'white';
-
-    if (xy == 'x') {
-        spr.rect(10, i * sheet.width, sheet.w, sheet.h);
-
-        spr.fillText(pt.name, 10, i * sheet.height);
-    } else {
-        spr.rect(i * sheet.height, 10, sheet.w, sheet.h);
-
-        spr.fillText(pt.name, i * sheet.height, 10);
     }
 
+    //left canvas
+    var cellWidth = (canvasleft.width / ms.length);
+    var cellHeight = (canvasleft.height / ts.length);
 
-    spr.fill();
-    spr.fillStyle = "black";
-    spr.stroke();
+    if (pt.type == 'M') {
+        spreadsheetContext.beginPath();
+        spreadsheetContext.rect(0, pt.i * cellWidth, cellWidth, cellHeight)
+    } else if (pt.type == 'T') {
+        spreadsheetContext.beginPath();
+        spreadsheetContext.rect(pt.i * cellHeight, 0, cellWidth, cellHeight)
+    } else {
+        console.error('Type Error: Left Canvas')
+    }
 
 
 }
 
-const clock = new THREE.Clock();
-
 const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
+    //console.log(elapsedTime);
 
     // Update Orbital Controls
     controls.update();
@@ -349,50 +360,52 @@ const tick = () => {
     // Render
     renderer.render(scene, camera);
 
-    //console.log(elapsedTime);
-    //console.log(camera.position);
-    //console.log(sphere);
-
-    //console.log("1", sphere.position, sphere);
-    //console.log("2", center.position(), center.sphere)
-
-    //Test 
-
-    //Render Points
+    //New Frame
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
-    spr.clearRect(0, 0, canvasleft.width, canvasleft.height);
+    spreadsheetContext.clearRect(0, 0, canvasleft.width, canvasleft.height);
 
+    //Tracers
+    //console.log(tracers)
+    for (var i = 0; i < tracers.length; i++) {
 
-    for (var i = 0; i < tracers.length; i++){
+        //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
+        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6] = tracers[i].screenPts(camera, sizes.width / 2, sizes.height / 2)
 
-        var [x1, y1, x2, y2, x3, y3] = tracers[i].screenPts(camera, sizes.width / 2, sizes.height / 2)
+        if (x1 != null) {
 
-        // Cubic Bézier curve
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.bezierCurveTo(x2, y2, x2, y2, x3, y3);
-        ctx.lineWidth = tracers[i].outline;
-        ctx.strokeStyle = tracers[i].color;
-        ctx.stroke();
+            //settings
+            ctx.lineWidth = tracers[i].outline;
+            ctx.strokeStyle = tracers[i].color;
+            ctx.fillStyle = tracers[i].color;
 
+            //arrowhead
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x5, y5);
+            ctx.lineTo(x6, y6);
+            ctx.lineTo(x1, y1);
+            ctx.fill();
 
-        spr.beginPath();
+            // Cubic Bézier curve
+            ctx.beginPath();
+            //start line a bit towards cp1, hide in arrow tip
+            const hideFactor = 10;
+            ctx.moveTo(x1 + (x2 - x1) / hideFactor, y1 + (y2 - y1) / hideFactor);
+            //                ctrl1    ctrl2   end
+            ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+            ctx.stroke();
 
-        spr.rect(i * sheet.width, i % sheet.x * sheet.height, sheet.w, sheet.h);
+        } else {
+            //console.log(tracers[i])
+        }
 
-        spr.fillStyle = t.color;
-
-        spr.fill();
-        spr.stroke();
+        //spreadsheet
 
     };
 
-    for (var i = 0; i < ts.length; i++) {
-        canvasPt(ts[i], i, 'y');
-    }
-    for (var i = 0; i < ms.length; i++) {
-        canvasPt(ms[i], i, 'x');
-    }
+    //Points
+    ms.forEach(drawPt);
+    ts.forEach(drawPt);
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);

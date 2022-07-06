@@ -3,8 +3,10 @@ import { Vector3 } from 'three';
 
 class Point {
 
-    constructor(name, color = 'red', pos) {
-        this.name = name;
+    constructor(type, i, color = 'red', pos) {
+        this.name = type + String(i);
+        this.type = type;
+        this.i = i;
         this.color = color;
         this.pos = pos;
     }
@@ -17,9 +19,9 @@ class Point {
 
 class Point2d extends Point {
 
-    constructor(name, color, pos, radius = 5, border = 2) {
+    constructor(type, i, color, pos, radius = 5, border = 2) {
 
-        super(name, color, pos);
+        super(type, i, color, pos);
 
         this.radius = radius;
         this.border = border;
@@ -28,14 +30,14 @@ class Point2d extends Point {
 
     screenPt(camera, w, h) {
 
-        var frustum = new THREE.Frustum();
+        //var frustum = new THREE.Frustum();
 
-        frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+        //frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
         //frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
         
 
-        if (frustum.containsPoint(this.pos)) {
+        //if (frustum.containsPoint(this.pos)) {
 
             let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
           
@@ -47,10 +49,23 @@ class Point2d extends Point {
             
             return [x, y]
 
-
+/*
         } else {
-            return [-20, -20]
+
+            let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
+          
+            proj.project(camera);
+
+            var x = (proj.x * w) + w;
+            var y = -(proj.y * h) + h;
+
+            
+            console.log(x, y);
+            
+            return [null, null]
         }
+
+        */
     }
 
 
@@ -61,9 +76,9 @@ class Point2d extends Point {
 }
 
 class Point3d extends Point {
-    constructor(name, color, pos, radius = 1) {
+    constructor(type, i, color, pos, radius = 1) {
 
-        super(name, color, pos);
+        super(type, i, color, pos);
         
         this.radius = radius;
 
