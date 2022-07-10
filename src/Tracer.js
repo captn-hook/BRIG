@@ -12,6 +12,8 @@ class Tracer {
         this.lift = lift;
 
         this.color = this.rgb(this.value);
+
+        this.visible = true;
     }
 
     rgb(value) {
@@ -78,19 +80,11 @@ class Tracer2d extends Tracer {
 
         const maxwidth = 20;
 
-
-        console.log("test")
         var rgb = this.hexToRgb(this.color)
         var white = this.rgbToHex(255, 255, 255)
         var hex2 = this.rgbToHex(rgb)
-        console.log(this.color, rgb, hex2, white)
-        console.log(Math.min(value, 10), 0, 25, .2, maxwidth);
+       
         this.outline = this.rescale(Math.min(value, 10), 0, 25, .2, maxwidth);
-
-        console.log(this.color, this.hexToRgb(this.color), this)
-
-
-
     }
 
 
@@ -142,7 +136,7 @@ class Tracer2d extends Tracer {
         //ctrl2  mid(end, mid)
         var [x3, y3] = this.midpoint(x4, y4, mx, my);
 
-        var headlen = this.outline * 3; // length of head in 
+        var headwidth = Math.max(this.outline * 5, 2); // length of head in 
 
         var dx = x4 - x1;
         var dy = y4 - y1;
@@ -151,13 +145,13 @@ class Tracer2d extends Tracer {
 
         var arrowconst = 3;
 
-        var x5 = x2 - headlen * Math.cos(angle - Math.PI / arrowconst);
-        var y5 = y2 - headlen * Math.sin(angle - Math.PI / arrowconst);
+        var x5 = x1 + headwidth * Math.cos(angle - Math.PI / arrowconst);
+        var y5 = y1 + headwidth * Math.sin(angle - Math.PI / arrowconst);
+        
+        var x6 = x1 + headwidth * Math.cos(angle + Math.PI / arrowconst);
+        var y6 = y1 + headwidth * Math.sin(angle + Math.PI / arrowconst);
 
-        var x6 = x2 - headlen * Math.cos(angle + Math.PI / arrowconst);
-        var y6 = y2 - headlen * Math.sin(angle + Math.PI / arrowconst);
-
-        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5 + 5, x6, y6 + 5]
+        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6]
 
 
         /*

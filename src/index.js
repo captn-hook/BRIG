@@ -40,8 +40,8 @@ import {
 } from './Tracer';
 
 //specific assets
-//import building from '../models/1.glb';
-import data from '../data/Data.csv'
+import building from '../models/1.glb';
+import data from '../data/1.csv'
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -52,7 +52,8 @@ const sizes = {
     height: window.innerHeight
 }
 
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+//const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+const camera = new THREE.OrthographicCamera(sizes.width / -2, sizes.width / 2, sizes.height / 2, sizes.height / -2, .01, 1000);
 camera.position.x = 10;
 camera.position.y = 10;
 camera.position.z = 30;
@@ -64,6 +65,7 @@ scene.add(camera);
 
 
 // Debug
+/*
 const gui = new dat.GUI();
 
 function updateCamera() {
@@ -76,7 +78,7 @@ const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 
 gui.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
 gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
-
+*/
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
@@ -86,7 +88,7 @@ const ctx = canvas2d.getContext('2d');
 
 const canvasleft = document.getElementById('left');
 
-const spreadsheetContext = canvasleft.getContext('2d');
+const ctxLeft = canvasleft.getContext('2d');
 
 //window resizing
 canvas2d.width = sizes.width;
@@ -149,7 +151,7 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ts.push(new Point2d("T", t, 'blue', pos, 5));
+            ts.push(new Point2d("T", t - 1, 'blue', pos, 5));
 
             //ROW 1
         } else if (t == 1 && m > 1) {
@@ -157,14 +159,14 @@ for (var m = 0; m < dataArray[0].length; m++) {
             var xyz = dataArray[t][m].split('/');
             var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-            ms.push(new Point2d("M", m, 'red', pos, 10));
+            ms.push(new Point2d("M", m - 1, 'red', pos, 10));
 
             //Main Transmission
         } else if (m > 1 && t > 1) {
 
-            if (dataArray[t][m] > 1) {
-                tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
-            }
+            // if (dataArray[t][m] > 1) {
+            tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
+            //}
 
         } else {
             console.log('Error: ' + dataArray[t][m]);
@@ -188,7 +190,6 @@ tracers.sort((a, b) => {
     return a.value - b.value;
 });
 
-console.log(tracers)
 
 /*
 Test OBJ
@@ -202,7 +203,7 @@ scene.add(center.sphere);
 Loaded Objects
 */
 
-//loadfunc 
+//loadfunc =====================================================<
 //load3DModel(building);
 
 // onLoad callback
@@ -217,9 +218,11 @@ function onLoadLoad(obj) {
     scene.add(obj.scene);
 }
 
+let Gxhr = 0;
 // onProgress callback
 function onProgressLog(xhr) {
     console.log((xhr.loaded / xhr.total * 100))
+    Gxhr = xhr;
 }
 
 // onError callback
@@ -281,6 +284,44 @@ const clock = new THREE.Clock();
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
+var cellWidth = (canvasleft.width / ms.length);
+var cellHeight = (canvasleft.height / ts.length);
+
+var cellX = 0;
+var cellY = 0;
+
+
+canvasleft.addEventListener('click', (e) => {
+
+    var x = e.pageX;
+    var y = e.pageY;
+    var cX = Math.ceil(x / cellWidth);
+    var cY = Math.ceil(y / cellHeight);
+    console.log('click', x, y, cX, cY);
+
+    if (cX <= 1 && cY <= 1) {
+
+    } else if (cY == 1) {
+        ms[cX - 2].visible = !ms[cX - 2].visible;
+    } else if (cX == 1) {
+        ts[cY - 2].visible = !ts[cY - 2].visible;
+    }  else {
+        tracers.forEach((t) => {
+            if (t.m.i == cX - 1 && t.t.i == cY - 1) {
+                t.visible = !t.visible;
+            }
+        })
+    }
+
+}, false);
+
+canvasleft.addEventListener("mousemove", (e) => {
+    var x = e.pageX;
+    var y = e.pageY;
+    cellX = Math.ceil(x / cellWidth);
+    cellY = Math.ceil(y / cellHeight);
+});
+
 
 window.addEventListener('resize', () => {
     // Update sizes
@@ -290,12 +331,11 @@ window.addEventListener('resize', () => {
     ctx.canvas.innerWidth = sizes.width;
     ctx.canvas.innerHeight = sizes.height;
 
-    spreadsheetContext.canvas.innerWidth = sizes.width / 4;
-    spreadsheetContext.canvas.innerHeight = sizes.height;
+    ctxLeft.canvas.innerWidth = sizes.width / 4;
+    ctxLeft.canvas.innerHeight = sizes.height;
 
-    //sheet.w = (sizes.width / 4) / sheet.x;
-    //sheet.h = sizes.height / sheet.y;
-
+    cellWidth = (canvasleft.width / ms.length);
+    cellHeight = (canvasleft.height / ts.length);
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -314,7 +354,7 @@ function drawPt(pt) {
     //main canvas
     var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2);
 
-    if (x != null) {
+    if (x != null && pt.visible) {
 
 
         ctx.beginPath();
@@ -333,21 +373,36 @@ function drawPt(pt) {
     }
 
     //left canvas
-    var cellWidth = (canvasleft.width / ms.length);
-    var cellHeight = (canvasleft.height / ts.length);
+
+    ctxLeft.font = "12px Arial";
+
+    if (pt.visible) {
+        ctxLeft.globalAlpha = 1.0;
+        ctxLeft.fillStyle = "white";
+    } else {
+        ctxLeft.globalAlpha = 0.2;
+        ctxLeft.fillStyle = "grey";
+    }
+    ctxLeft.globalAlpha = 1.0;
+
+    ctxLeft.textAlign = "center";
 
     if (pt.type == 'M') {
-        spreadsheetContext.beginPath();
-        spreadsheetContext.rect(0, pt.i * cellWidth, cellWidth, cellHeight);
+        ctxLeft.fillRect(pt.i * cellWidth, 0, cellWidth, cellHeight);
+        ctxLeft.fillStyle = "black";
+        ctxLeft.fillText(pt.name, pt.i * cellWidth + 10, 10);
     } else if (pt.type == 'T') {
-        spreadsheetContext.beginPath();
-        spreadsheetContext.rect(pt.i * cellHeight, 0, cellWidth, cellHeight);
+        ctxLeft.fillRect(0, pt.i * cellHeight, cellWidth, cellHeight);
+        ctxLeft.fillStyle = "black";
+        ctxLeft.fillText(pt.name, 10, pt.i * cellHeight + 10);
     } else {
         console.error('Type Error: Left Canvas')
     }
-
-
 }
+
+console.log(ms)
+console.log(ts)
+console.log(tracers)
 
 const tick = () => {
 
@@ -362,7 +417,7 @@ const tick = () => {
 
     //New Frame
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
-    spreadsheetContext.clearRect(0, 0, canvasleft.width, canvasleft.height);
+    ctxLeft.clearRect(0, 0, canvasleft.width, canvasleft.height);
 
     //Tracers
     //console.log(tracers)
@@ -371,12 +426,49 @@ const tick = () => {
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
         var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6] = tracers[i].screenPts(camera, sizes.width / 2, sizes.height / 2)
 
-        if (x1 != null) {
+        if (x1 != null && tracers[i].visible) {
 
+
+            //tracer highlight, by drawing white tracer underneath
+            if (tracers[i].m.i == cellX - 1 && tracers[i].t.i == cellY) {
+                //console.log(tracers[i])
+
+                //settings
+                ctx.lineWidth = tracers[i].outline + 2;
+                ctx.strokeStyle = 'white';
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x5, y5);
+                ctx.lineTo(x6, y6);
+                ctx.lineTo(x1, y1);
+                ctx.stroke();
+
+                // Cubic Bézier curve
+                ctx.beginPath();
+                //start line at arrow tip edge
+                var [strtx, strty] = tracers[i].midpoint(x5, y5, x6, y6);
+                ctx.moveTo(strtx, strty);
+                //                ctrl1    ctrl2   end
+                ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+                ctx.stroke();
+
+                ctx.font = "12px Arial";
+                ctx.fillStyle = "white";
+                ctx.textAlign = "center";
+                ctx.fillText(tracers[i].value, x1, y1);
+
+                ctxLeft.font = "12px Arial";
+                ctxLeft.fillStyle = "black";
+                ctxLeft.textAlign = "center";
+                ctxLeft.fillText(tracers[i].value, cellX * cellWidth, cellY * cellHeight - 30);
+            }
             //settings
             ctx.lineWidth = tracers[i].outline;
             ctx.strokeStyle = tracers[i].color;
             ctx.fillStyle = tracers[i].color;
+
+
 
             //arrowhead
             ctx.beginPath();
@@ -400,12 +492,45 @@ const tick = () => {
         }
 
         //spreadsheet
-
+        if (tracers[i].visible) {
+            ctxLeft.globalAlpha = 1.0;
+        } else {
+            ctxLeft.globalAlpha = .2;
+        }
+        ctxLeft.fillStyle = tracers[i].color;
+        ctxLeft.fillRect(tracers[i].m.i * cellWidth, tracers[i].t.i * cellHeight, cellWidth, cellHeight);
+        ctxLeft.globalAlpha = 1.0;
     };
 
     //Points
     ms.forEach(drawPt);
     ts.forEach(drawPt);
+
+    ctxLeft.fillStyle = 'white';
+    ctxLeft.fillRect(0, 0, cellWidth, cellHeight);
+
+    //spreadsheet highlight
+    ctxLeft.beginPath();
+    ctxLeft.strokeStyle = 'yellow'
+    ctxLeft.lineWidth = 2;
+    ctxLeft.rect((cellX - 1) * cellWidth, 0, cellWidth, cellHeight * (cellY - 1));
+    ctxLeft.rect(0, (cellY - 1) * cellHeight, cellWidth * (cellX - 1), cellHeight);
+    ctxLeft.stroke()
+    ctxLeft.beginPath();
+    ctxLeft.strokeStyle = 'white'
+    ctxLeft.lineWidth = 4;
+    ctxLeft.rect((cellX - 1) * cellWidth, (cellY - 1) * cellHeight, cellWidth, cellHeight);
+    ctxLeft.stroke()
+
+    //loading bar
+    if ((Gxhr.loaded / Gxhr.total * 100) < 100) {
+        ctx.beginPath();
+        ctx.moveTo(0, sizes.height / 4);
+        ctx.lineTo(sizes.width * (Gxhr.loaded / Gxhr.total), sizes.height / 4);
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = 'white';
+        ctx.stroke();
+    }
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);

@@ -9,6 +9,8 @@ class Point {
         this.i = i;
         this.color = color;
         this.pos = pos;
+
+        this.visible = true;
     }
 
     position() {
