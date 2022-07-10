@@ -142,14 +142,14 @@ class Tracer2d extends Tracer {
         //ctrl2  mid(end, mid)
         var [x3, y3] = this.midpoint(x4, y4, mx, my);
 
-        var headlen = 10; // length of head in pixels
+        var headlen = this.outline * 3; // length of head in 
 
-        var dx = x2 - x1;
-        var dy = y2 - y1;
+        var dx = x4 - x1;
+        var dy = y4 - y1;
 
         var angle = Math.atan2(dy, dx);
 
-        var arrowconst = 2;
+        var arrowconst = 3;
 
         var x5 = x2 - headlen * Math.cos(angle - Math.PI / arrowconst);
         var y5 = y2 - headlen * Math.sin(angle - Math.PI / arrowconst);

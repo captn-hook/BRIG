@@ -338,10 +338,10 @@ function drawPt(pt) {
 
     if (pt.type == 'M') {
         spreadsheetContext.beginPath();
-        spreadsheetContext.rect(0, pt.i * cellWidth, cellWidth, cellHeight)
+        spreadsheetContext.rect(0, pt.i * cellWidth, cellWidth, cellHeight);
     } else if (pt.type == 'T') {
         spreadsheetContext.beginPath();
-        spreadsheetContext.rect(pt.i * cellHeight, 0, cellWidth, cellHeight)
+        spreadsheetContext.rect(pt.i * cellHeight, 0, cellWidth, cellHeight);
     } else {
         console.error('Type Error: Left Canvas')
     }
@@ -388,9 +388,9 @@ const tick = () => {
 
             // Cubic Bézier curve
             ctx.beginPath();
-            //start line a bit towards cp1, hide in arrow tip
-            const hideFactor = 10;
-            ctx.moveTo(x1 + (x2 - x1) / hideFactor, y1 + (y2 - y1) / hideFactor);
+            //start line at arrow tip edge
+            var [strtx, strty] = tracers[i].midpoint(x5, y5, x6, y6);
+            ctx.moveTo(strtx, strty);
             //                ctrl1    ctrl2   end
             ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             ctx.stroke();
