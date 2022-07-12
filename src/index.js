@@ -279,16 +279,17 @@ Misc
 
 const clock = new THREE.Clock();
 
+var cellWidth = (canvasleft.width / (ms.length + 1));
+var cellHeight = (canvasleft.height / (ts.length + 1));
+
+var cellX = 0;
+var cellY = 0;
 
 /*
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
-var cellWidth = (canvasleft.width / ms.length);
-var cellHeight = (canvasleft.height / ts.length);
 
-var cellX = 0;
-var cellY = 0;
 
 
 canvasleft.addEventListener('click', (e) => {
@@ -334,8 +335,8 @@ window.addEventListener('resize', () => {
     ctxLeft.canvas.innerWidth = sizes.width / 4;
     ctxLeft.canvas.innerHeight = sizes.height;
 
-    cellWidth = (canvasleft.width / ms.length);
-    cellHeight = (canvasleft.height / ts.length);
+    cellWidth = (canvasleft.width / (ms.length + 1));
+    cellHeight = (canvasleft.height / (ts.length + 1));
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -430,7 +431,7 @@ const tick = () => {
 
 
             //tracer highlight, by drawing white tracer underneath
-            if (tracers[i].m.i == cellX - 1 && tracers[i].t.i == cellY) {
+            if (tracers[i].m.i == cellX - 1 && tracers[i].t.i == cellY - 1) {
                 //console.log(tracers[i])
 
                 //settings
