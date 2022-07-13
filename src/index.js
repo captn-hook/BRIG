@@ -47,9 +47,11 @@ import data from '../data/1.csv'
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
+const div = document.getElementById("3d");
+
 const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+    width: div.innerWidth,
+    height: div.innerHeight
 }
 
 //const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
@@ -79,6 +81,7 @@ const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 gui.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
 gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
 */
+
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
@@ -86,18 +89,16 @@ const canvas2d = document.getElementById('2d');
 
 const ctx = canvas2d.getContext('2d');
 
+const spreadsheetDiv = document.getElementById("spreadsheet");
+
 const canvasleft = document.getElementById('left');
 
 const ctxLeft = canvasleft.getContext('2d');
 
-//window resizing
-canvas2d.width = sizes.width;
-canvas2d.height = sizes.height;
 
-canvasleft.width = sizes.width / 4;
-canvasleft.height = sizes.height;
-
-
+//set size
+updateSizes();
+    
 // Lights
 const light = new THREE.AmbientLight(0x404040); // soft white light
 light.intensity = 3;
@@ -277,6 +278,18 @@ function load3DModel(base, mtlpath = null) {
 Misc
 */
 
+function updateSizes(){
+    sizes.width = div.clientWidth;
+    sizes.height = div.clientHeight;
+
+    ctx.canvas.innerWidth = sizes.width;
+    ctx.canvas.innerHeight = sizes.height;
+
+    ctxLeft.canvas.innerWidth = spreadsheetDiv.clientWidth;
+    ctxLeft.canvas.innerHeight = spreadsheetDiv.clientHeight;
+
+}
+
 const clock = new THREE.Clock();
 
 var cellWidth = (canvasleft.width / (ms.length + 1));
@@ -326,15 +339,9 @@ canvasleft.addEventListener("mousemove", (e) => {
 
 window.addEventListener('resize', () => {
     // Update sizes
-    sizes.width = window.innerWidth;
-    sizes.height = window.innerHeight;
+    updateSizes();
 
-    ctx.canvas.innerWidth = sizes.width;
-    ctx.canvas.innerHeight = sizes.height;
-
-    ctxLeft.canvas.innerWidth = sizes.width / 4;
-    ctxLeft.canvas.innerHeight = sizes.height;
-
+    
     cellWidth = (canvasleft.width / (ms.length + 1));
     cellHeight = (canvasleft.height / (ts.length + 1));
 

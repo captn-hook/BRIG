@@ -1,16 +1,39 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThreeJS Starter</title>
+    <title>BRIG</title>
 </head>
+
 <body>
-    
-    <canvas class="webgl"></canvas>
-    <canvas id ="2d"></canvas>    
-    <canvas id ="left"></canvas>
+    <div style="width: 100%; white-space: nowrap">
+
+        <!-- Left Div -->
+        <div style="width: 30%; float: left; background: grey;">
+
+            <!-- Vertical Div 1 -->
+            <div style="height: 30%;"></div>
+
+            <!-- Vertical Div 2 -->
+            <div style="height: 40%;  position: relative;" id="spreadsheet">
+                <canvas id="left"></canvas>
+            </div>
+            <!-- Vertical Div 3 -->
+            <div style="height: 30%;"></div>
+
+        </div>
+        <!--Right Div
+            3D Canvas AND 2D Drawing Canvas -->
+        <div style="width: 70%; margin-left: 30%;  position: relative;" id="3d">
+
+            <canvas class="webgl"></canvas>
+            <canvas id="2d"></canvas>
+            
+        </div>
+    </div>
 
 </body>
+
 </html>
