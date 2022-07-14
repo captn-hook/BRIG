@@ -8,29 +8,40 @@
 </head>
 
 <body>
-    <div style="width: 100%; white-space: nowrap">
+    <div style="width: 100%;">
 
         <!-- Left Div -->
         <div style="width: 30%; float: left; background: grey;">
 
             <!-- Vertical Div 1 -->
-            <div style="height: 30%;"></div>
+            <div style="height: 30%; font-size: 55px; font-weight: bolder; overflow: hidden;">
+                Poppy
+                <br>Site Name
+                <br>Zones Dropdown ↓
+            </div>
 
             <!-- Vertical Div 2 -->
-            <div style="height: 40%;  position: relative;" id="spreadsheet">
+            <div style="height: 30%;  position: relative;" id="spreadsheet">
                 <canvas id="left"></canvas>
             </div>
             <!-- Vertical Div 3 -->
-            <div style="height: 30%;"></div>
+            <div style="height: 40%;  overflow-y: scroll;">
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+                industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type
+                and scrambled it to make a type specimen book. It has survived not only five centuries, but also the
+                leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s
+                with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
+                publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            </div>
 
         </div>
         <!--Right Div
             3D Canvas AND 2D Drawing Canvas -->
-        <div style="width: 70%; margin-left: 30%;  position: relative;" id="3d">
+        <div style="width: 70%; margin-left: 30%; height: 100%; position: relative;" id="3d">
 
             <canvas class="webgl"></canvas>
-            <canvas id="2d"></canvas>
-            
+            <canvas style="position: absolute" id="2d"></canvas>
+
         </div>
     </div>
 

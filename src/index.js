@@ -4,9 +4,6 @@ import * as THREE from 'three';
 import * as dat from 'dat.gui';
 
 import {
-    parse
-} from '@vanillaes/csv'
-import {
     OrbitControls
 } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
@@ -28,16 +25,12 @@ import {
 } from './Controls';
 
 import FileExt from './FileExt.js';
-//import Spreadsheet from './Spreadsheet';
 
 import {
-    Point2d,
     Point3d
 } from './Point';
 
-import {
-    Tracer2d
-} from './Tracer';
+import Data from './Data'
 
 //specific assets
 import building from '../models/1.glb';
@@ -50,12 +43,12 @@ import data from '../data/1.csv'
 const div = document.getElementById("3d");
 
 const sizes = {
-    width: div.innerWidth,
-    height: div.innerHeight
+    width: div.offsetWidth,
+    height: div.offsetHeight
 }
 
-//const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
-const camera = new THREE.OrthographicCamera(sizes.width / -2, sizes.width / 2, sizes.height / 2, sizes.height / -2, .01, 1000);
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+//const camera = new THREE.OrthographicCamera(sizes.width / -2, sizes.width / 2, sizes.height / 2, sizes.height / -2, .01, 1000);
 camera.position.x = 10;
 camera.position.y = 10;
 camera.position.z = 30;
@@ -122,75 +115,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading
 */
 
-/*
-Data
-*/
-
-const dataArray = parse(data);
-
-
-
-const ms = [];
-const ts = [];
-const tracers = [];
-
-for (var m = 0; m < dataArray[0].length; m++) {
-    for (var t = 0; t < dataArray.length; t++) {
-
-        //DATA INTERP TREE
-        //basic idea, cycle thru 2d array
-        //ROW and COLUMN 0 label
-        //ROW and COLUMN 1 XYZ
-
-        //Labels
-        if (m == 0 || t == 0) {
-            console.log('Label: ' + dataArray[t][m]);
-
-            //CLM 1
-        } else if (m == 1 && t > 1) {
-
-            var xyz = dataArray[t][m].split('/');
-            var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
-
-            ts.push(new Point2d("T", t - 1, 'blue', pos, 5));
-
-            //ROW 1
-        } else if (t == 1 && m > 1) {
-
-            var xyz = dataArray[t][m].split('/');
-            var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
-
-            ms.push(new Point2d("M", m - 1, 'red', pos, 10));
-
-            //Main Transmission
-        } else if (m > 1 && t > 1) {
-
-            // if (dataArray[t][m] > 1) {
-            tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], dataArray[t][m]));
-            //}
-
-        } else {
-            console.log('Error: ' + dataArray[t][m]);
-        }
-    }
-}
-
-//const sheet = new Spreadsheet(ms.length, ts.length, sizes.width / 4, sizes.height);
-
-function compare(a, b) {
-    if (a.last_nom < b.last_nom) {
-        return -1;
-    }
-    if (a.last_nom > b.last_nom) {
-        return 1;
-    }
-    return 0;
-}
-
-tracers.sort((a, b) => {
-    return a.value - b.value;
-});
-
+var [ms, ts, tracers] = Data(data);
 
 /*
 Test OBJ
@@ -199,13 +124,17 @@ Test OBJ
 const center = new Point3d('Marker', 0, 0xffffff, new THREE.Vector3(0, 0, 0), 2);
 scene.add(center.sphere);
 
+const left = new Point3d('Marker', 0, 0xff0f0f, new THREE.Vector3(0, 10, 0), 2);
+scene.add(left.sphere);
+
+
 
 /*
 Loaded Objects
 */
 
 //loadfunc =====================================================<
-//load3DModel(building);
+load3DModel(building);
 
 // onLoad callback
 function onLoadLoad(obj) {
@@ -279,21 +208,21 @@ Misc
 */
 
 function updateSizes(){
-    sizes.width = div.clientWidth;
-    sizes.height = div.clientHeight;
+    sizes.width = div.offsetWidth;
+    sizes.height = div.offsetHeight;
 
     ctx.canvas.innerWidth = sizes.width;
     ctx.canvas.innerHeight = sizes.height;
 
-    ctxLeft.canvas.innerWidth = spreadsheetDiv.clientWidth;
-    ctxLeft.canvas.innerHeight = spreadsheetDiv.clientHeight;
+    ctxLeft.canvas.innerWidth = spreadsheetDiv.offsetWidth;
+    ctxLeft.canvas.innerHeight = spreadsheetDiv.offsetHeight;
 
 }
 
 const clock = new THREE.Clock();
 
-var cellWidth = (canvasleft.width / (ms.length + 1));
-var cellHeight = (canvasleft.height / (ts.length + 1));
+var cellWidth = (spreadsheetDiv.offsetWidth / (ms.length + 1));
+var cellHeight = (spreadsheetDiv.offsetHeight / (ts.length + 1));
 
 var cellX = 0;
 var cellY = 0;
@@ -513,6 +442,28 @@ const tick = () => {
     //Points
     ms.forEach(drawPt);
     ts.forEach(drawPt);
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'yellow';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(100, 100, 10, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'yellow';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(ctx.innerWidth / 2, ctx.innerHeight / 2, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'yellow';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
 
     ctxLeft.fillStyle = 'white';
     ctxLeft.fillRect(0, 0, cellWidth, cellHeight);

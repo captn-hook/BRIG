@@ -32,7 +32,7 @@ class Point2d extends Point {
 
     screenPt(camera, w, h) {
 
-        //var frustum = new THREE.Frustum();
+        //ar frustum = new THREE.Frustum();
 
         //frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
@@ -41,15 +41,16 @@ class Point2d extends Point {
 
         //if (frustum.containsPoint(this.pos)) {
 
-            let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
-          
+            let proj = this.pos;
+
             proj.project(camera);
 
             var x = (proj.x * w) + w;
             var y = -(proj.y * h) + h;
 
+            console.log(x, proj.x, y, proj.y)
             
-            return [x, y]
+            return [proj.x, proj.y]
 
 /*
         } else {
