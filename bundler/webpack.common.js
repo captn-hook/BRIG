@@ -13,7 +13,7 @@ module.exports = {
         library: "Point",
         library: "Tracer",
         library: "Controls",
-        library: "Spreadsheet"
+        library: "Data"
     },
     devtool: 'source-map',
     plugins: [

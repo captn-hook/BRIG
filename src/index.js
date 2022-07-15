@@ -55,7 +55,7 @@ camera.position.z = 30;
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x3f3f3f);
+scene.background = new THREE.Color(0xeaeaea);
 scene.add(camera);
 
 
@@ -123,11 +123,6 @@ Test OBJ
 
 const center = new Point3d('Marker', 0, 0xffffff, new THREE.Vector3(0, 0, 0), 2);
 scene.add(center.sphere);
-
-const left = new Point3d('Marker', 0, 0xff0f0f, new THREE.Vector3(0, 10, 0), 2);
-scene.add(left.sphere);
-
-
 
 /*
 Loaded Objects
@@ -214,15 +209,20 @@ function updateSizes(){
     ctx.canvas.innerWidth = sizes.width;
     ctx.canvas.innerHeight = sizes.height;
 
+    canvas2d.width = sizes.width;
+    canvas2d.height = sizes.height;
+    
     ctxLeft.canvas.innerWidth = spreadsheetDiv.offsetWidth;
     ctxLeft.canvas.innerHeight = spreadsheetDiv.offsetHeight;
 
+    canvasleft.width = spreadsheetDiv.offsetWidth;
+    canvasleft.height = spreadsheetDiv.offsetHeight;
 }
 
 const clock = new THREE.Clock();
 
-var cellWidth = (spreadsheetDiv.offsetWidth / (ms.length + 1));
-var cellHeight = (spreadsheetDiv.offsetHeight / (ts.length + 1));
+var cellWidth = (canvasleft.width / (ts.length + 1));
+var cellHeight = (canvasleft.height / (ms.length + 1));
 
 var cellX = 0;
 var cellY = 0;
@@ -236,8 +236,10 @@ var cellY = 0;
 
 canvasleft.addEventListener('click', (e) => {
 
-    var x = e.pageX;
-    var y = e.pageY;
+    var rect = canvasleft.getBoundingClientRect();
+    var x = e.pageX - rect.left;
+    var y = e.pageY - rect.top;
+
     var cX = Math.ceil(x / cellWidth);
     var cY = Math.ceil(y / cellHeight);
     console.log('click', x, y, cX, cY);
@@ -245,12 +247,14 @@ canvasleft.addEventListener('click', (e) => {
     if (cX <= 1 && cY <= 1) {
 
     } else if (cY == 1) {
-        ms[cX - 2].visible = !ms[cX - 2].visible;
+    //if y (row) == 1, clicked ts
+        ts[cX - 2].visible = !ts[cX - 2].visible;
     } else if (cX == 1) {
-        ts[cY - 2].visible = !ts[cY - 2].visible;
+        //if x (column) == 1, clicked ms
+        ms[cY - 2].visible = !ms[cY - 2].visible;
     }  else {
         tracers.forEach((t) => {
-            if (t.m.i == cX - 1 && t.t.i == cY - 1) {
+            if (t.t.i == cX - 1 && t.m.i == cY - 1) {
                 t.visible = !t.visible;
             }
         })
@@ -259,8 +263,9 @@ canvasleft.addEventListener('click', (e) => {
 }, false);
 
 canvasleft.addEventListener("mousemove", (e) => {
-    var x = e.pageX;
-    var y = e.pageY;
+    var rect = canvasleft.getBoundingClientRect();
+    var x = e.pageX - rect.left;
+    var y = e.pageY - rect.top;
     cellX = Math.ceil(x / cellWidth);
     cellY = Math.ceil(y / cellHeight);
 });
@@ -271,8 +276,8 @@ window.addEventListener('resize', () => {
     updateSizes();
 
     
-    cellWidth = (canvasleft.width / (ms.length + 1));
-    cellHeight = (canvasleft.height / (ts.length + 1));
+    cellWidth = (canvasleft.width / (ts.length + 1));
+    cellHeight = (canvasleft.height / (ms.length + 1));
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -299,11 +304,11 @@ function drawPt(pt) {
         ctx.fillStyle = pt.color;
         ctx.fill();
         ctx.lineWidth = pt.border;
-        ctx.strokeStyle = '#003300';
+        ctx.strokeStyle = '#2f2f2f';
         ctx.stroke();
 
         ctx.font = "12px Arial";
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "black";
         ctx.textAlign = "center";
         ctx.fillText(pt.name, x, y);
 
@@ -311,7 +316,7 @@ function drawPt(pt) {
 
     //left canvas
 
-    ctxLeft.font = "12px Arial";
+    ctxLeft.font = "10px Arial";
 
     if (pt.visible) {
         ctxLeft.globalAlpha = 1.0;
@@ -325,13 +330,13 @@ function drawPt(pt) {
     ctxLeft.textAlign = "center";
 
     if (pt.type == 'M') {
+        ctxLeft.fillRect(0, pt.i * cellHeight, cellWidth, cellHeight);
+        ctxLeft.fillStyle = "black";
+        ctxLeft.fillText(pt.name, 10, pt.i * cellHeight + 10);  
+    } else if (pt.type == 'T') {
         ctxLeft.fillRect(pt.i * cellWidth, 0, cellWidth, cellHeight);
         ctxLeft.fillStyle = "black";
         ctxLeft.fillText(pt.name, pt.i * cellWidth + 10, 10);
-    } else if (pt.type == 'T') {
-        ctxLeft.fillRect(0, pt.i * cellHeight, cellWidth, cellHeight);
-        ctxLeft.fillStyle = "black";
-        ctxLeft.fillText(pt.name, 10, pt.i * cellHeight + 10);
     } else {
         console.error('Type Error: Left Canvas')
     }
@@ -367,7 +372,7 @@ const tick = () => {
 
 
             //tracer highlight, by drawing white tracer underneath
-            if (tracers[i].m.i == cellX - 1 && tracers[i].t.i == cellY - 1) {
+            if (tracers[i].t.i == cellX - 1 && tracers[i].m.i == cellY - 1) {
                 //console.log(tracers[i])
 
                 //settings
@@ -435,35 +440,13 @@ const tick = () => {
             ctxLeft.globalAlpha = .2;
         }
         ctxLeft.fillStyle = tracers[i].color;
-        ctxLeft.fillRect(tracers[i].m.i * cellWidth, tracers[i].t.i * cellHeight, cellWidth, cellHeight);
+        ctxLeft.fillRect(tracers[i].t.i * cellWidth, tracers[i].m.i * cellHeight, cellWidth, cellHeight);
         ctxLeft.globalAlpha = 1.0;
     };
 
     //Points
     ms.forEach(drawPt);
     ts.forEach(drawPt);
-
-    ctx.beginPath();
-    ctx.arc(0, 0, 10, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'yellow';
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(100, 100, 10, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'yellow';
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(ctx.innerWidth / 2, ctx.innerHeight / 2, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'yellow';
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
 
     ctxLeft.fillStyle = 'white';
     ctxLeft.fillRect(0, 0, cellWidth, cellHeight);

@@ -32,43 +32,15 @@ class Point2d extends Point {
 
     screenPt(camera, w, h) {
 
-        //ar frustum = new THREE.Frustum();
-
-        //frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-
-        //frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse ) );
-        
-
-        //if (frustum.containsPoint(this.pos)) {
-
-            let proj = this.pos;
-
-            proj.project(camera);
-
-            var x = (proj.x * w) + w;
-            var y = -(proj.y * h) + h;
-
-            console.log(x, proj.x, y, proj.y)
-            
-            return [proj.x, proj.y]
-
-/*
-        } else {
-
             let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
-          
+
             proj.project(camera);
 
             var x = (proj.x * w) + w;
             var y = -(proj.y * h) + h;
 
-            
-            console.log(x, y);
-            
-            return [null, null]
-        }
-
-        */
+         
+            return [x, y]
     }
 
 

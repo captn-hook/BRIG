@@ -4,7 +4,7 @@ import Point2d from './Point';
 class Tracer {
 
 
-    constructor(m = 0, t = 0, value = 0, headroom = 10, lift = 60) {
+    constructor(m = 0, t = 0, value = 0, headroom = 4, lift = 20) {
         this.m = m;
         this.t = t;
         this.value = parseFloat(value);
@@ -78,13 +78,13 @@ class Tracer2d extends Tracer {
 
         super(m, t, value, headroom, lift);
 
-        const maxwidth = 20;
+        const maxwidth = 15;
 
         var rgb = this.hexToRgb(this.color)
         var white = this.rgbToHex(255, 255, 255)
         var hex2 = this.rgbToHex(rgb)
        
-        this.outline = this.rescale(Math.min(value, 10), 0, 25, .2, maxwidth);
+        this.outline = this.rescale(Math.min(value, 10), 0, 25, .4, maxwidth);
     }
 
 
@@ -136,7 +136,7 @@ class Tracer2d extends Tracer {
         //ctrl2  mid(end, mid)
         var [x3, y3] = this.midpoint(x4, y4, mx, my);
 
-        var headwidth = Math.max(this.outline * 5, 2); // length of head in 
+        var headwidth = Math.max(this.outline * 2, 2); // length of head in 
 
         var dx = x4 - x1;
         var dy = y4 - y1;
