@@ -60,7 +60,7 @@ scene.add(camera);
 
 
 // Debug
-/*
+
 const gui = new dat.GUI();
 
 function updateCamera() {
@@ -73,7 +73,7 @@ const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 
 gui.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
 gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
-*/
+
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
