@@ -48,14 +48,21 @@ const sizes = {
 }
 
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
-//const camera = new THREE.OrthographicCamera(sizes.width / -2, sizes.width / 2, sizes.height / 2, sizes.height / -2, .01, 1000);
-camera.position.x = 10;
-camera.position.y = 10;
-camera.position.z = 30;
 
+camera.position.set(0, 2.5, 2.5); // Set position like this
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+// Controls
+const canvas2d = document.getElementById('2d');
+
+const controls = new OrbitControls(camera, canvas2d);
+controls.enableDamping = true;
+
+camera.position.set(3, 3, 5);
+controls.target.set(0, 0, 0);
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xeaeaea);
+scene.background = new THREE.Color(0xe0e0e0);
 scene.add(camera);
 
 
@@ -78,8 +85,6 @@ gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
-const canvas2d = document.getElementById('2d');
-
 const ctx = canvas2d.getContext('2d');
 
 const spreadsheetDiv = document.getElementById("spreadsheet");
@@ -91,15 +96,13 @@ const ctxLeft = canvasleft.getContext('2d');
 
 //set size
 updateSizes();
-    
+
 // Lights
 const light = new THREE.AmbientLight(0x404040); // soft white light
 light.intensity = 3;
 scene.add(light);
 
-// Controls
-const controls = new OrbitControls(camera, canvas2d);
-controls.enableDamping = true;
+
 
 /*
  Renderer
@@ -202,7 +205,7 @@ function load3DModel(base, mtlpath = null) {
 Misc
 */
 
-function updateSizes(){
+function updateSizes() {
     sizes.width = div.offsetWidth;
     sizes.height = div.offsetHeight;
 
@@ -211,7 +214,7 @@ function updateSizes(){
 
     canvas2d.width = sizes.width;
     canvas2d.height = sizes.height;
-    
+
     ctxLeft.canvas.innerWidth = spreadsheetDiv.offsetWidth;
     ctxLeft.canvas.innerHeight = spreadsheetDiv.offsetHeight;
 
@@ -231,6 +234,7 @@ var cellY = 0;
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
+updateSizes();
 
 
 
@@ -247,15 +251,42 @@ canvasleft.addEventListener('click', (e) => {
     if (cX <= 1 && cY <= 1) {
 
     } else if (cY == 1) {
-    //if y (row) == 1, clicked ts
-        ts[cX - 2].visible = !ts[cX - 2].visible;
+        //if y (row) == 1, clicked ts
+        var t = cX - 2;
+        ts[t].visible = !ts[t].visible;
+
+        tracers.forEach((tracer) => {
+            if (ts[t] == tracer.t) {
+                tracer.visible = ts[t].visible;
+            }
+        })
+
+        camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
+        controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
+
     } else if (cX == 1) {
         //if x (column) == 1, clicked ms
-        ms[cY - 2].visible = !ms[cY - 2].visible;
-    }  else {
+        var m = cY - 2;
+        ms[m].visible = !ms[m].visible;
+
+        tracers.forEach((t) => {
+            if (ms[m] == t.m) {
+                t.visible = ms[m].visible;
+            }
+        })
+
+        camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+        controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+    } else {
         tracers.forEach((t) => {
             if (t.t.i == cX - 1 && t.m.i == cY - 1) {
                 t.visible = !t.visible;
+
+
+                camera.position.set(parseFloat(t.m.pos.x) + 4, parseFloat(t.m.pos.z) + 30, parseFloat(t.m.pos.y) + 8);
+                controls.target.set(parseFloat(t.m.pos.x), parseFloat(t.m.pos.z), parseFloat(t.m.pos.y));
+
             }
         })
     }
@@ -275,7 +306,7 @@ window.addEventListener('resize', () => {
     // Update sizes
     updateSizes();
 
-    
+
     cellWidth = (canvasleft.width / (ts.length + 1));
     cellHeight = (canvasleft.height / (ms.length + 1));
 
@@ -304,13 +335,16 @@ function drawPt(pt) {
         ctx.fillStyle = pt.color;
         ctx.fill();
         ctx.lineWidth = pt.border;
-        ctx.strokeStyle = '#2f2f2f';
+        ctx.strokeStyle = pt.color;
         ctx.stroke();
 
         ctx.font = "12px Arial";
-        ctx.fillStyle = "black";
         ctx.textAlign = "center";
-        ctx.fillText(pt.name, x, y);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.strokeText(pt.name, x, y + 4);
+        ctx.fillStyle = "white";
+        ctx.fillText(pt.name, x, y + 4);
 
     }
 
@@ -332,7 +366,7 @@ function drawPt(pt) {
     if (pt.type == 'M') {
         ctxLeft.fillRect(0, pt.i * cellHeight, cellWidth, cellHeight);
         ctxLeft.fillStyle = "black";
-        ctxLeft.fillText(pt.name, 10, pt.i * cellHeight + 10);  
+        ctxLeft.fillText(pt.name, 10, pt.i * cellHeight + 10);
     } else if (pt.type == 'T') {
         ctxLeft.fillRect(pt.i * cellWidth, 0, cellWidth, cellHeight);
         ctxLeft.fillStyle = "black";
@@ -376,7 +410,7 @@ const tick = () => {
                 //console.log(tracers[i])
 
                 //settings
-                ctx.lineWidth = tracers[i].outline + 2;
+                ctx.lineWidth = tracers[i].outline;
                 ctx.strokeStyle = 'white';
 
                 ctx.beginPath();
@@ -385,6 +419,8 @@ const tick = () => {
                 ctx.lineTo(x6, y6);
                 ctx.lineTo(x1, y1);
                 ctx.stroke();
+
+                ctx.lineWidth = tracers[i].outline + 2;
 
                 // Cubic Bézier curve
                 ctx.beginPath();
@@ -396,8 +432,11 @@ const tick = () => {
                 ctx.stroke();
 
                 ctx.font = "12px Arial";
-                ctx.fillStyle = "white";
                 ctx.textAlign = "center";
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeText(tracers[i].value, x1, y1);
+                ctx.fillStyle = "white";
                 ctx.fillText(tracers[i].value, x1, y1);
 
                 ctxLeft.font = "12px Arial";
