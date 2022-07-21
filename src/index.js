@@ -60,6 +60,7 @@ controls.enableDamping = true;
 
 camera.position.set(3, 3, 5);
 controls.target.set(0, 0, 0);
+
 // Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe0e0e0);
@@ -67,7 +68,6 @@ scene.add(camera);
 
 
 // Debug
-
 const gui = new dat.GUI();
 
 function updateCamera() {
@@ -103,10 +103,7 @@ light.intensity = 3;
 scene.add(light);
 
 
-
-/*
- Renderer
-*/
+//Renderer
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas3d
 });
@@ -118,18 +115,14 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading
 */
 
+//load data from file
 var [ms, ts, tracers] = Data(data);
 
-/*
-Test OBJ
-*/
+//Test OBJ
 
 const center = new Point3d('Marker', 0, 0xffffff, new THREE.Vector3(0, 0, 0), 2);
 scene.add(center.sphere);
 
-/*
-Loaded Objects
-*/
 
 //loadfunc =====================================================<
 load3DModel(building);
@@ -240,19 +233,14 @@ updateSizes();
 
 canvasleft.addEventListener('click', (e) => {
 
-    var rect = canvasleft.getBoundingClientRect();
-    var x = e.pageX - rect.left;
-    var y = e.pageY - rect.top;
+    console.log('click', x, y, cellX, cellY);
 
-    var cX = Math.ceil(x / cellWidth);
-    var cY = Math.ceil(y / cellHeight);
-    console.log('click', x, y, cX, cY);
+    if (cellX <= 1 && cellY <= 1) {
 
-    if (cX <= 1 && cY <= 1) {
-
-    } else if (cY == 1) {
+    } else if (cellY == 1) {
         //if y (row) == 1, clicked ts
-        var t = cX - 2;
+        var t = cellX - 2;
+
         ts[t].visible = !ts[t].visible;
 
         tracers.forEach((tracer) => {
@@ -260,13 +248,10 @@ canvasleft.addEventListener('click', (e) => {
                 tracer.visible = ts[t].visible;
             }
         })
-
-        camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
-        controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
-
-    } else if (cX == 1) {
+    } else if (cellX == 1) {
         //if x (column) == 1, clicked ms
-        var m = cY - 2;
+        var m = cellY - 2;
+
         ms[m].visible = !ms[m].visible;
 
         tracers.forEach((t) => {
@@ -274,19 +259,10 @@ canvasleft.addEventListener('click', (e) => {
                 t.visible = ms[m].visible;
             }
         })
-
-        camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
-        controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
-
     } else {
         tracers.forEach((t) => {
-            if (t.t.i == cX - 1 && t.m.i == cY - 1) {
+            if (t.t.i == cellX - 1 && t.m.i == cellY - 1) {
                 t.visible = !t.visible;
-
-
-                camera.position.set(parseFloat(t.m.pos.x) + 4, parseFloat(t.m.pos.z) + 30, parseFloat(t.m.pos.y) + 8);
-                controls.target.set(parseFloat(t.m.pos.x), parseFloat(t.m.pos.z), parseFloat(t.m.pos.y));
-
             }
         })
     }
@@ -299,6 +275,26 @@ canvasleft.addEventListener("mousemove", (e) => {
     var y = e.pageY - rect.top;
     cellX = Math.ceil(x / cellWidth);
     cellY = Math.ceil(y / cellHeight);
+
+    //update camera on mouse move
+
+    if (cellX <= 1 && cellY <= 1) {
+
+    } else if (cellY == 1) {
+        //if y (row) == 1, ts
+        var t = cellX - 2;
+
+        camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
+        controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
+
+    } else {
+        //if x (column) == 1, ms
+        var m = cellY - 2;
+
+        camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+        controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+    } 
 });
 
 
