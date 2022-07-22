@@ -83,7 +83,7 @@ class Tracer2d extends Tracer {
         var rgb = this.hexToRgb(this.color)
         var white = this.rgbToHex(255, 255, 255)
         var hex2 = this.rgbToHex(rgb)
-       
+
         this.outline = this.rescale(Math.min(value, 10), 0, 25, .4, maxwidth);
     }
 
@@ -147,7 +147,7 @@ class Tracer2d extends Tracer {
 
         var x5 = x1 + headwidth * Math.cos(angle - Math.PI / arrowconst);
         var y5 = y1 + headwidth * Math.sin(angle - Math.PI / arrowconst);
-        
+
         var x6 = x1 + headwidth * Math.cos(angle + Math.PI / arrowconst);
         var y6 = y1 + headwidth * Math.sin(angle + Math.PI / arrowconst);
 
@@ -160,6 +160,93 @@ class Tracer2d extends Tracer {
                 }
           */
     }
+
+    drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
+
+        //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
+        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
+
+        if (x1 != null && this.visible) {
+
+
+            //tracer highlight, by drawing white tracer underneath
+            if (this.t.i == cellWidth - 1 && this.m.i == cellHeight - 1) {
+                //console.log(this)
+
+                //settings
+                ctx.lineWidth = this.outline;
+                ctx.strokeStyle = 'white';
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x5, y5);
+                ctx.lineTo(x6, y6);
+                ctx.lineTo(x1, y1);
+                ctx.stroke();
+
+                ctx.lineWidth = this.outline + 2;
+
+                // Cubic Bézier curve
+                ctx.beginPath();
+                //start line at arrow tip edge
+                var [strtx, strty] = this.midpoint(x5, y5, x6, y6);
+                ctx.moveTo(strtx, strty);
+                //                ctrl1    ctrl2   end
+                ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+                ctx.stroke();
+
+                ctx.font = "12px Arial";
+                ctx.textAlign = "center";
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeText(this.value, x1, y1);
+                ctx.fillStyle = "white";
+                ctx.fillText(this.value, x1, y1);
+
+                ctxLeft.font = "12px Arial";
+                ctxLeft.fillStyle = "black";
+                ctxLeft.textAlign = "center";
+                ctxLeft.fillText(this.value, cellWidth * cellWidth, cellHeight * cellHeight - 30);
+            }
+            //settings
+            ctx.lineWidth = this.outline;
+            ctx.strokeStyle = this.color;
+            ctx.fillStyle = this.color;
+
+
+
+            //arrowhead
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x5, y5);
+            ctx.lineTo(x6, y6);
+            ctx.lineTo(x1, y1);
+            ctx.fill();
+
+            // Cubic Bézier curve
+            ctx.beginPath();
+            //start line at arrow tip edge
+            var [strtx, strty] = this.midpoint(x5, y5, x6, y6);
+            ctx.moveTo(strtx, strty);
+            //                ctrl1    ctrl2   end
+            ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+            ctx.stroke();
+
+        } else {
+            //console.log(this)
+        }
+
+        //spreadsheet
+        if (this.visible) {
+            ctxLeft.globalAlpha = 1.0;
+        } else {
+            ctxLeft.globalAlpha = .2;
+        }
+        ctxLeft.fillStyle = this.color;
+        ctxLeft.fillRect(this.t.i * cellWidth, this.m.i * cellHeight, cellWidth, cellHeight);
+        ctxLeft.globalAlpha = 1.0;
+    };
+
 
 
     monitor() {

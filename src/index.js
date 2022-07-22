@@ -125,7 +125,7 @@ scene.add(center.sphere);
 
 
 //loadfunc =====================================================<
-load3DModel(building);
+//load3DModel(building);
 
 // onLoad callback
 function onLoadLoad(obj) {
@@ -223,14 +223,45 @@ var cellHeight = (canvasleft.height / (ms.length + 1));
 var cellX = 0;
 var cellY = 0;
 
+const dataInput = document.getElementById("datapicker");
+
 /*
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
+
 updateSizes();
 
 
+/*
+    EVENTS
+*/
 
+//file input
+dataInput.addEventListener("change", handleFiles, false);
+
+function handleFiles() {
+    var file = this.files[0];
+
+    var read = new FileReader();
+
+    read.readAsBinaryString(file);
+
+    read.onloadend = function () {
+        console.log(read.result);
+        [ms, ts, tracers] = Data(read.result);
+
+        //resize sheet
+        updateSizes();
+
+
+        cellWidth = (canvasleft.width / (ts.length + 1));
+        cellHeight = (canvasleft.height / (ms.length + 1));
+    }
+}
+
+
+//spreadsheet click
 canvasleft.addEventListener('click', (e) => {
 
     console.log('click', x, y, cellX, cellY);
@@ -269,6 +300,7 @@ canvasleft.addEventListener('click', (e) => {
 
 }, false);
 
+//spreadsheet mouse move
 canvasleft.addEventListener("mousemove", (e) => {
     var rect = canvasleft.getBoundingClientRect();
     var x = e.pageX - rect.left;
@@ -287,17 +319,18 @@ canvasleft.addEventListener("mousemove", (e) => {
         camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
         controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
 
-    } else {
+        //throws errors if it trys to select row before/after last
+    } else if (1 < cellY && cellY < ms.length + 2) {
         //if x (column) == 1, ms
-        var m = cellY - 2;
 
+        var m = cellY - 2;
         camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
         controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
 
-    } 
+    }
 });
 
-
+//resize
 window.addEventListener('resize', () => {
     // Update sizes
     updateSizes();
@@ -319,59 +352,6 @@ window.addEventListener('resize', () => {
 Animate
 */
 
-function drawPt(pt) {
-    //main canvas
-    var [x, y] = pt.screenPt(camera, sizes.width / 2, sizes.height / 2);
-
-    if (x != null && pt.visible) {
-
-
-        ctx.beginPath();
-        ctx.arc(x, y, pt.radius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = pt.color;
-        ctx.fill();
-        ctx.lineWidth = pt.border;
-        ctx.strokeStyle = pt.color;
-        ctx.stroke();
-
-        ctx.font = "12px Arial";
-        ctx.textAlign = "center";
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 4;
-        ctx.strokeText(pt.name, x, y + 4);
-        ctx.fillStyle = "white";
-        ctx.fillText(pt.name, x, y + 4);
-
-    }
-
-    //left canvas
-
-    ctxLeft.font = "10px Arial";
-
-    if (pt.visible) {
-        ctxLeft.globalAlpha = 1.0;
-        ctxLeft.fillStyle = "white";
-    } else {
-        ctxLeft.globalAlpha = 0.2;
-        ctxLeft.fillStyle = "grey";
-    }
-    ctxLeft.globalAlpha = 1.0;
-
-    ctxLeft.textAlign = "center";
-
-    if (pt.type == 'M') {
-        ctxLeft.fillRect(0, pt.i * cellHeight, cellWidth, cellHeight);
-        ctxLeft.fillStyle = "black";
-        ctxLeft.fillText(pt.name, 10, pt.i * cellHeight + 10);
-    } else if (pt.type == 'T') {
-        ctxLeft.fillRect(pt.i * cellWidth, 0, cellWidth, cellHeight);
-        ctxLeft.fillStyle = "black";
-        ctxLeft.fillText(pt.name, pt.i * cellWidth + 10, 10);
-    } else {
-        console.error('Type Error: Left Canvas')
-    }
-}
-
 console.log(ms)
 console.log(ts)
 console.log(tracers)
@@ -392,96 +372,11 @@ const tick = () => {
     ctxLeft.clearRect(0, 0, canvasleft.width, canvasleft.height);
 
     //Tracers
-    //console.log(tracers)
-    for (var i = 0; i < tracers.length; i++) {
-
-        //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6] = tracers[i].screenPts(camera, sizes.width / 2, sizes.height / 2)
-
-        if (x1 != null && tracers[i].visible) {
-
-
-            //tracer highlight, by drawing white tracer underneath
-            if (tracers[i].t.i == cellX - 1 && tracers[i].m.i == cellY - 1) {
-                //console.log(tracers[i])
-
-                //settings
-                ctx.lineWidth = tracers[i].outline;
-                ctx.strokeStyle = 'white';
-
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x5, y5);
-                ctx.lineTo(x6, y6);
-                ctx.lineTo(x1, y1);
-                ctx.stroke();
-
-                ctx.lineWidth = tracers[i].outline + 2;
-
-                // Cubic Bézier curve
-                ctx.beginPath();
-                //start line at arrow tip edge
-                var [strtx, strty] = tracers[i].midpoint(x5, y5, x6, y6);
-                ctx.moveTo(strtx, strty);
-                //                ctrl1    ctrl2   end
-                ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-                ctx.stroke();
-
-                ctx.font = "12px Arial";
-                ctx.textAlign = "center";
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 2;
-                ctx.strokeText(tracers[i].value, x1, y1);
-                ctx.fillStyle = "white";
-                ctx.fillText(tracers[i].value, x1, y1);
-
-                ctxLeft.font = "12px Arial";
-                ctxLeft.fillStyle = "black";
-                ctxLeft.textAlign = "center";
-                ctxLeft.fillText(tracers[i].value, cellX * cellWidth, cellY * cellHeight - 30);
-            }
-            //settings
-            ctx.lineWidth = tracers[i].outline;
-            ctx.strokeStyle = tracers[i].color;
-            ctx.fillStyle = tracers[i].color;
-
-
-
-            //arrowhead
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x5, y5);
-            ctx.lineTo(x6, y6);
-            ctx.lineTo(x1, y1);
-            ctx.fill();
-
-            // Cubic Bézier curve
-            ctx.beginPath();
-            //start line at arrow tip edge
-            var [strtx, strty] = tracers[i].midpoint(x5, y5, x6, y6);
-            ctx.moveTo(strtx, strty);
-            //                ctrl1    ctrl2   end
-            ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-            ctx.stroke();
-
-        } else {
-            //console.log(tracers[i])
-        }
-
-        //spreadsheet
-        if (tracers[i].visible) {
-            ctxLeft.globalAlpha = 1.0;
-        } else {
-            ctxLeft.globalAlpha = .2;
-        }
-        ctxLeft.fillStyle = tracers[i].color;
-        ctxLeft.fillRect(tracers[i].t.i * cellWidth, tracers[i].m.i * cellHeight, cellWidth, cellHeight);
-        ctxLeft.globalAlpha = 1.0;
-    };
+    tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
 
     //Points
-    ms.forEach(drawPt);
-    ts.forEach(drawPt);
+    ms.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
+    ts.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
 
     ctxLeft.fillStyle = 'white';
     ctxLeft.fillRect(0, 0, cellWidth, cellHeight);

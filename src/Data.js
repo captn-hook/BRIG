@@ -20,6 +20,8 @@ Data
 
 const dataArray = parse(data);
 
+console.log(dataArray)
+
 
 
 const ms = [];
