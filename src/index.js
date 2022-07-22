@@ -225,6 +225,7 @@ var cellY = 0;
 
 const dataInput = document.getElementById("datapicker");
 
+const modelInput = document.getElementById("modelpicker");
 /*
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
@@ -239,6 +240,24 @@ updateSizes();
 
 //file input
 dataInput.addEventListener("change", handleFiles, false);
+
+function handleModels() {
+    var file = this.files[0];
+
+    var read = new FileReader();
+
+    read.readAsArrayBuffer(file);
+
+    read.onloadend = function () {
+        console.log(read.result);
+
+        const loader = new GLTFLoader();    
+        loader.parse(read.result, "", onLoadLoad, onErrorLog);
+
+    }
+}
+
+modelInput.addEventListener("change", handleModels, false);
 
 function handleFiles() {
     var file = this.files[0];
