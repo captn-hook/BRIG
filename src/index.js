@@ -73,6 +73,8 @@ const gui = new dat.GUI();
 function updateCamera() {
     camera.updateProjectionMatrix();
 }
+Flatcanvas.width = sizes.width;
+Flatcanvas.height = sizes.height;
 
 gui.add(camera, 'fov', 1, 180).onChange(updateCamera);
 
@@ -379,7 +381,7 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
     //console.log(elapsedTime);
-
+gi
     // Update Orbital Controls
     controls.update();
 
