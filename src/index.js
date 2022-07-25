@@ -73,8 +73,8 @@ const gui = new dat.GUI();
 function updateCamera() {
     camera.updateProjectionMatrix();
 }
-Flatcanvas.width = sizes.width;
-Flatcanvas.height = sizes.height;
+canvas2d.width = sizes.width;
+canvas2d.height = sizes.height;
 
 gui.add(camera, 'fov', 1, 180).onChange(updateCamera);
 
@@ -94,6 +94,8 @@ const spreadsheetDiv = document.getElementById("spreadsheet");
 const canvasleft = document.getElementById('left');
 
 const ctxLeft = canvasleft.getContext('2d');
+
+const textbox = document.getElementById('textbox');
 
 
 //set size
@@ -118,7 +120,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 */
 
 //load data from file
-var [ms, ts, tracers] = Data(data);
+var [ms, ts, tracers, insights, views] = Data(data);
 
 //Test OBJ
 
@@ -253,7 +255,7 @@ function handleModels() {
     read.onloadend = function () {
         console.log(read.result);
 
-        const loader = new GLTFLoader();    
+        const loader = new GLTFLoader();
         loader.parse(read.result, "", onLoadLoad, onErrorLog);
 
     }
@@ -270,7 +272,7 @@ function handleFiles() {
 
     read.onloadend = function () {
         console.log(read.result);
-        [ms, ts, tracers] = Data(read.result);
+        [ms, ts, tracers, insights, views] = Data(read.result);
 
         //resize sheet
         updateSizes();
@@ -345,8 +347,17 @@ canvasleft.addEventListener("mousemove", (e) => {
         //if x (column) == 1, ms
 
         var m = cellY - 2;
+
+        //special views
+        if (views[cellY] != null && views[cellY][0] != '') {
+            camera.position.set(parseFloat(views[cellY][0]), parseFloat(views[cellY][1]), parseFloat(views[cellY][2]));
+        } else {
         camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+        }
         controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+        //insights
+        textbox.textContent = insights[cellY]
 
     }
 });
@@ -381,7 +392,6 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
     //console.log(elapsedTime);
-gi
     // Update Orbital Controls
     controls.update();
 
