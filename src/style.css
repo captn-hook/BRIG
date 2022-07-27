@@ -15,7 +15,7 @@ body
 
 label
 {
-    font-size: 1vw;
+    font-size: 2vw;
     margin-left: 8%;
 }
 
@@ -31,6 +31,12 @@ canvas
 
 div {
     height: 100vh;
+    font-family: 'Poppins';
+    font-size: 20px;
+}
+
+p {
+    margin: 5%;
     font-family: 'Poppins';
     font-size: 20px;
 }

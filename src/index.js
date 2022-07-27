@@ -66,23 +66,75 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe0e0e0);
 scene.add(camera);
 
-
-// Debug
-const gui = new dat.GUI();
+//cam size
 
 function updateCamera() {
     camera.updateProjectionMatrix();
 }
-Flatcanvas.width = sizes.width;
-Flatcanvas.height = sizes.height;
+canvas2d.width = sizes.width;
+canvas2d.height = sizes.height;
 
-gui.add(camera, 'fov', 1, 180).onChange(updateCamera);
+
+// Debug
+const gui = new dat.GUI();
+
+const devGUI = gui.addFolder('Dev');
+
+//dev funcs
+function switchDisplay(x) {
+    if (x.style.display == "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+
+var btn1 = {
+    editFiles: function () {
+        switchDisplay(document.getElementById('selectPanel1'));
+        switchDisplay(document.getElementById('selectPanel2'));
+    }
+};
+
+devGUI.add(btn1, 'editFiles');
+
+var btn2 = {
+    editPosition: function () {
+        console.log("editPosition")
+    }
+};
+
+devGUI.add(btn2, 'editPosition');
+
+var btn3 = {
+    editText: function () {
+        console.log("editText")
+    }
+};
+
+devGUI.add(btn3, 'editText');
+
+devGUI.open();
+
+//cam menu
+const camGUI = gui.addFolder('Cam');
+
+camGUI.add(camera, 'fov', 1, 180).onChange(updateCamera);
 
 const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 
-gui.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
-gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
+camGUI.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
+camGUI.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
 
+camGUI.add(camera.position, 'x', -100, 100).listen()
+camGUI.add(camera.position, 'y', -100, 100).listen()
+camGUI.add(camera.position, 'z', -100, 100).listen()
+
+camGUI.add(camera.rotation, 'x', -100, 100).listen()
+camGUI.add(camera.rotation, 'y', -100, 100).listen()
+camGUI.add(camera.rotation, 'z', -100, 100).listen()
+
+camGUI.open();
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
@@ -92,8 +144,11 @@ const ctx = canvas2d.getContext('2d');
 const spreadsheetDiv = document.getElementById("spreadsheet");
 
 const canvasleft = document.getElementById('left');
+canvasleft.oncontextmenu = () => false;
 
 const ctxLeft = canvasleft.getContext('2d');
+
+const textbox = document.getElementById('textbox');
 
 
 //set size
@@ -118,7 +173,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 */
 
 //load data from file
-var [ms, ts, tracers] = Data(data);
+var [ms, ts, tracers, insights, views] = Data(data);
 
 //Test OBJ
 
@@ -253,7 +308,7 @@ function handleModels() {
     read.onloadend = function () {
         console.log(read.result);
 
-        const loader = new GLTFLoader();    
+        const loader = new GLTFLoader();
         loader.parse(read.result, "", onLoadLoad, onErrorLog);
 
     }
@@ -270,7 +325,7 @@ function handleFiles() {
 
     read.onloadend = function () {
         console.log(read.result);
-        [ms, ts, tracers] = Data(read.result);
+        [ms, ts, tracers, insights, views] = Data(read.result);
 
         //resize sheet
         updateSizes();
@@ -283,41 +338,79 @@ function handleFiles() {
 
 
 //spreadsheet click
+var clickstartx = null;
+var clickstarty = null;
+
+canvasleft.addEventListener('mousedown', (e) => {
+    clickstartx = cellX;
+    clickstarty = cellY;
+})
+
+//draw from min 
+//(a < b) ? 'minor' : 'major')
+//((clickstartx < cellX) ? clickstartx : cellX) inv ((clickstartx < cellX) ? cellX : clickstartx)
+//((clickstarty < cellY) ? clickstarty : cellY) inv ((clickstarty < cellY) ? cellY : clickstarty)
+//     
+
 canvasleft.addEventListener('click', (e) => {
 
-    console.log('click', x, y, cellX, cellY);
+    var minx = ((clickstartx < cellX) ? clickstartx : cellX);
+    var miny = ((clickstarty < cellY) ? clickstarty : cellY);
+    var maxx = ((clickstartx > cellX) ? clickstartx : cellX);
+    var maxy = ((clickstarty > cellY) ? clickstarty : cellY);
 
-    if (cellX <= 1 && cellY <= 1) {
 
-    } else if (cellY == 1) {
-        //if y (row) == 1, clicked ts
-        var t = cellX - 2;
+    var visibility = null;
 
-        ts[t].visible = !ts[t].visible;
+    tracers.forEach((t) => {
+        if(t.m.i == cellY - 1 && t.t.i == cellX - 1){
+            visibility = !t.visible;
+        }
+    }) 
+    
+    if (minx <= 1 && miny <= 1) {
 
-        tracers.forEach((tracer) => {
-            if (ts[t] == tracer.t) {
-                tracer.visible = ts[t].visible;
-            }
-        })
-    } else if (cellX == 1) {
-        //if x (column) == 1, clicked ms
-        var m = cellY - 2;
-
-        ms[m].visible = !ms[m].visible;
-
-        tracers.forEach((t) => {
-            if (ms[m] == t.m) {
-                t.visible = ms[m].visible;
-            }
-        })
     } else {
-        tracers.forEach((t) => {
-            if (t.t.i == cellX - 1 && t.m.i == cellY - 1) {
-                t.visible = !t.visible;
+        if (miny == 1) {
+            visibility = (visibility == null) ? !ms[miny].visible : visibility;
+            for (var i = minx; i < maxx + 1; i++) {
+                //if y (row) == 1, clicked ts
+                var t = i - 2;
+
+                ts[t].visible = visibility;
+
+                tracers.forEach((tracer) => {
+                    if (ts[t] == tracer.t) {
+                        tracer.visible = visibility;
+                    }
+                })
             }
-        })
+        }
+        if (minx == 1) {
+            visibility = (visibility == null) ? !ts[minx].visible : visibility;
+            for (var i = miny; i < maxy + 1; i++) {
+                //if x (column) == 1, clicked ms
+                var m = i - 2;
+
+                ms[m].visible = visibility;
+
+                tracers.forEach((t) => {
+                    if (ms[m] == t.m) {
+                        t.visible = visibility;
+                    }
+                })
+            }
+        } else {
+            tracers.forEach((t) => {
+                if ((minx < t.t.i + 2) && (t.t.i < maxx) && (miny < t.m.i + 2) && (t.m.i < maxy)) {
+                    t.visible = visibility;
+                }
+            })
+        }
     }
+
+    clickstartx = null;
+    clickstarty = null;
 
 }, false);
 
@@ -345,8 +438,17 @@ canvasleft.addEventListener("mousemove", (e) => {
         //if x (column) == 1, ms
 
         var m = cellY - 2;
-        camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+
+        //special views
+        if (views[cellY] != null && views[cellY][0] != '') {
+            camera.position.set(parseFloat(views[cellY][0]), parseFloat(views[cellY][1]), parseFloat(views[cellY][2]));
+        } else {
+            camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+        }
         controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+        //insights
+        textbox.textContent = insights[cellY]
 
     }
 });
@@ -381,7 +483,6 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
     //console.log(elapsedTime);
-gi
     // Update Orbital Controls
     controls.update();
 
@@ -406,13 +507,23 @@ gi
     ctxLeft.beginPath();
     ctxLeft.strokeStyle = 'yellow'
     ctxLeft.lineWidth = 2;
-    ctxLeft.rect((cellX - 1) * cellWidth, 0, cellWidth, cellHeight * (cellY - 1));
-    ctxLeft.rect(0, (cellY - 1) * cellHeight, cellWidth * (cellX - 1), cellHeight);
+
+    //      x                      y                          w                            h
+    ctxLeft.rect((((clickstartx < cellX) ? clickstartx : cellX) - 1) * cellWidth, 0, (Math.abs(clickstartx - cellX) + 1) * cellWidth, cellHeight * (((clickstarty < cellY) ? cellY : clickstarty)));
     ctxLeft.stroke()
+
+    ctxLeft.rect(0, (((clickstarty < cellY) ? clickstarty : cellY) - 1) * cellHeight, cellWidth * (((clickstartx < cellX) ? cellX : clickstartx)), (Math.abs(clickstarty - cellY) + 1) * cellHeight);
+    ctxLeft.stroke()
+
     ctxLeft.beginPath();
+
     ctxLeft.strokeStyle = 'white'
     ctxLeft.lineWidth = 4;
+
     ctxLeft.rect((cellX - 1) * cellWidth, (cellY - 1) * cellHeight, cellWidth, cellHeight);
+    ctxLeft.stroke()
+
+    ctxLeft.rect((clickstartx - 1) * cellWidth, (clickstarty - 1) * cellHeight, cellWidth, cellHeight);
     ctxLeft.stroke()
 
     //loading bar
