@@ -32,9 +32,13 @@ import {
 
 import Data from './Data'
 
+import {
+    saveFile
+} from './Data';
+
 //specific assets
-import building from '../models/1.glb';
-import data from '../data/1.csv'
+//import building from '../models/1.glb';
+//import data from '../data/ins.csv'
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -89,18 +93,28 @@ function switchDisplay(x) {
     }
 }
 
-var btn1 = {
+var btn0 = {
     editFiles: function () {
         switchDisplay(document.getElementById('selectPanel1'));
         switchDisplay(document.getElementById('selectPanel2'));
     }
 };
 
-devGUI.add(btn1, 'editFiles');
+devGUI.add(btn0, 'editFiles');
 
+var btn1 = {
+    saveFiles: function () {
+        saveFile(ms, ts, tracers, insights, views);
+    }
+};
+
+devGUI.add(btn1, 'saveFiles');
+
+var editPos = false;
 var btn2 = {
     editPosition: function () {
         console.log("editPosition")
+        editPos = !editPos;
     }
 };
 
@@ -109,10 +123,21 @@ devGUI.add(btn2, 'editPosition');
 var btn3 = {
     editText: function () {
         console.log("editText")
+        textbox.readOnly = !textbox.readOnly;
     }
 };
 
 devGUI.add(btn3, 'editText');
+
+var btn4 = {
+    saveCam: function () {
+        console.log("saveCam")
+        views[clickstarty - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
+        console.log(views)
+    }
+};
+
+devGUI.add(btn4, 'saveCam');
 
 devGUI.open();
 
@@ -173,27 +198,27 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 */
 
 //load data from file
-var [ms, ts, tracers, insights, views] = Data(data);
-
-//Test OBJ
-
-const center = new Point3d('Marker', 0, 0xffffff, new THREE.Vector3(0, 0, 0), 2);
-scene.add(center.sphere);
-
-
+//var [ms, ts, tracers, insights, views] = Data(data);
+var ms = []
+var ts = []
+var tracers = []
+var insights = []
+var views = []
 //loadfunc =====================================================<
 //load3DModel(building);
 
+var globalObj;
+var sceneMeshes = [];
+
 // onLoad callback
-function onLoadLoad(obj) {
-
-    let thing = obj.scene.children[0];
-
-    //find out why this doesnt match pts and fix
-    thing.scale.y *= -1;
-    thing.position.z = -13;
+function onLoadLoad(obj) { 
+    console.log(obj)
+    obj.scene.children[0].children.forEach((e) => {
+        sceneMeshes.push(e);
+    })
 
     scene.add(obj.scene);
+    globalObj = scene.children[scene.children.length - 1];
 }
 
 let Gxhr = 0;
@@ -295,6 +320,42 @@ updateSizes();
     EVENTS
 */
 
+canvas2d.addEventListener("click", (e) => {
+        if (editPos) {
+
+            var raycaster = new THREE.Raycaster();
+            var mouse = {
+                x: (e.clientX - canvasleft.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
+                y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+            };
+
+            console.log(mouse)
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(sceneMeshes, false);
+
+            console.log(sceneMeshes);
+
+            if (intersects.length > 0) {
+                if (clickstartx == 1) {
+                    ms[clickstarty - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                } else if (clickstarty == 1) {
+                    ts[clickstartx - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                }
+            }
+        }
+    },
+    false);
+
+textbox.addEventListener('input', e => {
+    console.log('input')
+    if (textbox.readOnly == false) {
+        insights[clickstarty] = textbox.value.replaceAll(",", "§").replaceAll("\n", "¦");
+        console.log(textbox.value)
+    }
+})
+
 //file input
 dataInput.addEventListener("change", handleFiles, false);
 
@@ -336,15 +397,11 @@ function handleFiles() {
     }
 }
 
-
 //spreadsheet click
 var clickstartx = null;
 var clickstarty = null;
-
-canvasleft.addEventListener('mousedown', (e) => {
-    clickstartx = cellX;
-    clickstarty = cellY;
-})
+var stx = null;
+var sty = null;
 
 //draw from min 
 //(a < b) ? 'minor' : 'major')
@@ -353,64 +410,111 @@ canvasleft.addEventListener('mousedown', (e) => {
 //     
 
 canvasleft.addEventListener('click', (e) => {
+    if (e.detail == 1) {
+        console.log(cellX, cellY);
+        stx = clickstartx;
+        sty = clickstarty;
+        clickstartx = cellX;
+        clickstarty = cellY;
 
-    var minx = ((clickstartx < cellX) ? clickstartx : cellX);
-    var miny = ((clickstarty < cellY) ? clickstarty : cellY);
-    var maxx = ((clickstartx > cellX) ? clickstartx : cellX);
-    var maxy = ((clickstarty > cellY) ? clickstarty : cellY);
+        //update camera on mouse click
 
+        if (cellX <= 1 && cellY <= 1) {
 
-    var visibility = null;
+        } else if (cellY == 1) {
+            //if y (row) == 1, ts
+            var t = cellX - 2;
 
-    tracers.forEach((t) => {
-        if(t.m.i == cellY - 1 && t.t.i == cellX - 1){
-            visibility = !t.visible;
-        }
-    }) 
-    
-    if (minx <= 1 && miny <= 1) {
+            camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
+            controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
 
-    } else {
-        if (miny == 1) {
-            visibility = (visibility == null) ? !ms[miny].visible : visibility;
-            for (var i = minx; i < maxx + 1; i++) {
-                //if y (row) == 1, clicked ts
-                var t = i - 2;
+            //throws errors if it trys to select row before/after last
+        } else if (1 < cellY && cellY < ms.length + 2) {
+            //if x (column) == 1, ms
 
-                ts[t].visible = visibility;
+            var m = cellY - 2;
 
-                tracers.forEach((tracer) => {
-                    if (ts[t] == tracer.t) {
-                        tracer.visible = visibility;
-                    }
-                })
+            //special views
+            if (views[cellY - 1] != null && views[cellY - 1][0] != '') {
+                camera.position.set(parseFloat(views[cellY - 1][0]), parseFloat(views[cellY - 1][1]), parseFloat(views[cellY - 1][2]));
+            } else {
+                camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
             }
+            controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+            //insights
+            textbox.value = (insights[cellY] == null) ? '' : String(insights[cellY].replaceAll("§", ",").replaceAll("¦", "\n"));
+
         }
-        if (minx == 1) {
-            visibility = (visibility == null) ? !ts[minx].visible : visibility;
-            for (var i = miny; i < maxy + 1; i++) {
-                //if x (column) == 1, clicked ms
-                var m = i - 2;
+    } else if (e.detail == 2) {
+        clickstartx = stx;
+        clickstarty = sty;
+        var minx = ((clickstartx < cellX) ? clickstartx : cellX);
+        var miny = ((clickstarty < cellY) ? clickstarty : cellY);
+        var maxx = ((clickstartx > cellX) ? clickstartx : cellX);
+        var maxy = ((clickstarty > cellY) ? clickstarty : cellY);
 
-                ms[m].visible = visibility;
 
+        var visibility = null;
+
+        tracers.forEach((t) => {
+            if (t.m.i == cellY - 1 && t.t.i == cellX - 1) {
+                visibility = !t.visible;
+            }
+        })
+
+        if (minx < 1 && miny < 1) {
+
+        } else {
+            if (miny == 1) {
+                console.log(cellX, ts[cellX])
+                if (visibility == null) {
+                    visibility = !ts[cellX - 2].visible
+                }
+                console.log(visibility)
+                for (var i = minx; i < maxx + 1; i++) {
+                    //if y (row) == 1, clicked ts
+                    var t = i - 2;
+
+                    ts[t].visible = visibility;
+
+                    tracers.forEach((tracer) => {
+                        if (ts[t] == tracer.t) {
+                            tracer.visible = visibility;
+                        }
+                    })
+                }
+            }
+            if (minx == 1) {
+
+                if (visibility == null) {
+                    visibility = !ms[cellY - 2].visible
+                }
+
+                for (var i = miny; i < maxy + 1; i++) {
+                    //if x (column) == 1, clicked ms
+                    var m = i - 2;
+
+                    ms[m].visible = visibility;
+
+                    tracers.forEach((t) => {
+                        if (ms[m] == t.m) {
+                            t.visible = visibility;
+                        }
+                    })
+                }
+            } else {
                 tracers.forEach((t) => {
-                    if (ms[m] == t.m) {
+                    if ((minx < t.t.i + 2) && (t.t.i < maxx) && (miny < t.m.i + 2) && (t.m.i < maxy)) {
                         t.visible = visibility;
                     }
                 })
             }
-        } else {
-            tracers.forEach((t) => {
-                if ((minx < t.t.i + 2) && (t.t.i < maxx) && (miny < t.m.i + 2) && (t.m.i < maxy)) {
-                    t.visible = visibility;
-                }
-            })
         }
-    }
 
-    clickstartx = null;
-    clickstarty = null;
+        clickstartx = null;
+        clickstarty = null;
+    }
 
 }, false);
 
@@ -421,36 +525,6 @@ canvasleft.addEventListener("mousemove", (e) => {
     var y = e.pageY - rect.top;
     cellX = Math.ceil(x / cellWidth);
     cellY = Math.ceil(y / cellHeight);
-
-    //update camera on mouse move
-
-    if (cellX <= 1 && cellY <= 1) {
-
-    } else if (cellY == 1) {
-        //if y (row) == 1, ts
-        var t = cellX - 2;
-
-        camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
-        controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
-
-        //throws errors if it trys to select row before/after last
-    } else if (1 < cellY && cellY < ms.length + 2) {
-        //if x (column) == 1, ms
-
-        var m = cellY - 2;
-
-        //special views
-        if (views[cellY] != null && views[cellY][0] != '') {
-            camera.position.set(parseFloat(views[cellY][0]), parseFloat(views[cellY][1]), parseFloat(views[cellY][2]));
-        } else {
-            camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
-        }
-        controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
-
-        //insights
-        textbox.textContent = insights[cellY]
-
-    }
 });
 
 //resize
@@ -517,11 +591,8 @@ const tick = () => {
 
     ctxLeft.beginPath();
 
-    ctxLeft.strokeStyle = 'white'
+    ctxLeft.strokeStyle = 'grey'
     ctxLeft.lineWidth = 4;
-
-    ctxLeft.rect((cellX - 1) * cellWidth, (cellY - 1) * cellHeight, cellWidth, cellHeight);
-    ctxLeft.stroke()
 
     ctxLeft.rect((clickstartx - 1) * cellWidth, (clickstarty - 1) * cellHeight, cellWidth, cellHeight);
     ctxLeft.stroke()

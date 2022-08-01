@@ -35,8 +35,11 @@ div {
     font-size: 20px;
 }
 
-p {
-    margin: 5%;
+textarea {
+    margin: 2%;
+    width: 95%;
+    height: 95%;
+    overflow-y: scroll;
     font-family: 'Poppins';
     font-size: 20px;
 }

@@ -94,7 +94,7 @@ export default function Data(data) {
         //placeholder locations
 
         dataArray[0].forEach((e, i) => {
-            if (e != '') {
+            if (e != '' && e != null) {
                 var pos = new THREE.Vector3(0, (i) * 3, 0);
                 console.log(e)
                 ms.push(new Point2d('M', i, 'red', pos, 10));
@@ -103,9 +103,9 @@ export default function Data(data) {
 
 
         dataArray.forEach((e, i) => {
-            if (e != '') {
-                var pos = new THREE.Vector3((i + 1) * 3, 0, 0);
-                ts.push(new Point2d('T', i + 1, 'blue', pos, 5));
+            if (i > 0 && e != '' && e != null) {
+                var pos = new THREE.Vector3((i) * 3, 0, 0);
+                ts.push(new Point2d('T', i, 'blue', pos, 5));
             }
         })
 
@@ -133,6 +133,7 @@ export default function Data(data) {
 
     //const sheet = new Spreadsheet(ms.length, ts.length, sizes.width / 4, sizes.height);
 
+    /*
     function compare(a, b) {
         if (a.last_nom < b.last_nom) {
             return -1;
@@ -146,7 +147,57 @@ export default function Data(data) {
     tracers.sort((a, b) => {
         return a.value - b.value;
     });
+    */
 
     return [ms, ts, tracers, insights, views]
+
+}
+
+export function saveFile(ms, ts, tracers, insights, views) {
+
+    let csvContent = "data:text/csv;charset=utf-8,"
+
+    let dataArray = [
+        ["Labels", "M0"],
+        ["T0", "XYZ"]
+    ];
+
+    ms.forEach(e => {
+        dataArray[0].push(e.name);
+        dataArray[1].push(String(e.pos.x) + "/" + String(e.pos.y) + "/" + String(e.pos.z));
+    })
+
+    ts.forEach((e, i) => {
+        dataArray.push([e.name]);
+        console.log(dataArray)
+        dataArray[i + 2].push(String(e.pos.x) + "/" + String(e.pos.y) + "/" + String(e.pos.z));
+    })
+
+    tracers.forEach((e, i) => {
+        dataArray[(i % ts.length) + 2].push(String(e.value))
+    })
+    insights[0] = 'INSIGHTS'
+    
+    for (var i = 0; i < ms.length; i++){
+        if (i == 0) {
+            views[i] = 'INSIGHTS';
+        } else if (views[i] == null) {
+            views[i] = "0/0/0"
+        } else {
+            views[i] = views[i].join("/")
+        }
+    }
+    dataArray.push(insights);
+    dataArray.push(views);
+
+    dataArray.forEach(function (rowArray) {
+        let row = rowArray.join(",");
+        csvContent += row + "\r\n";
+    });
+
+    console.log(csvContent);
+
+    var encodedUri = encodeURI(csvContent);
+    window.open(encodedUri);
 
 }
