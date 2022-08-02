@@ -155,6 +155,8 @@ export default function Data(data) {
 
 export function saveFile(ms, ts, tracers, insights, views) {
 
+    let viewlist = [];
+
     let csvContent = "data:text/csv;charset=utf-8,"
 
     let dataArray = [
@@ -169,7 +171,6 @@ export function saveFile(ms, ts, tracers, insights, views) {
 
     ts.forEach((e, i) => {
         dataArray.push([e.name]);
-        console.log(dataArray)
         dataArray[i + 2].push(String(e.pos.x) + "/" + String(e.pos.y) + "/" + String(e.pos.z));
     })
 
@@ -178,17 +179,15 @@ export function saveFile(ms, ts, tracers, insights, views) {
     })
     insights[0] = 'INSIGHTS'
     
-    for (var i = 0; i < ms.length; i++){
+    for (var i = 0; i < ms.length + 1; i++){
         if (i == 0) {
-            views[i] = 'INSIGHTS';
-        } else if (views[i] == null) {
-            views[i] = "0/0/0"
-        } else {
-            views[i] = views[i].join("/")
+            viewlist[i] = 'VIEWS';
+        } else if (views[i] != null) {
+            viewlist[i] = views[i].join("/")
         }
     }
     dataArray.push(insights);
-    dataArray.push(views);
+    dataArray.push(viewlist);
 
     dataArray.forEach(function (rowArray) {
         let row = rowArray.join(",");

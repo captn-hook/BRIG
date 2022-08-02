@@ -329,13 +329,9 @@ canvas2d.addEventListener("click", (e) => {
                 y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
             };
 
-            console.log(mouse)
-
             raycaster.setFromCamera(mouse, camera);
 
             const intersects = raycaster.intersectObjects(sceneMeshes, false);
-
-            console.log(sceneMeshes);
 
             if (intersects.length > 0) {
                 if (clickstartx == 1) {
@@ -351,7 +347,7 @@ canvas2d.addEventListener("click", (e) => {
 textbox.addEventListener('input', e => {
     console.log('input')
     if (textbox.readOnly == false) {
-        insights[clickstarty] = textbox.value.replaceAll(",", "§").replaceAll("\n", "¦");
+        insights[clickstarty] = textbox.value.replaceAll(",", ".comma.").replaceAll("\n", ".line.");
         console.log(textbox.value)
     }
 })
@@ -411,7 +407,6 @@ var sty = null;
 
 canvasleft.addEventListener('click', (e) => {
     if (e.detail == 1) {
-        console.log(cellX, cellY);
         stx = clickstartx;
         sty = clickstarty;
         clickstartx = cellX;
@@ -435,7 +430,7 @@ canvasleft.addEventListener('click', (e) => {
             var m = cellY - 2;
 
             //special views
-            if (views[cellY - 1] != null && views[cellY - 1][0] != '') {
+            if (views[cellY - 1] != null) {
                 camera.position.set(parseFloat(views[cellY - 1][0]), parseFloat(views[cellY - 1][1]), parseFloat(views[cellY - 1][2]));
             } else {
                 camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
@@ -443,7 +438,7 @@ canvasleft.addEventListener('click', (e) => {
             controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
 
             //insights
-            textbox.value = (insights[cellY] == null) ? '' : String(insights[cellY].replaceAll("§", ",").replaceAll("¦", "\n"));
+            textbox.value = (insights[cellY] == null) ? '' : String(insights[cellY].replaceAll(".comma.", ",").replaceAll(".line.", "\n"));
 
         }
     } else if (e.detail == 2) {
