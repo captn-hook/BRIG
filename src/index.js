@@ -79,6 +79,20 @@ canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
 
+// Canvas
+const canvas3d = document.querySelector('canvas.webgl');
+
+const ctx = canvas2d.getContext('2d');
+
+const spreadsheetDiv = document.getElementById("spreadsheet");
+
+const canvasleft = document.getElementById('left');
+canvasleft.oncontextmenu = () => false;
+
+const ctxLeft = canvasleft.getContext('2d');
+
+const textbox = document.getElementById('textbox');
+
 // Debug
 const gui = new dat.GUI();
 
@@ -110,26 +124,8 @@ var btn1 = {
 
 devGUI.add(btn1, 'saveFiles');
 
-var editPos = false;
+
 var btn2 = {
-    editPosition: function () {
-        console.log("editPosition")
-        editPos = !editPos;
-    }
-};
-
-devGUI.add(btn2, 'editPosition');
-
-var btn3 = {
-    editText: function () {
-        console.log("editText")
-        textbox.readOnly = !textbox.readOnly;
-    }
-};
-
-devGUI.add(btn3, 'editText');
-
-var btn4 = {
     saveCam: function () {
         console.log("saveCam")
         views[clickstarty - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
@@ -137,7 +133,14 @@ var btn4 = {
     }
 };
 
-devGUI.add(btn4, 'saveCam');
+devGUI.add(btn2, 'saveCam');
+
+
+var btn3 = {editPos: false};
+
+devGUI.add(btn3, 'editPos', 'editPosition');
+
+devGUI.add(textbox, 'readOnly', 'editText');
 
 devGUI.open();
 
@@ -160,21 +163,6 @@ camGUI.add(camera.rotation, 'y', -100, 100).listen()
 camGUI.add(camera.rotation, 'z', -100, 100).listen()
 
 camGUI.open();
-
-// Canvas
-const canvas3d = document.querySelector('canvas.webgl');
-
-const ctx = canvas2d.getContext('2d');
-
-const spreadsheetDiv = document.getElementById("spreadsheet");
-
-const canvasleft = document.getElementById('left');
-canvasleft.oncontextmenu = () => false;
-
-const ctxLeft = canvasleft.getContext('2d');
-
-const textbox = document.getElementById('textbox');
-
 
 //set size
 updateSizes();
@@ -321,7 +309,7 @@ updateSizes();
 */
 
 canvas2d.addEventListener("click", (e) => {
-        if (editPos) {
+        if (btn2.editPos) {
 
             var raycaster = new THREE.Raycaster();
             var mouse = {

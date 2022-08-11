@@ -87,7 +87,7 @@ class Point2d extends Point {
             ctxLeft.fillRect(0, this.i * cellHeight, cellWidth, cellHeight);
             ctxLeft.fillStyle = "black";
             ctxLeft.fillText(this.name, 10, this.i * cellHeight + 10);
-        } else if (this.type == 'T') {
+        } else if (this.type == 'D') {
             ctxLeft.fillRect(this.i * cellWidth, 0, cellWidth, cellHeight);
             ctxLeft.fillStyle = "black";
             ctxLeft.fillText(this.name, this.i * cellWidth + 10, 10);

@@ -67,7 +67,7 @@ export default function Data(data) {
                     var xyz = dataArray[t][m].split('/');
                     var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-                    ts.push(new Point2d("T", t - 1, 'blue', pos, 5));
+                    ts.push(new Point2d("D", t - 1, 'blue', pos, 5));
 
                     //ROW 1
                 } else if (t == 1 && m > 1) {
@@ -105,7 +105,7 @@ export default function Data(data) {
         dataArray.forEach((e, i) => {
             if (i > 0 && e != '' && e != null) {
                 var pos = new THREE.Vector3((i) * 3, 0, 0);
-                ts.push(new Point2d('T', i, 'blue', pos, 5));
+                ts.push(new Point2d('D', i, 'blue', pos, 5));
             }
         })
 
@@ -186,6 +186,7 @@ export function saveFile(ms, ts, tracers, insights, views) {
             viewlist[i] = views[i].join("/")
         }
     }
+    
     dataArray.push(insights);
     dataArray.push(viewlist);
 
