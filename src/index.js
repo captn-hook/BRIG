@@ -309,7 +309,7 @@ updateSizes();
 */
 
 canvas2d.addEventListener("click", (e) => {
-        if (btn2.editPos) {
+        if (btn3.editPos) {
 
             var raycaster = new THREE.Raycaster();
             var mouse = {
