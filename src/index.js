@@ -136,7 +136,9 @@ var btn2 = {
 devGUI.add(btn2, 'saveCam');
 
 
-var btn3 = {editPos: false};
+var btn3 = {
+    editPos: false
+};
 
 devGUI.add(btn3, 'editPos', 'editPosition');
 
@@ -199,7 +201,7 @@ var globalObj;
 var sceneMeshes = [];
 
 // onLoad callback
-function onLoadLoad(obj) { 
+function onLoadLoad(obj) {
     console.log(obj)
     obj.scene.children[0].children.forEach((e) => {
         sceneMeshes.push(e);
@@ -335,7 +337,7 @@ canvas2d.addEventListener("click", (e) => {
 textbox.addEventListener('input', e => {
     console.log('input')
     if (textbox.readOnly == false) {
-        insights[clickstarty] = textbox.value.replaceAll(",", ".comma.").replaceAll("\n", ".line.");
+        insights[clickstarty] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
         console.log(textbox.value)
     }
 })
@@ -387,11 +389,54 @@ var clickstarty = null;
 var stx = null;
 var sty = null;
 
+function updateCam(x, y) {
+
+    if (x <= 1 && y <= 1) {
+
+    } else if (y == 1) {
+        //if y (row) == 1, ts
+        var t = x - 2;
+
+        camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
+        controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
+
+        //throws errors if it trys to select row before/after last
+    } else if (1 < y && y < ms.length + 2) {
+        //if x (column) == 1, ms
+
+        var m = y - 2;
+
+        //special views
+        if (views[y - 1] != null && views[y - 1][0] != '') {
+            camera.position.set(parseFloat(views[y - 1][0]), parseFloat(views[y - 1][1]), parseFloat(views[y - 1][2]));
+        } else {
+            camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+        }
+        controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+        //insights
+        textbox.value = (insights[y] == null) ? '' : String(insights[y].replaceAll("§", ",").replaceAll("¦", "\n"));
+
+    }
+}
 //draw from min 
 //(a < b) ? 'minor' : 'major')
 //((clickstartx < cellX) ? clickstartx : cellX) inv ((clickstartx < cellX) ? cellX : clickstartx)
 //((clickstarty < cellY) ? clickstarty : cellY) inv ((clickstarty < cellY) ? cellY : clickstarty)
 //     
+
+window.addEventListener('hashchange', (e) => {
+
+    var hash = window.location.hash.substring(1)
+    var params = hash.split("&")
+
+    if (params[0].substring(2) != cellX || params[1].substring(2) != cellY) {
+        clickstartx = params[0].substring(2);
+        clickstarty = params[1].substring(2);
+        updateCam(clickstartx, clickstarty)
+    }
+
+});
 
 canvasleft.addEventListener('click', (e) => {
     if (e.detail == 1) {
@@ -401,34 +446,10 @@ canvasleft.addEventListener('click', (e) => {
         clickstarty = cellY;
 
         //update camera on mouse click
+        updateCam(cellX, cellY)
 
-        if (cellX <= 1 && cellY <= 1) {
+        window.location.hash = ("X=" + cellX + "&Y=" + cellY)
 
-        } else if (cellY == 1) {
-            //if y (row) == 1, ts
-            var t = cellX - 2;
-
-            camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
-            controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
-
-            //throws errors if it trys to select row before/after last
-        } else if (1 < cellY && cellY < ms.length + 2) {
-            //if x (column) == 1, ms
-
-            var m = cellY - 2;
-
-            //special views
-            if (views[cellY - 1] != null) {
-                camera.position.set(parseFloat(views[cellY - 1][0]), parseFloat(views[cellY - 1][1]), parseFloat(views[cellY - 1][2]));
-            } else {
-                camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
-            }
-            controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
-
-            //insights
-            textbox.value = (insights[cellY] == null) ? '' : String(insights[cellY].replaceAll(".comma.", ",").replaceAll(".line.", "\n"));
-
-        }
     } else if (e.detail == 2) {
         clickstartx = stx;
         clickstarty = sty;
