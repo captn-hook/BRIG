@@ -248,6 +248,38 @@ class Tracer2d extends Tracer {
         ctxLeft.globalAlpha = 1.0;
     };
 
+    drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
+
+        //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
+        var [x1, y1, a, b, c, d, x2, y2, e, f, g, h] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
+
+        if (x1 != null && this.visible) {
+
+                ctx.font = "12px Arial";
+                ctx.textAlign = "center";
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.strokeText(this.value, x1, y1);
+                ctx.fillStyle = "white";
+                ctx.fillText(this.value, x1, y1);
+                
+                ctxLeft.font = "12px Arial";
+                ctxLeft.textAlign = "center";
+                ctxLeft.strokeStyle = 'black';
+                ctxLeft.lineWidth = 2;
+                ctxLeft.strokeText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+                ctxLeft.fillStyle = "white";
+                ctxLeft.fillText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+
+                /*
+                ctxLeft.font = "12px Arial";
+                ctxLeft.fillStyle = "black";
+                ctxLeft.textAlign = "center";
+                ctxLeft.fillText(this.value, cellWidth * cellWidth, cellHeight * cellHeight - 30);
+                */
+            }
+    };
+
 
 
     monitor() {

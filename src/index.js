@@ -322,13 +322,16 @@ updateSizes();
 */
 
 //buttons
+var doVals = false;
 valueBtn.addEventListener("click", (e) => {
     if (valueBtn.innerHTML == '/') {
         valueBtn.innerHTML = '%';
         //show values
+        doVals = true;
     } else {
         valueBtn.innerHTML = '/';
         //hide values
+        doVals = false;
     }
 
 })
@@ -706,6 +709,12 @@ const tick = () => {
 
     ctxLeft.rect((clickstartx - 1) * cellWidth, (clickstarty - 1) * cellHeight, cellWidth, cellHeight);
     ctxLeft.stroke()
+
+    //values
+    if (doVals) {
+        console.log('help')
+        tracers.forEach(t => t.drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
+    }
 
     //loading bar
     if ((Gxhr.loaded / Gxhr.total * 100) < 100) {
