@@ -35,6 +35,7 @@ import Data from './Data'
 import {
     saveFile
 } from './Data';
+import { Vector3 } from 'three';
 
 //specific assets
 //import building from '../models/1.glb';
@@ -102,7 +103,6 @@ const allBtn = document.getElementById('allBtn');
 
 const flipBtn = document.getElementById('flipBtn');
 
-const camBtn = document.getElementById('camBtn');
 
 // Debug
 const gui = new dat.GUI();
@@ -323,7 +323,7 @@ updateSizes();
 
 //buttons
 valueBtn.addEventListener("click", (e) => {
-    if(valueBtn.innerHTML == '/'){
+    if (valueBtn.innerHTML == '/') {
         valueBtn.innerHTML = '%';
         //show values
     } else {
@@ -334,7 +334,7 @@ valueBtn.addEventListener("click", (e) => {
 })
 
 allBtn.addEventListener("click", (e) => {
-    if(allBtn.innerHTML == '0'){
+    if (allBtn.innerHTML == '0') {
         allBtn.innerHTML = '-';
         //show all
         var action = false;
@@ -360,9 +360,14 @@ allBtn.addEventListener("click", (e) => {
 
 
 flipBtn.addEventListener("click", (e) => {
-    
-    console.log(e)
 
+    if (flipBtn.innerHTML == '◐') {
+        flipBtn.innerHTML = '◑';
+        //show values
+    } else {
+        flipBtn.innerHTML = '◐';
+        //hide values
+    }
     ms.forEach((m) => {
         console.log(m)
         m.visible = !m.visible
@@ -375,12 +380,6 @@ flipBtn.addEventListener("click", (e) => {
     tracers.forEach((t) => {
         t.visible = !t.visible;
     })
-
-})
-
-camBtn.addEventListener("click", (e) => {
-
-   
 
 })
 
@@ -407,6 +406,13 @@ canvas2d.addEventListener("click", (e) => {
                 }
             }
         }
+
+        //store pos in link
+        var pos = String(Math.round(camera.position.x * 100) / 100) + "&" + String(Math.round(camera.position.y * 100) / 100) + "&" + String(Math.round(camera.position.z * 100) / 100) + "&" + String(Math.round(camera.rotation.x * 100) / 100) + "&" + String(Math.round(camera.rotation.y * 100) / 100) + "&" + String(Math.round(camera.rotation.z * 100) / 100)
+        
+        if (pos[0] != null){
+        window.location.hash = pos;
+        }   
     },
     false);
 
@@ -422,6 +428,12 @@ textbox.addEventListener('input', e => {
 dataInput.addEventListener("change", handleFiles, false);
 
 function handleModels() {
+    //remove old stuff first
+
+    if (globalObj != null){
+    scene.remove(globalObj);
+    }
+
     var file = this.files[0];
 
     var read = new FileReader();
@@ -506,10 +518,28 @@ window.addEventListener('hashchange', (e) => {
     var hash = window.location.hash.substring(1)
     var params = hash.split("&")
 
-    if (params[0].substring(2) != cellX || params[1].substring(2) != cellY) {
-        clickstartx = params[0].substring(2);
-        clickstarty = params[1].substring(2);
-        updateCam(clickstartx, clickstarty)
+    if (params.length == 2) {
+        if (params[0].substring(2) != cellX || params[1].substring(2) != cellY) {
+            clickstartx = params[0].substring(2);
+            clickstarty = params[1].substring(2);
+            updateCam(clickstartx, clickstarty)
+        }
+    } else if (params.length == 6) {
+
+        var pos = new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
+        var rot = new Vector3(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
+
+        console.log(pos, rot, camera.position.distanceTo(pos))
+        //                                   min dist
+        if (camera.position.distanceTo(new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))) > .03) {
+
+        camera.position.set(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))    
+        camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
+
+        controls.update();
+
+        }
+
     }
 
 });
@@ -640,7 +670,6 @@ const tick = () => {
     //console.log(elapsedTime);
     // Update Orbital Controls
     controls.update();
-
     // Render
     renderer.render(scene, camera);
 
