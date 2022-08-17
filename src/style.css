@@ -19,6 +19,11 @@ label
     margin-left: 8%;
 }
 
+select
+{
+    cursor: pointer;
+}
+
 canvas
 {
     top: 0;
@@ -27,6 +32,7 @@ canvas
     width:  100%;
     height: 100%;
     user-select: none;
+    cursor: pointer;
 }
 
 div {
@@ -43,3 +49,29 @@ textarea {
     font-family: 'Poppins';
     font-size: 20px;
 }
+
+.btn-group button {
+    background-color: gray; /* Green background */
+    border: 2px solid black; /* Green border */
+    color: white; /* White text */
+    cursor: pointer; /* Pointer/hand icon */
+    padding: 1%;
+    width: 25%;
+   
+  }
+  
+  .btn-group button:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+  }
+  
+  /* Clear floats (clearfix hack) */
+  .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+  
+  /* Add a background color on hover */
+  .btn-group button:hover {
+    background-color: #3e8e41;
+  }

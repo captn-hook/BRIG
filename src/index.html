@@ -14,19 +14,19 @@
         <div style="width: 30%; float: left; background: white;">
 
             <!-- Vertical Div 0, title -->
-            <div style="height: 15%; overflow: hidden;">
+            <div style="height: 13%; overflow: hidden;">
                 <label style="font-size: 50px"> Poppy BRIG MVP</label>
             </div>
 
             <!-- Vertical Div 1.0, switch display -->
-            <div id="selectPanel1" style="display: block; height: 15%; overflow: hidden;">
+            <div id="selectPanel1" style="display: block; height: 13%; overflow: hidden;">
                 <label for="sites">Choose a site:</label>
                 <select name="sites" id="sitess">
                     <option value="Empty">Empty</option>
                 </select>
             </div>
             <!-- Vertical Div 1.1, switch dev -->
-            <div id="selectPanel2" style="display: none; height: 15%; overflow: hidden;">
+            <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;">
                 <label for="datapicker"> Select data:</label>
                 <input type="file" id="datapicker" accept=".csv,.txt">
 
@@ -35,13 +35,21 @@
                 <input type="file" id="modelpicker" accept=".glb,.gltf">
             </div>
 
-            <!-- Vertical Div 2 -->
+            <!-- Vertical Div 2.0 -->
+            <div style="height: 4%;  position: relative;" class="btn-group">
+                
+                <button id="valueBtn">/</button><button id="allBtn">0</button><button id="flipBtn"> Flip Visible </button><button id="camBtn"> Free Cam </button>
+         
+            </div>
+
+            <!-- Vertical Div 2.1 -->
             <div style="height: 30%;  position: relative;" id="spreadsheet">
                 <canvas id="left"></canvas>
             </div>
             <!-- Vertical Div 3 -->
             <div style="height: 40%;">
-                <textarea id="textbox" readOnly>https://docs.google.com/presentation/d/1UxYUx0RkXoOaPzQcu8JpfM_PrgPJGX7xGixXuciVUQM/edit?usp=sharing</textarea>
+                <textarea id="textbox"
+                    readOnly>https://docs.google.com/presentation/d/1UxYUx0RkXoOaPzQcu8JpfM_PrgPJGX7xGixXuciVUQM/edit?usp=sharing</textarea>
             </div>
 
         </div>

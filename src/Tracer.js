@@ -189,7 +189,8 @@ class Tracer2d extends Tracer {
                 // Cubic Bézier curve
                 ctx.beginPath();
                 //start line at arrow tip edge
-                var [strtx, strty] = this.midpoint(x5, y5, x6, y6);
+                var arwbk = this.midpoint(x5, y5, x6, y6);
+                var [strtx, strty] = this.midpoint(x1, y1, arwbk[0], arwbk[1])
                 ctx.moveTo(strtx, strty);
                 //                ctrl1    ctrl2   end
                 ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);

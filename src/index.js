@@ -93,6 +93,17 @@ const ctxLeft = canvasleft.getContext('2d');
 
 const textbox = document.getElementById('textbox');
 
+
+//buttons
+
+const valueBtn = document.getElementById('valueBtn');
+
+const allBtn = document.getElementById('allBtn');
+
+const flipBtn = document.getElementById('flipBtn');
+
+const camBtn = document.getElementById('camBtn');
+
 // Debug
 const gui = new dat.GUI();
 
@@ -310,6 +321,71 @@ updateSizes();
     EVENTS
 */
 
+//buttons
+valueBtn.addEventListener("click", (e) => {
+    if(valueBtn.innerHTML == '/'){
+        valueBtn.innerHTML = '%';
+        //show values
+    } else {
+        valueBtn.innerHTML = '/';
+        //hide values
+    }
+
+})
+
+allBtn.addEventListener("click", (e) => {
+    if(allBtn.innerHTML == '0'){
+        allBtn.innerHTML = '-';
+        //show all
+        var action = false;
+    } else {
+        allBtn.innerHTML = '0';
+        //hide all
+        var action = true;
+    }
+
+    ms.forEach((m) => {
+        console.log(m)
+        m.visible = action;
+    })
+
+    ts.forEach((t) => {
+        t.visible = action;
+    })
+
+    tracers.forEach((t) => {
+        t.visible = action;
+    })
+})
+
+
+flipBtn.addEventListener("click", (e) => {
+    
+    console.log(e)
+
+    ms.forEach((m) => {
+        console.log(m)
+        m.visible = !m.visible
+    })
+
+    ts.forEach((t) => {
+        t.visible = !t.visible
+    })
+
+    tracers.forEach((t) => {
+        t.visible = !t.visible;
+    })
+
+})
+
+camBtn.addEventListener("click", (e) => {
+
+   
+
+})
+
+
+//canvas
 canvas2d.addEventListener("click", (e) => {
         if (btn3.editPos) {
 
@@ -468,6 +544,7 @@ canvasleft.addEventListener('click', (e) => {
         })
 
         if (minx < 1 && miny < 1) {
+            console.log('hey')
 
         } else {
             if (miny == 1) {
