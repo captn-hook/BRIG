@@ -200,14 +200,14 @@ class Tracer2d extends Tracer {
                 ctx.textAlign = "center";
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 2;
-                ctx.strokeText(this.value, x1, y1);
+                ctx.strokeText(Math.round(this.value * 100) / 100, x1, y1);
                 ctx.fillStyle = "white";
-                ctx.fillText(this.value, x1, y1);
+                ctx.fillText(Math.round(this.value * 100) / 100, x1, y1);
 
                 ctxLeft.font = "12px Arial";
                 ctxLeft.fillStyle = "black";
                 ctxLeft.textAlign = "center";
-                ctxLeft.fillText(this.value, cellWidth * cellWidth, cellHeight * cellHeight - 30);
+                ctxLeft.fillText(Math.round(this.value * 100) / 100, cellWidth * cellWidth, cellHeight * cellHeight - 30);
             }
             //settings
             ctx.lineWidth = this.outline;
@@ -259,9 +259,9 @@ class Tracer2d extends Tracer {
                 ctx.textAlign = "center";
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 2;
-                ctx.strokeText(this.value, x1, y1);
-                ctx.fillStyle = "white";
-                ctx.fillText(this.value, x1, y1);
+                ctx.strokeText(Math.round(this.value * 100) / 100, x1, y1);
+                ctx.fillStyle = this.color;
+                ctx.fillText(Math.round(this.value * 100) / 100, x1, y1);
                 
                 ctxLeft.font = "12px Arial";
                 ctxLeft.textAlign = "center";

@@ -45,7 +45,7 @@ textarea {
     font-size: 20px;
 }
 
-.btn-group button {
+button {
     background-color: gray;
     /* Green background */
     border: 2px solid black;
