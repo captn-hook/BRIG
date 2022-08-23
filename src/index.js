@@ -37,6 +37,31 @@ import {
 } from './Data';
 import { Vector3 } from 'three';
 
+/*
+Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
+*/
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+    apiKey: "AIzaSyCC530CUMJBkzXeziUQUpj8b-EnL05ibiQ",
+    authDomain: "brig-b2ca3.firebaseapp.com",
+    projectId: "brig-b2ca3",
+    storageBucket: "brig-b2ca3.appspot.com",
+    messagingSenderId: "536591450814",
+    appId: "1:536591450814:web:40eb73d5b1bf09ce36d4ef",
+    measurementId: "G-0D9RW0VMCQ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 //specific assets
 //import building from '../models/1.glb';
 //import data from '../data/ins.csv'
@@ -99,7 +124,7 @@ const textbox = document.getElementById('textbox');
 
 const valueBtn = document.getElementById('valueBtn');
 
-const allBtn = document.getElementById('allBtn');
+const opacityBtn = document.getElementById('opacityBtn');
 
 const flipBtn = document.getElementById('flipBtn');
 
@@ -139,7 +164,7 @@ devGUI.add(btn1, 'saveFiles');
 var btn2 = {
     saveCam: function () {
         console.log("saveCam")
-        views[clickstarty - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
+        views[firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
         console.log(views)
     }
 };
@@ -300,141 +325,18 @@ function updateSizes() {
 
 const clock = new THREE.Clock();
 
-var cellWidth = (canvasleft.width / (ts.length + 1));
-var cellHeight = (canvasleft.height / (ms.length + 1));
-
-var cellX = 0;
-var cellY = 0;
-
 const dataInput = document.getElementById("datapicker");
 
 const modelInput = document.getElementById("modelpicker");
-/*
-    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
-
-*/
-
-updateSizes();
 
 
-/*
-    EVENTS
-*/
-
-//buttons
-var doVals = false;
-valueBtn.addEventListener("click", (e) => {
-    if (valueBtn.innerHTML == '/') {
-        valueBtn.innerHTML = '%';
-        //show values
-        doVals = true;
-    } else {
-        valueBtn.innerHTML = '/';
-        //hide values
-        doVals = false;
-    }
-
-})
-
-allBtn.addEventListener("click", (e) => {
-    if (allBtn.innerHTML == '0') {
-        allBtn.innerHTML = '-';
-        //show all
-        var action = false;
-    } else {
-        allBtn.innerHTML = '0';
-        //hide all
-        var action = true;
-    }
-
-    ms.forEach((m) => {
-        console.log(m)
-        m.visible = action;
-    })
-
-    ts.forEach((t) => {
-        t.visible = action;
-    })
-
-    tracers.forEach((t) => {
-        t.visible = action;
-    })
-})
-
-
-flipBtn.addEventListener("click", (e) => {
-
-    if (flipBtn.innerHTML == '◐') {
-        flipBtn.innerHTML = '◑';
-        //show values
-    } else {
-        flipBtn.innerHTML = '◐';
-        //hide values
-    }
-    ms.forEach((m) => {
-        console.log(m)
-        m.visible = !m.visible
-    })
-
-    ts.forEach((t) => {
-        t.visible = !t.visible
-    })
-
-    tracers.forEach((t) => {
-        t.visible = !t.visible;
-    })
-
-})
-
-
-//canvas
-canvas2d.addEventListener("click", (e) => {
-        if (btn3.editPos) {
-
-            var raycaster = new THREE.Raycaster();
-            var mouse = {
-                x: (e.clientX - canvasleft.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
-                y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
-            };
-
-            raycaster.setFromCamera(mouse, camera);
-
-            const intersects = raycaster.intersectObjects(sceneMeshes, false);
-
-            if (intersects.length > 0) {
-                if (clickstartx == 1) {
-                    ms[clickstarty - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
-                } else if (clickstarty == 1) {
-                    ts[clickstartx - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
-                }
-            }
-        }
-
-        //store pos in link
-        var pos = String(Math.round(camera.position.x * 100) / 100) + "&" + String(Math.round(camera.position.y * 100) / 100) + "&" + String(Math.round(camera.position.z * 100) / 100) + "&" + String(Math.round(camera.rotation.x * 100) / 100) + "&" + String(Math.round(camera.rotation.y * 100) / 100) + "&" + String(Math.round(camera.rotation.z * 100) / 100)
-        
-        if (pos[0] != null){
-        window.location.hash = pos;
-        }   
-    },
-    false);
-
-textbox.addEventListener('input', e => {
-    console.log('input')
-    if (textbox.readOnly == false) {
-        insights[clickstarty] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
-        console.log(textbox.value)
-    }
-})
-
-//file input
-dataInput.addEventListener("change", handleFiles, false);
+//data funccs
 
 function handleModels() {
     //remove old stuff first
 
-    if (globalObj != null){
-    scene.remove(globalObj);
+    if (globalObj != null) {
+        scene.remove(globalObj);
     }
 
     var file = this.files[0];
@@ -452,9 +354,19 @@ function handleModels() {
     }
 }
 
-modelInput.addEventListener("change", handleModels, false);
+function blankClicks() {
+    firstClick = true;
+    firstClickX = null;
+    firstClickY = null;
+    secondClickX = null;
+    secondClickY = null;
+}
 
 function handleFiles() {
+
+    //remove old stuff first
+   blankClicks();
+
     var file = this.files[0];
 
     var read = new FileReader();
@@ -473,12 +385,6 @@ function handleFiles() {
         cellHeight = (canvasleft.height / (ms.length + 1));
     }
 }
-
-//spreadsheet click
-var clickstartx = null;
-var clickstarty = null;
-var stx = null;
-var sty = null;
 
 function updateCam(x, y) {
 
@@ -510,11 +416,141 @@ function updateCam(x, y) {
 
     }
 }
-//draw from min 
-//(a < b) ? 'minor' : 'major')
-//((clickstartx < cellX) ? clickstartx : cellX) inv ((clickstartx < cellX) ? cellX : clickstartx)
-//((clickstarty < cellY) ? clickstarty : cellY) inv ((clickstarty < cellY) ? cellY : clickstarty)
-//     
+
+function bounds(x1, y1, x2, y2) {
+    //returns the bounds of the current selection
+    var x = (((x1 < x2) ? x1 : x2) - 1) * cellWidth
+    var y = (((y1 < y2) ? y1 : y2) - 1) * cellHeight
+
+    var w =(Math.abs(x1 - x2) + 1) * cellWidth 
+    var h = (Math.abs(y1 - y2) + 1) * cellHeight
+
+    return [x, y, w, h]
+}
+
+//live variables
+
+var cellWidth = (canvasleft.width / (ts.length + 1));
+var cellHeight = (canvasleft.height / (ms.length + 1));
+
+
+var cellX = 0;
+var cellY = 0;
+
+var doVals = false;
+
+
+//spreadsheet click
+var firstClickX = null;
+var firstClickY = null;
+
+var secondClickX = null;
+var secondClickY = null;
+
+var firstClick = null;
+
+/*
+    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
+
+*/
+
+updateSizes();
+
+
+/*
+    EVENTS
+*/
+ 
+//buttons
+valueBtn.addEventListener("click", (e) => {
+    if (valueBtn.innerHTML == '/') {
+        valueBtn.innerHTML = '%';
+        //show values
+        doVals = true;
+    } else {
+        valueBtn.innerHTML = '/';
+        //hide values
+        doVals = false;
+    }
+})
+
+opacityBtn.addEventListener("click", (e) => {
+    //find the difference between click 1 and click 2
+    var minx = ((firstClickX < secondClickX) ? firstClickX : secondClickX) - 1;
+    var miny = ((firstClickY < secondClickY) ? firstClickY : secondClickY) - 1;
+    var x = Math.abs(secondClickX - firstClickX) + minx;
+    var y = Math.abs(secondClickY - firstClickY) + miny;
+
+    tracers.forEach
+})
+
+
+flipBtn.addEventListener("click", (e) => {
+
+    if (flipBtn.innerHTML == '◐') {
+        flipBtn.innerHTML = '◑';
+        //show values
+    } else {
+        flipBtn.innerHTML = '◐';
+        //hide values
+    }
+    ms.forEach((m) => {
+        m.visible = !m.visible
+    })
+
+    ts.forEach((t) => {
+        t.visible = !t.visible
+    })
+
+    tracers.forEach((t) => {
+        t.visible = !t.visible;
+    })
+
+})
+
+//canvas
+canvas2d.addEventListener("click", (e) => {
+    if (btn3.editPos) {
+
+        var raycaster = new THREE.Raycaster();
+        var mouse = {
+            x: (e.clientX - canvasleft.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
+            y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+        };
+
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(sceneMeshes, false);
+
+        if (intersects.length > 0) {
+            if (firstClickX == 1) {
+                ms[firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+            } else if (firstClickY == 1) {
+                ts[firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+            }
+        }
+    }
+
+    //store pos in link
+    var pos = String(Math.round(camera.position.x * 100) / 100) + "&" + String(Math.round(camera.position.y * 100) / 100) + "&" + String(Math.round(camera.position.z * 100) / 100) + "&" + String(Math.round(camera.rotation.x * 100) / 100) + "&" + String(Math.round(camera.rotation.y * 100) / 100) + "&" + String(Math.round(camera.rotation.z * 100) / 100)
+
+    if (pos[0] != null) {
+        window.location.hash = pos;
+    }
+},
+    false);
+
+textbox.addEventListener('input', e => {
+    if (textbox.readOnly == false) {
+        insights[firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
+        console.log(textbox.value)
+    }
+})
+
+//file input
+dataInput.addEventListener("change", handleFiles, false);
+
+modelInput.addEventListener("change", handleModels, false);
 
 window.addEventListener('hashchange', (e) => {
 
@@ -523,9 +559,9 @@ window.addEventListener('hashchange', (e) => {
 
     if (params.length == 2) {
         if (params[0].substring(2) != cellX || params[1].substring(2) != cellY) {
-            clickstartx = params[0].substring(2);
-            clickstarty = params[1].substring(2);
-            updateCam(clickstartx, clickstarty)
+            firstClickX = params[0].substring(2);
+            firstClickY = params[1].substring(2);
+            updateCam(firstClickX, firstClickY)
         }
     } else if (params.length == 6) {
 
@@ -536,10 +572,10 @@ window.addEventListener('hashchange', (e) => {
         //                                   min dist
         if (camera.position.distanceTo(new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))) > .03) {
 
-        camera.position.set(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))    
-        camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
+            camera.position.set(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
+            camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
 
-        controls.update();
+            controls.update();
 
         }
 
@@ -548,92 +584,46 @@ window.addEventListener('hashchange', (e) => {
 });
 
 canvasleft.addEventListener('click', (e) => {
+    //single click, place markers 1 and 2
     if (e.detail == 1) {
-        stx = clickstartx;
-        sty = clickstarty;
-        clickstartx = cellX;
-        clickstarty = cellY;
+        if (firstClick) {
+            firstClick = false;
 
-        //update camera on mouse click
-        updateCam(cellX, cellY)
+            secondClickX = null;
+            secondClickY = null;
 
-        window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+            //grabs position of mouse, upaated by mousemove event
+            firstClickX = cellX;
+            firstClickY = cellY;
 
-    } else if (e.detail == 2) {
-        clickstartx = stx;
-        clickstarty = sty;
-        var minx = ((clickstartx < cellX) ? clickstartx : cellX);
-        var miny = ((clickstarty < cellY) ? clickstarty : cellY);
-        var maxx = ((clickstartx > cellX) ? clickstartx : cellX);
-        var maxy = ((clickstarty > cellY) ? clickstarty : cellY);
+            //update camera on mouse click
+            updateCam(cellX, cellY)
 
-
-        var visibility = null;
-
-        tracers.forEach((t) => {
-            if (t.m.i == cellY - 1 && t.t.i == cellX - 1) {
-                visibility = !t.visible;
-            }
-        })
-
-        if (minx < 1 && miny < 1) {
-            console.log('hey')
+            window.location.hash = ("X=" + cellX + "&Y=" + cellY)
 
         } else {
-            if (miny == 1) {
-                console.log(cellX, ts[cellX])
-                if (visibility == null) {
-                    visibility = !ts[cellX - 2].visible
-                }
-                console.log(visibility)
-                for (var i = minx; i < maxx + 1; i++) {
-                    //if y (row) == 1, clicked ts
-                    var t = i - 2;
+            firstClick = true;
 
-                    ts[t].visible = visibility;
+            //grabs position of mouse, upated by mousemove event
+            secondClickX = cellX;
+            secondClickY = cellY;
 
-                    tracers.forEach((tracer) => {
-                        if (ts[t] == tracer.t) {
-                            tracer.visible = visibility;
-                        }
-                    })
-                }
-            }
-            if (minx == 1) {
+            //update camera on mouse click
+            updateCam(cellX, cellY)
 
-                if (visibility == null) {
-                    visibility = !ms[cellY - 2].visible
-                }
+            window.location.hash = ("X=" + cellX + "&Y=" + cellY)
 
-                for (var i = miny; i < maxy + 1; i++) {
-                    //if x (column) == 1, clicked ms
-                    var m = i - 2;
-
-                    ms[m].visible = visibility;
-
-                    tracers.forEach((t) => {
-                        if (ms[m] == t.m) {
-                            t.visible = visibility;
-                        }
-                    })
-                }
-            } else {
-                tracers.forEach((t) => {
-                    if ((minx < t.t.i + 2) && (t.t.i < maxx) && (miny < t.m.i + 2) && (t.m.i < maxy)) {
-                        t.visible = visibility;
-                    }
-                })
-            }
         }
-
-        clickstartx = null;
-        clickstarty = null;
+        //double click, clear markers
+    } else if (e.detail == 2) {
+         blankClicks();
     }
 
 }, false);
 
-//spreadsheet mouse move
+//spreadsheet mouse move, tracks mouse position to cellX and cellY
 canvasleft.addEventListener("mousemove", (e) => {
+
     var rect = canvasleft.getBoundingClientRect();
     var x = e.pageX - rect.left;
     var y = e.pageY - rect.top;
@@ -670,7 +660,7 @@ console.log(tracers)
 const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
-    //console.log(elapsedTime);
+
     // Update Orbital Controls
     controls.update();
     // Render
@@ -690,29 +680,50 @@ const tick = () => {
     ctxLeft.fillStyle = 'white';
     ctxLeft.fillRect(0, 0, cellWidth, cellHeight);
 
-    //spreadsheet highlight
-    ctxLeft.beginPath();
-    ctxLeft.strokeStyle = 'yellow'
-    ctxLeft.lineWidth = 2;
+    //click 1
+    if (firstClick != null) {
 
-    //      x                      y                          w                            h
-    ctxLeft.rect((((clickstartx < cellX) ? clickstartx : cellX) - 1) * cellWidth, 0, (Math.abs(clickstartx - cellX) + 1) * cellWidth, cellHeight * (((clickstarty < cellY) ? cellY : clickstarty)));
-    ctxLeft.stroke()
 
-    ctxLeft.rect(0, (((clickstarty < cellY) ? clickstarty : cellY) - 1) * cellHeight, cellWidth * (((clickstartx < cellX) ? cellX : clickstartx)), (Math.abs(clickstarty - cellY) + 1) * cellHeight);
-    ctxLeft.stroke()
+        //click 2
+        if (secondClickX == null && secondClickY == null) {
 
-    ctxLeft.beginPath();
+            //spreadsheet highlight mousemove
+            ctxLeft.beginPath();
+            ctxLeft.strokeStyle = 'yellow'
+            ctxLeft.lineWidth = 2;
 
-    ctxLeft.strokeStyle = 'grey'
-    ctxLeft.lineWidth = 4;
+            var [x, y, w, h] = bounds(firstClickX, firstClickY, cellX, cellY);
+            
+            ctxLeft.rect(x, 0, w, cellHeight * (((firstClickY < cellY) ? cellY : firstClickY)));
+            ctxLeft.stroke()
 
-    ctxLeft.rect((clickstartx - 1) * cellWidth, (clickstarty - 1) * cellHeight, cellWidth, cellHeight);
-    ctxLeft.stroke()
+            ctxLeft.rect(0, y, cellWidth * (((firstClickX < cellX) ? cellX : firstClickX)), h);
+            ctxLeft.stroke()
+
+            ctxLeft.beginPath();
+
+            ctxLeft.strokeStyle = 'grey'
+            ctxLeft.lineWidth = 4;
+
+            ctxLeft.rect((firstClickX - 1) * cellWidth, (firstClickY - 1) * cellHeight, cellWidth, cellHeight);
+            ctxLeft.stroke()
+
+
+        } else {
+            ctxLeft.beginPath();
+
+            ctxLeft.strokeStyle = 'white'
+            ctxLeft.lineWidth = 4;
+
+            var [x, y, w, h] = bounds(secondClickX, secondClickY, firstClickX, firstClickY);
+            ctxLeft.rect(x, y, w, h);
+            ctxLeft.stroke()
+
+        }
+    }
 
     //values
     if (doVals) {
-        console.log('help')
         tracers.forEach(t => t.drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
     }
 
