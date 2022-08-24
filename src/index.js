@@ -44,7 +44,7 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getStorage, ref, listAll } from "firebase/storage";
+import { getStorage, ref, listAll, getBlob } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -104,6 +104,8 @@ function updateCamera() {
 canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
+//selet
+const dropd = document.getElementById("dropdown");
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
@@ -351,18 +353,16 @@ const modelInput = document.getElementById("modelpicker");
 
 //data funccs
 
-function handleModels() {
+function handleModels(input) {
     //remove old stuff first
 
     if (globalObj != null) {
         scene.remove(globalObj);
     }
 
-    var file = this.files[0];
-
     var read = new FileReader();
 
-    read.readAsArrayBuffer(file);
+    read.readAsArrayBuffer(input);
 
     read.onloadend = function () {
         console.log(read.result);
@@ -381,16 +381,16 @@ function blankClicks() {
     secondClickY = null;
 }
 
-function handleFiles() {
+function handleFiles(input) {
 
     //remove old stuff first
     blankClicks();
 
-    var file = this.files[0];
+    console.log(input);
 
     var read = new FileReader();
 
-    read.readAsBinaryString(file);
+    read.readAsBinaryString(input);
 
     read.onloadend = function () {
         console.log(read.result);
@@ -458,7 +458,6 @@ function signedIn(result) {
     // The signed-in user info.
     const user = result.user;
     // ...
-    console.log(storageRef);
 
     const availableSites = [];
 
@@ -478,15 +477,15 @@ function signedIn(result) {
 }
 
 function siteList(s) {
-    //add sites to dropdown
-    var d = document.getElementById("dropdown");
 
-    console.log(d)
-
+    //empty dropdown
+    while (dropd.firstChild) {
+        dropd.removeChild(dropd.firstChild);
+    }
     s.forEach((site) => {
         var option = document.createElement("option");
         option.text = site;
-        d.add(option);
+        dropd.add(option);
     })
 
 }
@@ -550,7 +549,42 @@ loginBtn.addEventListener("click", (e) => {
 
 
 })
+
+//load files from google storage by dropdown name
+dropd.addEventListener('change', (event) => {
+
+
+    var data = listAll(ref(storage, '/Sites/' + event.target.value)).then((res) => {
+
+        res.prefixes.forEach((folderRef) => {
+            console.log(folderRef.name);
+        });
+
+        res.items.forEach((itemRef) => {
+
+            //if the file extension is .glb, load model
+            if (itemRef.name.split('.')[1] == 'glb') {
+                console.log('glb', itemRef)
+                getBlob(itemRef)
+                    .then((blob) => {
+                        console.log(blob);
+                        handleModels(blob);
+                    })
+            } else if (itemRef.name.split('.')[1] == 'csv') {
+                //if the file extension is .csv, load data
+                console.log('csv', itemRef)
+                getBlob(itemRef)
+                    .then((blob) => {
+                        console.log(blob);
+                        handleFiles(blob);
+                    })
+            }
+        });
+    });
+})
+
 //buttons
+
 valueBtn.addEventListener("click", (e) => {
     if (valueBtn.innerHTML == '/') {
         valueBtn.innerHTML = '%';
@@ -666,9 +700,13 @@ textbox.addEventListener('input', e => {
 })
 
 //file input
-dataInput.addEventListener("change", handleFiles, false);
+dataInput.addEventListener("change", (e) => {
+    handleFiles(dataInput.files[0]);
+}, false);
 
-modelInput.addEventListener("change", handleModels, false);
+modelInput.addEventListener("change", (e) => {
+    handleModels(modelInput.files[0]);
+}, false);
 
 window.addEventListener('hashchange', (e) => {
 
