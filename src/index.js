@@ -43,7 +43,7 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -61,10 +61,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-//specific assets
-//import building from '../models/1.glb';
-//import data from '../data/ins.csv'
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -121,6 +117,7 @@ const textbox = document.getElementById('textbox');
 
 
 //buttons
+const loginBtn = document.getElementById('login');
 
 const valueBtn = document.getElementById('valueBtn');
 
@@ -134,19 +131,37 @@ const gui = new dat.GUI();
 
 const devGUI = gui.addFolder('Dev');
 
+var d0 = document.getElementById('login');
+var d1 = document.getElementById('selectPanel1')
+var d2 = document.getElementById('selectPanel2')
+
+
 //dev funcs
-function switchDisplay(x) {
-    if (x.style.display == "none") {
-        x.style.display = "block";
-    } else {
-        x.style.display = "none";
+function switchDisplay(state) {
+    if (state == 0) {
+        d0.style.display = 'block'
+        d1.style.display = 'none'
+        d2.style.display = 'none'
+    } else if (state == 1) {
+        d0.style.display = 'none'
+        d1.style.display = 'block'
+        d2.style.display = 'none'
+    } else if (state == 2) {    
+        d0.style.display = 'none'
+        d1.style.display = 'none'
+        d2.style.display = 'block'
     }
 }
-
+//states: login 0, select panel 1, upload panel 2
 var btn0 = {
     editFiles: function () {
-        switchDisplay(document.getElementById('selectPanel1'));
-        switchDisplay(document.getElementById('selectPanel2'));
+        if (d0.style.display == 'block') {
+            switchDisplay(1);
+        } else if (d1.style.display == 'block') {
+            switchDisplay(2);
+        } else {
+            switchDisplay(0);
+        }
     }
 };
 
@@ -454,13 +469,44 @@ var firstClick = null;
 
 */
 
-updateSizes();
-
 
 /*
     EVENTS
 */
 
+document.addEventListener("DOMContentLoaded", (e) => {
+    updateSizes();
+})
+
+loginBtn.addEventListener("click", (e) => {
+    updateSizes();
+
+    const provider = new GoogleAuthProvider();
+
+    const auth = getAuth();
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            switchDisplay(1);
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+            // ...
+        }).catch((error) => {
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // The email of the user's account used.
+            const email = error.customData.email;
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+            // ...
+        });
+
+
+
+})
 //buttons
 valueBtn.addEventListener("click", (e) => {
     if (valueBtn.innerHTML == '/') {

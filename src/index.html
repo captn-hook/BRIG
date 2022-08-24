@@ -15,17 +15,21 @@
 
             <!-- Vertical Div 0, title -->
             <div style="height: 13%; overflow: hidden;">
-                <label style="font-size: 50px"> Poppy BRIG MVP</label>
+                <label style="font-size:3vw"> Poppy BRIG MVP</label>
             </div>
+            <!-- Vertical Div 1.0 login -->
+            <div id="login" style="display: block; height: 13%; overflow: hidden;">
+                <button id="loginBtn">Login</button>
 
-            <!-- Vertical Div 1.0, switch display -->
-            <div id="selectPanel1" style="display: block; height: 13%; overflow: hidden;">
+            </div>
+            <!-- Vertical Div 1.1, switch display, for logged in users -->
+            <div id="selectPanel1" style="display: none; height: 13%; overflow: hidden;">
                 <label for="sites">Choose a site:</label>
                 <select name="sites" id="sitess">
                     <option value="Empty">Empty</option>
                 </select>
             </div>
-            <!-- Vertical Div 1.1, switch dev -->
+            <!-- Vertical Div 1.2, dev -->
             <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;">
                 <label for="datapicker"> Select data:</label>
                 <input type="file" id="datapicker" accept=".csv,.txt">
