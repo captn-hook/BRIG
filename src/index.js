@@ -44,6 +44,7 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getStorage, ref, listAll } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -61,6 +62,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+const storageRef = ref(storage, '/Sites');
+
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -146,7 +150,7 @@ function switchDisplay(state) {
         d0.style.display = 'none'
         d1.style.display = 'block'
         d2.style.display = 'none'
-    } else if (state == 2) {    
+    } else if (state == 2) {
         d0.style.display = 'none'
         d1.style.display = 'none'
         d2.style.display = 'block'
@@ -443,6 +447,49 @@ function bounds(x1, y1, x2, y2) {
     return [x, y, w, h]
 }
 
+//sign in function
+
+function signedIn(result) {
+
+    switchDisplay(1);
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+    // The signed-in user info.
+    const user = result.user;
+    // ...
+    console.log(storageRef);
+
+    const availableSites = [];
+
+    listAll(storageRef)
+        .then((res) => {
+            res.prefixes.forEach((folderRef) => {
+                availableSites.push(folderRef.name);
+            });
+
+            res.items.forEach((itemRef) => {
+                console.log(itemRef.name);
+            });
+
+            siteList(availableSites);
+
+        })
+}
+
+function siteList(s) {
+    //add sites to dropdown
+    var d = document.getElementById("dropdown");
+
+    console.log(d)
+
+    s.forEach((site) => {
+        var option = document.createElement("option");
+        option.text = site;
+        d.add(option);
+    })
+
+}
 //live variables
 
 var cellWidth = (canvasleft.width / (ts.length + 1));
@@ -486,21 +533,17 @@ loginBtn.addEventListener("click", (e) => {
     const auth = getAuth();
     signInWithPopup(auth, provider)
         .then((result) => {
-            switchDisplay(1);
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
-            // The signed-in user info.
-            const user = result.user;
-            // ...
+            signedIn(result);
         }).catch((error) => {
             // Handle Errors here.
             const errorCode = error.code;
             const errorMessage = error.message;
             // The email of the user's account used.
-            const email = error.customData.email;
+            const email = error.email;
             // The AuthCredential type that was used.
             const credential = GoogleAuthProvider.credentialFromError(error);
+
+            console.error(error, errorCode, errorMessage, email, credential);
             // ...
         });
 
