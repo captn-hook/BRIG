@@ -365,7 +365,7 @@ function blankClicks() {
 function handleFiles() {
 
     //remove old stuff first
-   blankClicks();
+    blankClicks();
 
     var file = this.files[0];
 
@@ -422,7 +422,7 @@ function bounds(x1, y1, x2, y2) {
     var x = (((x1 < x2) ? x1 : x2) - 1) * cellWidth
     var y = (((y1 < y2) ? y1 : y2) - 1) * cellHeight
 
-    var w =(Math.abs(x1 - x2) + 1) * cellWidth 
+    var w = (Math.abs(x1 - x2) + 1) * cellWidth
     var h = (Math.abs(y1 - y2) + 1) * cellHeight
 
     return [x, y, w, h]
@@ -460,7 +460,7 @@ updateSizes();
 /*
     EVENTS
 */
- 
+
 //buttons
 valueBtn.addEventListener("click", (e) => {
     if (valueBtn.innerHTML == '/') {
@@ -475,13 +475,42 @@ valueBtn.addEventListener("click", (e) => {
 })
 
 opacityBtn.addEventListener("click", (e) => {
+    if (opacityBtn.innerHTML == '0') {
+        opacityBtn.innerHTML = '-';
+        //show values
+    } else {
+        opacityBtn.innerHTML = '0';
+        //hide values
+    }
     //find the difference between click 1 and click 2
     var minx = ((firstClickX < secondClickX) ? firstClickX : secondClickX) - 1;
     var miny = ((firstClickY < secondClickY) ? firstClickY : secondClickY) - 1;
     var x = Math.abs(secondClickX - firstClickX) + minx;
     var y = Math.abs(secondClickY - firstClickY) + miny;
 
-    tracers.forEach
+    tracers.forEach((t) => {
+        if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
+            console.log(t)
+            t.visible = !t.visible;
+        }
+    })
+
+    console.log(minx, miny)
+    if (minx == 0) {
+        ms.forEach((m) => {
+            if (m.i >= miny && m.i <= y) {
+                m.visible = !m.visible;
+            }
+        })
+    }
+
+    if (miny == 0) {
+        ts.forEach((d) => {
+            if (d.i >= minx && d.i <= x) {
+                d.visible = !d.visible;
+            }
+        })
+    }
 })
 
 
@@ -616,7 +645,7 @@ canvasleft.addEventListener('click', (e) => {
         }
         //double click, clear markers
     } else if (e.detail == 2) {
-         blankClicks();
+        blankClicks();
     }
 
 }, false);
@@ -693,7 +722,7 @@ const tick = () => {
             ctxLeft.lineWidth = 2;
 
             var [x, y, w, h] = bounds(firstClickX, firstClickY, cellX, cellY);
-            
+
             ctxLeft.rect(x, 0, w, cellHeight * (((firstClickY < cellY) ? cellY : firstClickY)));
             ctxLeft.stroke()
 
