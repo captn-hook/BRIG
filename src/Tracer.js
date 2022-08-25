@@ -267,7 +267,7 @@ class Tracer2d extends Tracer {
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
         var [x1, y1, a, b, c, d, x2, y2, e, f, g, h, i, j] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
-        if (x1 != null && this.visible) {
+        if (Math.abs(i) < 1 && x1 != null && this.visible) {
 
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
