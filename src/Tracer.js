@@ -274,9 +274,9 @@ class Tracer2d extends Tracer {
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
 
-            ctx.strokeText(Math.round(this.value * 100) / 100, x1, y1);
+            ctx.strokeText(Math.round(this.value * 100) / 100, a, b);
             ctx.fillStyle = this.color;
-            ctx.fillText(Math.round(this.value * 100) / 100, x1, y1);
+            ctx.fillText(Math.round(this.value * 100) / 100, a, b);
 
             ctxLeft.font = "12px Arial";
             ctxLeft.textAlign = "center";
