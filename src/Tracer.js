@@ -174,49 +174,7 @@ class Tracer2d extends Tracer {
         //if z1 and z2 magnitude is less than 1, then draw the tracer
         if (Math.abs(z1) < 1 && Math.abs(z2) < 1) {
 
-            //tracer highlight, by drawing white tracer underneath
-            if (this.t.i == cellWidth - 1 && this.m.i == cellHeight - 1) {
-                //console.log(this)
-
-                //settings
-                ctx.lineWidth = this.outline;
-                ctx.strokeStyle = 'white';
-
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x5, y5);
-                ctx.lineTo(x6, y6);
-                ctx.lineTo(x1, y1);
-                ctx.stroke();
-
-                ctx.lineWidth = this.outline + 2;
-
-                // Cubic Bézier curve
-                ctx.beginPath();
-                //start line at arrow tip edge
-                var arwbk = this.midpoint(x5, y5, x6, y6);
-                var [strtx, strty] = this.midpoint(x1, y1, arwbk[0], arwbk[1])
-                ctx.moveTo(strtx, strty);
-                //                ctrl1    ctrl2   end
-                ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-                ctx.stroke();
-
-                ctx.font = "12px Arial";
-                ctx.textAlign = "center";
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 2;
-                ctx.strokeText(Math.round(this.value * 100) / 100, x1, y1);
-                ctx.fillStyle = "white";
-                ctx.fillText(Math.round(this.value * 100) / 100, x1, y1);
-
-                ctxLeft.font = "12px Arial";
-                ctxLeft.fillStyle = "black";
-                ctxLeft.textAlign = "center";
-                ctxLeft.fillText(Math.round(this.value * 100) / 100, cellWidth * cellWidth, cellHeight * cellHeight - 30);
-            }
-            //settings
-            //console.log("rgba(" + String(this.rgbval.r) + ", " +  String(this.rgbval.g) + ", " + String(this.rgbval.b) + ", " + String(this.opacity) + ")");
-
+            
             ctx.lineWidth = this.outline;
 
             if (alpha) {
@@ -247,8 +205,15 @@ class Tracer2d extends Tracer {
             ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             ctx.stroke();
 
-        } else {
-            console.log(this)
+            ctx.font = "12px Arial";
+            ctx.textAlign = "center";
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+
+            ctx.strokeText(Math.round(this.value * 100) / 100, x2, y2);
+            ctx.fillStyle = this.color;
+            ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
+
         }
 
         //spreadsheet
@@ -264,19 +229,7 @@ class Tracer2d extends Tracer {
 
     drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
 
-        //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var [x1, y1, a, b, c, d, x2, y2, e, f, g, h, i, j] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
-
-        if (Math.abs(i) < 1 && x1 != null && this.visible) {
-
-            ctx.font = "12px Arial";
-            ctx.textAlign = "center";
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-
-            ctx.strokeText(Math.round(this.value * 100) / 100, a, b);
-            ctx.fillStyle = this.color;
-            ctx.fillText(Math.round(this.value * 100) / 100, a, b);
+        if (this.visible) {
 
             ctxLeft.font = "12px Arial";
             ctxLeft.textAlign = "center";
