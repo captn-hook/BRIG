@@ -50,8 +50,13 @@ import { getStorage, ref, listAll, getBlob } from "firebase/storage";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+import { config } from './key';
+
+console.log(config);
+
 const firebaseConfig = {
-    apiKey: "AIzaSyCC530CUMJBkzXeziUQUpj8b-EnL05ibiQ",
+    apiKey: config.API_KEY,
     authDomain: "brig-b2ca3.firebaseapp.com",
     projectId: "brig-b2ca3",
     storageBucket: "brig-b2ca3.appspot.com",
