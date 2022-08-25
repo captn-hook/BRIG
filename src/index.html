@@ -15,11 +15,12 @@
 
             <!-- Vertical Div 0, title -->
             <div style="height: 13%; overflow: hidden;">
-                <label style="font-size:3vw"> Poppy BRIG MVP</label>
+                <label style="font-size:3vw"> Poppy Data Viz</label>
             </div>
             <!-- Vertical Div 1.0 login -->
-            <div id="login" style="display: block; height: 13%; overflow: hidden;">
-                <button id="loginBtn">Login</button>
+            <div id="log" class="btn-group" style="display: block; height: 13%;">
+                <button id="login" style="width: 40%; margin: 3%;">Login</button>
+                <button id="logout" style="width: 40%; margin: 3%">Logout</button>
 
             </div>
             <!-- Vertical Div 1.1, switch display, for logged in users -->
@@ -31,12 +32,9 @@
             </div>
             <!-- Vertical Div 1.2, dev -->
             <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;">
-                <label for="datapicker"> Select data:</label>
-                <input type="file" id="datapicker" accept=".csv,.txt">
+                <label for="datapicker"> Select data:</label><input type="file" id="datapicker" accept=".csv,.txt" title=" ">
 
-                <br>
-                <label for="modelpicker"> Select model:</label>
-                <input type="file" id="modelpicker" accept=".glb,.gltf">
+                <label for="modelpicker"> Select model:</label><input type="file" id="modelpicker" accept=".glb,.gltf" title=" ">
             </div>
 
             <!-- Vertical Div 2.0 -->
@@ -53,7 +51,7 @@
             <!-- Vertical Div 3 -->
             <div style="height: 40%;">
                 <textarea id="textbox"
-                    readOnly> test </textarea>
+                    readOnly>  </textarea>
             </div>
 
         </div>

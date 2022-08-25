@@ -11,7 +11,12 @@ class Tracer {
         this.headroom = headroom;
         this.lift = lift;
 
-        this.color = this.rgb(this.value);
+        //console.log(this.rgb(this.value));  
+        [this.r, this.g, this.b, this.a] = this.rgb(this.value);
+
+        this.color = this.rgbToHex(this.r, this.g, this.b);
+        console.log(this.color);
+
 
         this.visible = true;
     }
@@ -22,6 +27,7 @@ class Tracer {
         const max = 25;
         const groups = [0, 0.00016000640025601025, 0.003960158406336254, 0.01996079843193728, 0.03996159846393856, 0.1999679987199488, 1];
         const colors = ["#0000ff", "#00a0ff", "#02fbff", "#4aff01", "#fbfd00", "#ff5a00", "#ff0000"];
+        const opacity = [0, .1, .2, .4, .6, .8, 1]
 
         for (let i = 0; i < groups.length; i++) {
 
@@ -37,11 +43,18 @@ class Tracer {
                 var g = this.rescale(value, groups[i] * max, groups[i + 1] * max, c1.g, c2.g);
                 var b = this.rescale(value, groups[i] * max, groups[i + 1] * max, c1.b, c2.b);
 
-                return this.rgbToHex(r, g, b);;
+                //alpha
+                var a = this.rescale(value, groups[i] * max, groups[i + 1] * max, opacity[i], opacity[i + 1]);
+
+                //console.log(a)
+
+                return [r, g, b, a];
 
             } else if (value > groups[groups.length - 1] * max) {
+                var c = this.hexToRgb(colors[colors.length - 1])
+                var a = 1;
 
-                return colors[colors.length - 1];
+                return [c.r, c.g, c.b, a];
 
             }
         }
@@ -78,24 +91,21 @@ class Tracer2d extends Tracer {
 
         super(m, t, value, headroom, lift);
 
-        const maxwidth = 15;
+        const maxwidth = 30;
 
-        var rgb = this.hexToRgb(this.color)
+        this.rgbval = this.hexToRgb(this.color);
+
         var white = this.rgbToHex(255, 255, 255)
-        var hex2 = this.rgbToHex(rgb)
+        var hex2 = this.rgbToHex(this.rgbval)
 
         this.outline = this.rescale(Math.min(value, 10), 0, 25, .4, maxwidth);
+
+        console.log(this.value, this.a)
     }
 
 
     screenPts(camera, w, h) {
 
-        //var frustum = new THREE.Frustum();
-
-        // frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-
-
-        // if (frustum.containsPoint(this.m.pos)) {
 
         let proj1 = new THREE.Vector3(this.m.pos.x, this.m.pos.z, this.m.pos.y);
 
@@ -109,8 +119,6 @@ class Tracer2d extends Tracer {
         var x4 = ((proj2.x * w) + w);
         //headroom    ty                 
         var y4 = (-(proj2.y * h) + h);
-
-
         /*
         MOVE M POINT ALONG LINE TO T POMT BY HEADROOM
         */
@@ -151,23 +159,20 @@ class Tracer2d extends Tracer {
         var x6 = x1 + headwidth * Math.cos(angle + Math.PI / arrowconst);
         var y6 = y1 + headwidth * Math.sin(angle + Math.PI / arrowconst);
 
-        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6]
+        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, proj1.z, proj2.z]
 
 
-        /*
-                } else {
-                    return [null, null, null, null, null, null, null, null, null, null, null, null]
-                }
-          */
+
+
     }
 
-    drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
+    drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha) {
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
+        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, z1, z2] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
-        if (x1 != null && this.visible) {
-
+        //if z1 and z2 magnitude is less than 1, then draw the tracer
+        if (Math.abs(z1) < 1 && Math.abs(z2) < 1) {
 
             //tracer highlight, by drawing white tracer underneath
             if (this.t.i == cellWidth - 1 && this.m.i == cellHeight - 1) {
@@ -210,9 +215,18 @@ class Tracer2d extends Tracer {
                 ctxLeft.fillText(Math.round(this.value * 100) / 100, cellWidth * cellWidth, cellHeight * cellHeight - 30);
             }
             //settings
+            //console.log("rgba(" + String(this.rgbval.r) + ", " +  String(this.rgbval.g) + ", " + String(this.rgbval.b) + ", " + String(this.opacity) + ")");
+
             ctx.lineWidth = this.outline;
-            ctx.strokeStyle = this.color;
-            ctx.fillStyle = this.color;
+
+            if (alpha) {
+                var opac = this.a;
+            } else {
+                var opac = 1;
+            }
+
+            ctx.strokeStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
+            ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
 
 
 
@@ -234,7 +248,7 @@ class Tracer2d extends Tracer {
             ctx.stroke();
 
         } else {
-            //console.log(this)
+            console.log(this)
         }
 
         //spreadsheet
@@ -251,34 +265,34 @@ class Tracer2d extends Tracer {
     drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var [x1, y1, a, b, c, d, x2, y2, e, f, g, h] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
+        var [x1, y1, a, b, c, d, x2, y2, e, f, g, h, i, j] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
         if (x1 != null && this.visible) {
 
-                ctx.font = "12px Arial";
-                ctx.textAlign = "center";
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 2;
+            ctx.font = "12px Arial";
+            ctx.textAlign = "center";
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
 
-                ctx.strokeText(Math.round(this.value * 100) / 100, x1, y1);
-                ctx.fillStyle = this.color;
-                ctx.fillText(Math.round(this.value * 100) / 100, x1, y1);
-                
-                ctxLeft.font = "12px Arial";
-                ctxLeft.textAlign = "center";
-                ctxLeft.strokeStyle = 'black';
-                ctxLeft.lineWidth = 2;
-                ctxLeft.strokeText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
-                ctxLeft.fillStyle = "white";
-                ctxLeft.fillText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+            ctx.strokeText(Math.round(this.value * 100) / 100, x1, y1);
+            ctx.fillStyle = this.color;
+            ctx.fillText(Math.round(this.value * 100) / 100, x1, y1);
 
-                /*
-                ctxLeft.font = "12px Arial";
-                ctxLeft.fillStyle = "black";
-                ctxLeft.textAlign = "center";
-                ctxLeft.fillText(this.value, cellWidth * cellWidth, cellHeight * cellHeight - 30);
-                */
-            }
+            ctxLeft.font = "12px Arial";
+            ctxLeft.textAlign = "center";
+            ctxLeft.strokeStyle = 'black';
+            ctxLeft.lineWidth = 2;
+            ctxLeft.strokeText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+            ctxLeft.fillStyle = "white";
+            ctxLeft.fillText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+
+            /*
+            ctxLeft.font = "12px Arial";
+            ctxLeft.fillStyle = "black";
+            ctxLeft.textAlign = "center";
+            ctxLeft.fillText(this.value, cellWidth * cellWidth, cellHeight * cellHeight - 30);
+            */
+        }
     };
 
 

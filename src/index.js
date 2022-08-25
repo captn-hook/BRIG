@@ -125,6 +125,8 @@ const textbox = document.getElementById('textbox');
 //buttons
 const loginBtn = document.getElementById('login');
 
+const logoutBtn = document.getElementById('logout');
+
 const valueBtn = document.getElementById('valueBtn');
 
 const opacityBtn = document.getElementById('opacityBtn');
@@ -137,7 +139,7 @@ const gui = new dat.GUI();
 
 const devGUI = gui.addFolder('Dev');
 
-var d0 = document.getElementById('login');
+var d0 = document.getElementById('log');
 var d1 = document.getElementById('selectPanel1')
 var d2 = document.getElementById('selectPanel2')
 
@@ -431,7 +433,7 @@ function updateCam(x, y) {
         controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
 
         //insights
-        textbox.value = (insights[y] == null) ? '' : String(insights[y].replaceAll("§", ",").replaceAll("¦", "\n"));
+        textbox.value = (insights[y] == null) ? '' : decodeURI(insights[y]).replaceAll('~', ',');
 
     }
 }
@@ -524,6 +526,11 @@ document.addEventListener("DOMContentLoaded", (e) => {
     updateSizes();
 })
 
+logoutBtn.addEventListener("click", (e) => {
+    const auth = getAuth();
+    auth.signOut();
+})
+
 loginBtn.addEventListener("click", (e) => {
     updateSizes();
 
@@ -597,12 +604,28 @@ valueBtn.addEventListener("click", (e) => {
     }
 })
 
+var alpha = true;
+
 opacityBtn.addEventListener("click", (e) => {
-    if (opacityBtn.innerHTML == '0') {
+    if (!alpha) {
         opacityBtn.innerHTML = '-';
+        alpha = true;
         //show values
     } else {
         opacityBtn.innerHTML = '0';
+        alpha = false;
+        //hide values
+    }
+})
+
+
+flipBtn.addEventListener("click", (e) => {
+
+    if (flipBtn.innerHTML == '◐') {
+        flipBtn.innerHTML = '◑';
+        //show values
+    } else {
+        flipBtn.innerHTML = '◐';
         //hide values
     }
     //find the difference between click 1 and click 2
@@ -634,30 +657,6 @@ opacityBtn.addEventListener("click", (e) => {
             }
         })
     }
-})
-
-
-flipBtn.addEventListener("click", (e) => {
-
-    if (flipBtn.innerHTML == '◐') {
-        flipBtn.innerHTML = '◑';
-        //show values
-    } else {
-        flipBtn.innerHTML = '◐';
-        //hide values
-    }
-    ms.forEach((m) => {
-        m.visible = !m.visible
-    })
-
-    ts.forEach((t) => {
-        t.visible = !t.visible
-    })
-
-    tracers.forEach((t) => {
-        t.visible = !t.visible;
-    })
-
 })
 
 //canvas
@@ -827,7 +826,7 @@ const tick = () => {
     ctxLeft.clearRect(0, 0, canvasleft.width, canvasleft.height);
 
     //Tracers
-    tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
+    tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha));
 
     //Points
     ms.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));

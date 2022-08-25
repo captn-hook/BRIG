@@ -40,14 +40,14 @@ class Point2d extends Point {
             var y = -(proj.y * h) + h;
 
          
-            return [x, y]
+            return [x, y, proj.z]
     }
 
     drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
         //main canvas
-        var [x, y] = this.screenPt(camera, sizes.width / 2, sizes.height / 2);
+        var [x, y, z] = this.screenPt(camera, sizes.width / 2, sizes.height / 2);
     
-        if (x != null && this.visible) {
+        if (Math.abs(z) < 1 && x != null && this.visible) {
     
     
             ctx.beginPath();
