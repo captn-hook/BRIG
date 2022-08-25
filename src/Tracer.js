@@ -166,15 +166,15 @@ class Tracer2d extends Tracer {
 
     }
 
-    drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha) {
+    drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha, doVals) {
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
         var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, z1, z2] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
         //if z1 and z2 magnitude is less than 1, then draw the tracer
-        if (Math.abs(z1) < 1 && Math.abs(z2) < 1) {
+        if (this.visible && Math.abs(z1) < 1 && Math.abs(z2) < 1) {
 
-            
+
             ctx.lineWidth = this.outline;
 
             if (alpha) {
@@ -205,14 +205,17 @@ class Tracer2d extends Tracer {
             ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             ctx.stroke();
 
-            ctx.font = "12px Arial";
-            ctx.textAlign = "center";
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
+            if (doVals) {
 
-            ctx.strokeText(Math.round(this.value * 100) / 100, x2, y2);
-            ctx.fillStyle = this.color;
-            ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
+                ctx.font = "12px Arial";    
+                ctx.textAlign = "center";
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+
+                ctx.strokeText(Math.round(this.value * 100) / 100, x2, y2);
+                ctx.fillStyle = this.color;
+                ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
+            }
 
         }
 

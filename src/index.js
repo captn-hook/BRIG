@@ -636,7 +636,6 @@ flipBtn.addEventListener("click", (e) => {
 
     tracers.forEach((t) => {
         if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
-            console.log(t)
             t.visible = !t.visible;
         }
     })
@@ -826,7 +825,7 @@ const tick = () => {
     ctxLeft.clearRect(0, 0, canvasleft.width, canvasleft.height);
 
     //Tracers
-    tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha));
+    tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha, doVals));
 
     //Points
     ms.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
