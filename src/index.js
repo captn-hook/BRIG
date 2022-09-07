@@ -35,23 +35,38 @@ import Data from './Data'
 import {
     saveFile
 } from './Data';
-import { Vector3 } from 'three';
+import {
+    Vector3
+} from 'three';
 
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
 
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getStorage, ref, listAll, getBlob } from "firebase/storage";
+import {
+    initializeApp
+} from "firebase/app";
+import {
+    getAuth,
+    signInWithPopup,
+    GoogleAuthProvider
+} from "firebase/auth";
+import {
+    getStorage,
+    ref,
+    listAll,
+    getBlob
+} from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
-import { config } from './key';
+import {
+    config
+} from './key';
 
 console.log(config);
 
@@ -138,18 +153,12 @@ const opacityBtn = document.getElementById('opacityBtn');
 
 const flipBtn = document.getElementById('flipBtn');
 
-
-// Debug
-const gui = new dat.GUI();
-
-const devGUI = gui.addFolder('Dev');
+//dev funcs
 
 var d0 = document.getElementById('log');
 var d1 = document.getElementById('selectPanel1')
 var d2 = document.getElementById('selectPanel2')
 
-
-//dev funcs
 function switchDisplay(state) {
     if (state == 0) {
         d0.style.display = 'block'
@@ -178,16 +187,11 @@ var btn0 = {
     }
 };
 
-devGUI.add(btn0, 'editFiles');
-
 var btn1 = {
     saveFiles: function () {
         saveFile(ms, ts, tracers, insights, views);
     }
 };
-
-devGUI.add(btn1, 'saveFiles');
-
 
 var btn2 = {
     saveCam: function () {
@@ -197,39 +201,49 @@ var btn2 = {
     }
 };
 
-devGUI.add(btn2, 'saveCam');
-
-
 var btn3 = {
     editPos: false
 };
 
-devGUI.add(btn3, 'editPos', 'editPosition');
+function devMenu() {
+    // Debug
+    const gui = new dat.GUI();
 
-devGUI.add(textbox, 'readOnly', 'editText');
+    const devGUI = gui.addFolder('Dev');
 
-devGUI.open();
+    devGUI.add(btn0, 'editFiles');
 
-//cam menu
-const camGUI = gui.addFolder('Cam');
+    devGUI.add(btn1, 'saveFiles');
 
-camGUI.add(camera, 'fov', 1, 180).onChange(updateCamera);
+    devGUI.add(btn2, 'saveCam');
 
-const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 
-camGUI.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
-camGUI.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
+    devGUI.add(btn3, 'editPos', 'editPosition');
 
-camGUI.add(camera.position, 'x', -100, 100).listen()
-camGUI.add(camera.position, 'y', -100, 100).listen()
-camGUI.add(camera.position, 'z', -100, 100).listen()
+    devGUI.add(textbox, 'readOnly', 'editText');
 
-camGUI.add(camera.rotation, 'x', -100, 100).listen()
-camGUI.add(camera.rotation, 'y', -100, 100).listen()
-camGUI.add(camera.rotation, 'z', -100, 100).listen()
+    devGUI.open();
 
-camGUI.open();
+    //cam menu
+    const camGUI = gui.addFolder('Cam');
 
+    camGUI.add(camera, 'fov', 1, 180).onChange(updateCamera);
+
+    const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+
+    camGUI.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
+    camGUI.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
+
+    camGUI.add(camera.position, 'x', -100, 100).listen()
+    camGUI.add(camera.position, 'y', -100, 100).listen()
+    camGUI.add(camera.position, 'z', -100, 100).listen()
+
+    camGUI.add(camera.rotation, 'x', -100, 100).listen()
+    camGUI.add(camera.rotation, 'y', -100, 100).listen()
+    camGUI.add(camera.rotation, 'z', -100, 100).listen()
+
+    camGUI.open();
+}
 //set size
 updateSizes();
 
@@ -457,14 +471,21 @@ function bounds(x1, y1, x2, y2) {
 //sign in function
 
 function signedIn(result) {
-
-    switchDisplay(1);
+    
     // This gives you a Google Access Token. You can use it to access the Google API.
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
     // The signed-in user info.
     const user = result.user;
     // ...
+    const ext = user.email.split('@')
+
+    if (ext[1] == 'poppy.com') {
+        devMenu();
+        switchDisplay(1);
+    } else {
+        switchDisplay(2);
+    }
 
     const availableSites = [];
 
@@ -665,34 +686,34 @@ flipBtn.addEventListener("click", (e) => {
 
 //canvas
 canvas2d.addEventListener("click", (e) => {
-    if (btn3.editPos) {
+        if (btn3.editPos) {
 
-        var raycaster = new THREE.Raycaster();
-        var mouse = {
-            x: (e.clientX - canvasleft.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
-            y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
-        };
+            var raycaster = new THREE.Raycaster();
+            var mouse = {
+                x: (e.clientX - canvasleft.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
+                y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+            };
 
-        raycaster.setFromCamera(mouse, camera);
+            raycaster.setFromCamera(mouse, camera);
 
-        const intersects = raycaster.intersectObjects(sceneMeshes, false);
+            const intersects = raycaster.intersectObjects(sceneMeshes, false);
 
-        if (intersects.length > 0) {
-            if (firstClickX == 1) {
-                ms[firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
-            } else if (firstClickY == 1) {
-                ts[firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+            if (intersects.length > 0) {
+                if (firstClickX == 1) {
+                    ms[firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                } else if (firstClickY == 1) {
+                    ts[firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                }
             }
         }
-    }
 
-    //store pos in link
-    var pos = String(Math.round(camera.position.x * 100) / 100) + "&" + String(Math.round(camera.position.y * 100) / 100) + "&" + String(Math.round(camera.position.z * 100) / 100) + "&" + String(Math.round(camera.rotation.x * 100) / 100) + "&" + String(Math.round(camera.rotation.y * 100) / 100) + "&" + String(Math.round(camera.rotation.z * 100) / 100)
+        //store pos in link
+        var pos = String(Math.round(camera.position.x * 100) / 100) + "&" + String(Math.round(camera.position.y * 100) / 100) + "&" + String(Math.round(camera.position.z * 100) / 100) + "&" + String(Math.round(camera.rotation.x * 100) / 100) + "&" + String(Math.round(camera.rotation.y * 100) / 100) + "&" + String(Math.round(camera.rotation.z * 100) / 100)
 
-    if (pos[0] != null) {
-        window.location.hash = pos;
-    }
-},
+        if (pos[0] != null) {
+            window.location.hash = pos;
+        }
+    },
     false);
 
 textbox.addEventListener('input', e => {
