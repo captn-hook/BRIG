@@ -308,11 +308,11 @@ function load3DModel(base, mtlpath = null) {
 
 
         //mesh decompression wip, using uncompressed mesh for now
-        /*
+
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/' );
+        dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
         loader.setDRACOLoader( dracoLoader );
-*/
+
         //loads with above loader
         //NOTE:      path  func on load     func on progress                         func on error 
         loader.load(base, onLoadLoad, onProgressLog, onErrorLog);
@@ -388,7 +388,13 @@ function handleModels(input) {
     read.onloadend = function () {
         console.log(read.result);
 
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
+
         const loader = new GLTFLoader();
+
+        loader.setDRACOLoader( dracoLoader );
+
         loader.parse(read.result, "", onLoadLoad, onErrorLog);
 
     }
@@ -913,7 +919,7 @@ const tick = () => {
         ctx.moveTo(0, sizes.height / 4);
         ctx.lineTo(sizes.width * (Gxhr.loaded / Gxhr.total), sizes.height / 4);
         ctx.lineWidth = 10;
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = 'yellow';
         ctx.stroke();
     }
 
