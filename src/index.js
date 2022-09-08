@@ -111,6 +111,9 @@ controls.enableDamping = true;
 camera.position.set(3, 3, 5);
 controls.target.set(0, 0, 0);
 
+var cameraTargPos = new THREE.Vector3(0, 0, 0);
+var cameraTargView = new THREE.Vector3(0, 0, 0);
+
 // Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe0e0e0);
@@ -311,7 +314,7 @@ function load3DModel(base, mtlpath = null) {
 
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
-        loader.setDRACOLoader( dracoLoader );
+        loader.setDRACOLoader(dracoLoader);
 
         //loads with above loader
         //NOTE:      path  func on load     func on progress                         func on error 
@@ -393,7 +396,7 @@ function handleModels(input) {
 
         const loader = new GLTFLoader();
 
-        loader.setDRACOLoader( dracoLoader );
+        loader.setDRACOLoader(dracoLoader);
 
         loader.parse(read.result, "", onLoadLoad, onErrorLog);
 
@@ -440,8 +443,8 @@ function updateCam(x, y) {
         //if y (row) == 1, ts
         var t = x - 2;
 
-        camera.position.set(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
-        controls.target.set(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
+        cameraTargPos = new THREE.Vector3(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
+        cameraTargView = new THREE.Vector3(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
 
         //throws errors if it trys to select row before/after last
     } else if (1 < y && y < ms.length + 2) {
@@ -451,11 +454,11 @@ function updateCam(x, y) {
 
         //special views
         if (views[y - 1] != null && views[y - 1][0] != '') {
-            camera.position.set(parseFloat(views[y - 1][0]), parseFloat(views[y - 1][1]), parseFloat(views[y - 1][2]));
+            cameraTargPos = new THREE.Vector3(parseFloat(views[y - 1][0]), parseFloat(views[y - 1][1]), parseFloat(views[y - 1][2]));
         } else {
-            camera.position.set(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+            cameraTargPos = new THREE.Vector3(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
         }
-        controls.target.set(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+        cameraTargView = new THREE.Vector3(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
 
         //insights
         textbox.value = (insights[y] == null) ? '' : decodeURI(insights[y]).replaceAll('~', ',');
@@ -477,7 +480,7 @@ function bounds(x1, y1, x2, y2) {
 //sign in function
 
 function signedIn(result) {
-    
+
     // This gives you a Google Access Token. You can use it to access the Google API.
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
@@ -543,6 +546,8 @@ var secondClickX = null;
 var secondClickY = null;
 
 var firstClick = null;
+
+var looking = false;
 
 /*
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
@@ -692,6 +697,8 @@ flipBtn.addEventListener("click", (e) => {
 
 //canvas
 canvas2d.addEventListener("click", (e) => {
+        looking = false;
+
         if (btn3.editPos) {
 
             var raycaster = new THREE.Raycaster();
@@ -758,7 +765,8 @@ window.addEventListener('hashchange', (e) => {
         //                                   min dist
         if (camera.position.distanceTo(new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))) > .03) {
 
-            camera.position.set(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
+            looking = true;
+            cameraTargPos = new THREE.Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
             camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
 
             controls.update();
@@ -770,6 +778,7 @@ window.addEventListener('hashchange', (e) => {
 });
 
 canvasleft.addEventListener('click', (e) => {
+    looking = true;
     //single click, place markers 1 and 2
     if (e.detail == 1) {
         if (firstClick) {
@@ -809,7 +818,6 @@ canvasleft.addEventListener('click', (e) => {
 
 //spreadsheet mouse move, tracks mouse position to cellX and cellY
 canvasleft.addEventListener("mousemove", (e) => {
-
     var rect = canvasleft.getBoundingClientRect();
     var x = e.pageX - rect.left;
     var y = e.pageY - rect.top;
@@ -846,6 +854,16 @@ console.log(tracers)
 const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
+
+    //if camera.position isnt cameraTargPos, move camera towards point
+    if (looking && camera.position.distanceTo(cameraTargPos) > .01) {
+        camera.position.lerp(cameraTargPos, .01)
+    }
+
+    //if controls.target isnt cameraTargView, turn camera towards point
+    if (looking && controls.target.distanceTo(cameraTargView) > .01) {
+        controls.target.lerp(cameraTargView, .01)
+    }
 
     // Update Orbital Controls
     controls.update();
@@ -922,6 +940,8 @@ const tick = () => {
         ctx.strokeStyle = 'yellow';
         ctx.stroke();
     }
+
+
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);
