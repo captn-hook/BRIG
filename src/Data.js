@@ -59,7 +59,7 @@ export default function Data(data) {
 
                 //Labels
                 if (m == 0 || t == 0) {
-                    console.log('Label: ' + dataArray[t][m]);
+                    //console.log('Label: ' + dataArray[t][m]);
 
                     //CLM 1
                 } else if (m == 1 && t > 1) {

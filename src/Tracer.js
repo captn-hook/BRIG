@@ -15,7 +15,7 @@ class Tracer {
         [this.r, this.g, this.b, this.a] = this.rgb(this.value);
 
         this.color = this.rgbToHex(this.r, this.g, this.b);
-        console.log(this.color);
+        //console.log(this.color);
 
 
         this.visible = true;
@@ -100,7 +100,7 @@ class Tracer2d extends Tracer {
 
         this.outline = this.rescale(Math.min(value, 10), 0, 25, .4, maxwidth);
 
-        console.log(this.value, this.a)
+        //console.log(this.value, this.a)
     }
 
 
