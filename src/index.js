@@ -597,6 +597,7 @@ loginBtn.addEventListener("click", (e) => {
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
 
+    [ms, ts, tracers, insights, views] = [[], [], [], [], []];
 
     var data = listAll(ref(storage, '/Sites/' + event.target.value)).then((res) => {
 
