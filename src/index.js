@@ -696,6 +696,10 @@ flipBtn.addEventListener("click", (e) => {
 })
 
 //canvas
+canvas2d.addEventListener("mousedown", (e) => {
+    looking = false;
+})
+
 canvas2d.addEventListener("click", (e) => {
         looking = false;
 
@@ -856,13 +860,17 @@ const tick = () => {
     const elapsedTime = clock.getElapsedTime();
 
     //if camera.position isnt cameraTargPos, move camera towards point
-    if (looking && camera.position.distanceTo(cameraTargPos) > .01) {
-        camera.position.lerp(cameraTargPos, .01)
+    if (looking && camera.position.distanceTo(cameraTargPos) > .05) {
+        camera.position.lerp(cameraTargPos, .03)
+    } else {
+        looking = false;
     }
 
     //if controls.target isnt cameraTargView, turn camera towards point
-    if (looking && controls.target.distanceTo(cameraTargView) > .01) {
-        controls.target.lerp(cameraTargView, .01)
+    if (looking && controls.target.distanceTo(cameraTargView) > .05) {
+        controls.target.lerp(cameraTargView, .03)
+    } else {
+        looking = false;
     }
 
     // Update Orbital Controls
