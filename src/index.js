@@ -56,7 +56,10 @@ import {
     getStorage,
     ref,
     listAll,
-    getBlob
+    getBlob,
+    updateMetadata,
+    getMetadata,
+    list
 } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -83,8 +86,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
-const storageRef = ref(storage, '/Sites');
-
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -208,6 +209,56 @@ var btn3 = {
     editPos: false
 };
 
+var targ = {
+    textField: "UID"
+};
+
+var btn4 = {
+    update: function () {
+
+        // Update metadata properties
+        const metadata = {
+            customMetadata: {
+                'WqkeGuRlDebTAWfMgR9mjYIUF4S2': true,
+            }
+        };
+
+        console.log(dropd);
+
+        listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
+
+            res.prefixes.forEach((folderRef) => {
+                updateMetadata(folderRef, metadata)
+                    .then((metadata) => {
+                        // Updated metadata for 'images/forest.jpg' is returned in the Promise
+                        console.log(metadata);
+                    }).catch((error) => {
+                        // Uh-oh, an error occurred!
+                        console.error(error);
+                    });
+            });
+
+            res.items.forEach((itemRef) => {
+
+                updateMetadata(itemRef, metadata)
+                    .then((metadata) => {
+                        // Updated metadata for 'images/forest.jpg' is returned in the Promise
+                        console.log(metadata);
+                    }).catch((error) => {
+                        // Uh-oh, an error occurred!
+                        console.error(error);
+                    });
+
+
+            })
+        }).catch((error) => {
+            console.log(error);
+        })
+    }
+}
+
+
+
 function devMenu() {
     // Debug
     const gui = new dat.GUI();
@@ -220,8 +271,13 @@ function devMenu() {
 
     devGUI.add(btn2, 'saveCam');
 
-
     devGUI.add(btn3, 'editPos', 'editPosition');
+
+    devGUI.add(btn4, 'update');
+
+    devGUI.add(targ, 'textField').onFinishChange((e) => {
+        console.log(e);
+    });
 
     devGUI.add(textbox, 'readOnly', 'editText');
 
@@ -478,8 +534,12 @@ function bounds(x1, y1, x2, y2) {
 }
 
 //sign in function
+const availableSites = ["IQ", "LHL", "Oshawa", "RWDI1", "RWDI1HEPA", "RWDI2", "RWDI3", "RZero", "Robinson", "Sanuvox", "Sarnia", "Sunflower"];
+const accessibleSites = [];
 
 function signedIn(result) {
+
+    console.log(result);
 
     // This gives you a Google Access Token. You can use it to access the Google API.
     const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -491,26 +551,30 @@ function signedIn(result) {
 
     if (ext[1] == 'poppy.com') {
         devMenu();
-        switchDisplay(1);
-    } else {
-        switchDisplay(2);
     }
 
-    const availableSites = [];
+    switchDisplay(1);
 
-    listAll(storageRef)
-        .then((res) => {
-            res.prefixes.forEach((folderRef) => {
-                availableSites.push(folderRef.name);
-            });
+    //check if site is accessible, if not, remove from available sites
 
-            res.items.forEach((itemRef) => {
-                console.log(itemRef.name);
-            });
+    for (var i = 0; i < availableSites.length; i++) {
 
-            siteList(availableSites);
+        console.log(availableSites, i);
 
-        })
+        var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
+
+        getMetadata(fileRef)
+            .then((data) => {
+                accessibleSites.push(data.name.split('.')[0]);
+                console.log(accessibleSites);
+                siteList(accessibleSites);
+            })
+            .catch((err) => {
+
+                console.log(err);
+
+            })
+    }
 }
 
 function siteList(s) {
@@ -575,9 +639,13 @@ loginBtn.addEventListener("click", (e) => {
 
     const auth = getAuth();
     signInWithPopup(auth, provider)
+
         .then((result) => {
             signedIn(result);
+
+
         }).catch((error) => {
+
             // Handle Errors here.
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -597,36 +665,42 @@ loginBtn.addEventListener("click", (e) => {
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
 
-    [ms, ts, tracers, insights, views] = [[], [], [], [], []];
+    [ms, ts, tracers, insights, views] = [
+        [],
+        [],
+        [],
+        [],
+        []
+    ];
 
-    var data = listAll(ref(storage, '/Sites/' + event.target.value)).then((res) => {
+    var modelRef = ref(storage, '/Sites/' + event.target.value + '/' + event.target.value + '.glb');
 
-        res.prefixes.forEach((folderRef) => {
-            console.log(folderRef.name);
-        });
+    var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
 
-        res.items.forEach((itemRef) => {
+    // .glb, load model
 
-            //if the file extension is .glb, load model
-            if (itemRef.name.split('.')[1] == 'glb') {
-                console.log('glb', itemRef)
-                getBlob(itemRef)
-                    .then((blob) => {
-                        console.log(blob);
-                        handleModels(blob);
-                    })
-            } else if (itemRef.name.split('.')[1] == 'csv') {
-                //if the file extension is .csv, load data
-                console.log('csv', itemRef)
-                getBlob(itemRef)
-                    .then((blob) => {
-                        console.log(blob);
-                        handleFiles(blob);
-                    })
-            }
-        });
-    });
+    console.log('glb', modelRef)
+
+    getBlob(modelRef)
+        .then((blob) => {
+            handleModels(blob);
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+
+    // .csv, load data
+    console.log('csv', dataRef)
+
+    getBlob(dataRef)
+        .then((blob) => {
+            handleFiles(blob);
+        })
+        .catch((err) => {
+            console.log('No Data', err);
+        })
 })
+
 
 //buttons
 
@@ -852,9 +926,9 @@ window.addEventListener('resize', () => {
 Animate
 */
 
-console.log(ms)
-console.log(ts)
-console.log(tracers)
+console.log(ms);
+console.log(ts);
+console.log(tracers);
 
 const tick = () => {
 
