@@ -4,7 +4,7 @@ import Point2d from './Point';
 class Tracer {
 
 
-    constructor(m = 0, t = 0, value = 0, headroom = 4, lift = 20) {
+    constructor(m = 0, t = 0, value = 0, headroom = 40, lift = 20) {
         this.m = m;
         this.t = t;
         this.value = parseFloat(value);
@@ -119,6 +119,7 @@ class Tracer2d extends Tracer {
         var x4 = ((proj2.x * w) + w);
         //headroom    ty                 
         var y4 = (-(proj2.y * h) + h);
+        
         /*
         MOVE M POINT ALONG LINE TO T POMT BY HEADROOM
         */
@@ -128,11 +129,13 @@ class Tracer2d extends Tracer {
         var y1 = (-(proj1.y * h) + h);
 
         //m > T
+        //get unit vector of ((x4 - x1), (y4 - y1))
+        var u = new THREE.Vector2(x4 - x1, y4 - y1).normalize();
 
-        //mx + (tx - mx) /  scalar(headroom) * 
-        x1 += (x4 - x1) / this.headroom;
+        //mx + (tx - mx) /  scalar(headroom)
+        x1 += u.x * this.headroom;
         //my + (ty - my) / scalar(headroom)
-        y1 += (y4 - y1) / this.headroom;
+        y1 += u.y * this.headroom;
 
         //mid + lift
         var [mx, my] = this.midpoint(x1, y1, x4, y4);
