@@ -124,6 +124,7 @@ scene.add(camera);
 function updateCamera() {
     camera.updateProjectionMatrix();
 }
+
 canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
@@ -342,7 +343,7 @@ var sceneMeshes = [];
 
 // onLoad callback
 function onLoadLoad(obj) {
-    
+
     obj.scene.children[0].children.forEach((e) => {
         sceneMeshes.push(e);
     })
@@ -479,7 +480,7 @@ function handleFiles(input) {
     read.readAsBinaryString(input);
 
     read.onloadend = function () {
-      
+
         [ms, ts, tracers, insights, views] = Data(read.result);
 
         //resize sheet
@@ -493,32 +494,35 @@ function handleFiles(input) {
 
 function updateCam(x, y) {
 
-    if (x <= 1 && y <= 1) {
+    if (camFree) {
 
-    } else if (y == 1) {
-        //if y (row) == 1, ts
-        var t = x - 2;
+        if (x <= 1 && y <= 1) {
 
-        cameraTargPos = new THREE.Vector3(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
-        cameraTargView = new THREE.Vector3(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
+        } else if (y == 1) {
+            //if y (row) == 1, ts
+            var t = x - 2;
 
-        //throws errors if it trys to select row before/after last
-    } else if (1 < y && y < ms.length + 2) {
-        //if x (column) == 1, ms
+            cameraTargPos = new THREE.Vector3(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
+            cameraTargView = new THREE.Vector3(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
 
-        var m = y - 2;
+            //throws errors if it trys to select row before/after last
+        } else if (1 < y && y < ms.length + 2) {
+            //if x (column) == 1, ms
 
-        //special views
-        if (views[y - 1] != null && views[y - 1][0] != '') {
-            cameraTargPos = new THREE.Vector3(parseFloat(views[y - 1][0]), parseFloat(views[y - 1][1]), parseFloat(views[y - 1][2]));
-        } else {
-            cameraTargPos = new THREE.Vector3(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+            var m = y - 2;
+
+            //special views
+            if (views[y - 1] != null && views[y - 1][0] != '') {
+                cameraTargPos = new THREE.Vector3(parseFloat(views[y - 1][0]), parseFloat(views[y - 1][1]), parseFloat(views[y - 1][2]));
+            } else {
+                cameraTargPos = new THREE.Vector3(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+            }
+            cameraTargView = new THREE.Vector3(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+
+            //insights
+            textbox.value = (insights[y] == null) ? '' : decodeURI(insights[y]).replaceAll('~', ',');
+
         }
-        cameraTargView = new THREE.Vector3(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
-
-        //insights
-        textbox.value = (insights[y] == null) ? '' : decodeURI(insights[y]).replaceAll('~', ',');
-
     }
 }
 
@@ -761,13 +765,21 @@ flipBtn.addEventListener("click", (e) => {
     }
 })
 
+var camFree = true;
+
 camBtn.addEventListener("click", (e) => {
     if (camBtn.innerHTML == '🎥') {
         camBtn.innerHTML = '📷';
         controls.enabled = false;
+        camFree = false;
+    } else if (camBtn.innerHTML == '📷') {
+        camBtn.innerHTML = '📹';
+        controls.enabled = false;
+        camFree = true;
     } else {
         camBtn.innerHTML = '🎥';
         controls.enabled = true;
+        camFree = true;
     }
 })
 
@@ -846,11 +858,16 @@ toggleBtn.addEventListener("click", (e) => {
 
 //canvas
 canvas2d.addEventListener("mousedown", (e) => {
-    looking = false;
+    if (camFree) {
+        looking = false;
+    }
 })
 
 canvas2d.addEventListener("click", (e) => {
-        looking = false;
+        if (camFree) {
+            looking = false;
+        }
+
 
         if (btn3.editPos) {
 
@@ -929,7 +946,9 @@ window.addEventListener('hashchange', (e) => {
 });
 
 canvasleft.addEventListener('click', (e) => {
-    looking = true;
+    if (camFree) {
+        looking = true;
+    }
     //single click, place markers 1 and 2
     if (e.detail == 1) {
         if (firstClick) {
