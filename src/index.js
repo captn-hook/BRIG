@@ -157,6 +157,12 @@ const opacityBtn = document.getElementById('opacityBtn');
 
 const flipBtn = document.getElementById('flipBtn');
 
+const camBtn = document.getElementById('camBtn');
+
+const resetBtn = document.getElementById('resetBtn');
+
+const toggleBtn = document.getElementById('toggleBtn');
+
 //dev funcs
 
 var d0 = document.getElementById('log');
@@ -770,6 +776,90 @@ flipBtn.addEventListener("click", (e) => {
     }
 })
 
+camBtn.addEventListener("click", (e) => {
+    if (camBtn.innerHTML == '🎥') {
+        camBtn.innerHTML = '📷';
+        controls.enabled = false;
+    } else {
+        camBtn.innerHTML = '🎥';
+        controls.enabled = true;
+    }
+})
+
+resetBtn.addEventListener("click", (e) => {
+    if (resetBtn.innerHTML == '❎') {
+        resetBtn.innerHTML = '✅';
+
+        //set every m, t, and tracer to visible
+        ms.forEach((m) => {
+            m.visible = true;
+        })
+        ts.forEach((t) => {
+            t.visible = true;
+        })
+        tracers.forEach((t) => {
+            t.visible = true;
+        })
+
+    } else {
+        resetBtn.innerHTML = '❎';
+
+        //set every m, t, and tracer to hidden
+        ms.forEach((m) => {
+            m.visible = false;
+        })
+        ts.forEach((t) => {
+            t.visible = false;
+        })
+        tracers.forEach((t) => {
+            t.visible = false;
+        })
+
+    }
+})
+
+toggleBtn.addEventListener("click", (e) => {
+
+    var mode = null;
+
+    if (toggleBtn.innerHTML == '◧') {
+        toggleBtn.innerHTML = '◨ ';
+        mode = true;
+    } else {
+        toggleBtn.innerHTML = '◧';
+        mode = false;
+    }
+
+    //find the difference between click 1 and click 2
+    var minx = ((firstClickX < secondClickX) ? firstClickX : secondClickX) - 1;
+    var miny = ((firstClickY < secondClickY) ? firstClickY : secondClickY) - 1;
+    var x = Math.abs(secondClickX - firstClickX) + minx;
+    var y = Math.abs(secondClickY - firstClickY) + miny;
+
+    tracers.forEach((t) => {
+        if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
+            t.visible = mode;
+        }
+    })
+
+    console.log(minx, miny)
+    if (minx == 0) {
+        ms.forEach((m) => {
+            if (m.i >= miny && m.i <= y) {
+                m.visible = mode;
+            }
+        })
+    }
+
+    if (miny == 0) {
+        ts.forEach((d) => {
+            if (d.i >= minx && d.i <= x) {
+                d.visible = mode;
+            }
+        })
+    }
+})
+
 //canvas
 canvas2d.addEventListener("mousedown", (e) => {
     looking = false;
@@ -949,7 +1039,9 @@ const tick = () => {
     }
 
     // Update Orbital Controls
+
     controls.update();
+
     // Render
     renderer.render(scene, camera);
 
