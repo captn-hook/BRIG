@@ -71,7 +71,6 @@ import {
     config
 } from './key';
 
-console.log(config);
 
 const firebaseConfig = {
     apiKey: config.API_KEY,
@@ -229,8 +228,6 @@ var btn4 = {
             }
         };
 
-        console.log(dropd);
-
         listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
 
             res.prefixes.forEach((folderRef) => {
@@ -258,7 +255,7 @@ var btn4 = {
 
             })
         }).catch((error) => {
-            console.log(error);
+            console.error(error);
         })
     }
 }
@@ -345,7 +342,7 @@ var sceneMeshes = [];
 
 // onLoad callback
 function onLoadLoad(obj) {
-    console.log(obj)
+    
     obj.scene.children[0].children.forEach((e) => {
         sceneMeshes.push(e);
     })
@@ -451,16 +448,15 @@ function handleModels(input) {
     read.readAsArrayBuffer(input);
 
     read.onloadend = function () {
-        console.log(read.result);
+
+        const loader = new GLTFLoader();
 
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
 
-        const loader = new GLTFLoader();
-
         loader.setDRACOLoader(dracoLoader);
 
-        loader.parse(read.result, "", onLoadLoad, onErrorLog);
+        loader.parse(read.result, "", onLoadLoad, onErrorLog, onProgressLog);
 
     }
 }
@@ -478,14 +474,12 @@ function handleFiles(input) {
     //remove old stuff first
     blankClicks();
 
-    console.log(input);
-
     var read = new FileReader();
 
     read.readAsBinaryString(input);
 
     read.onloadend = function () {
-        console.log(read.result);
+      
         [ms, ts, tracers, insights, views] = Data(read.result);
 
         //resize sheet
@@ -545,8 +539,6 @@ const accessibleSites = [];
 
 function signedIn(result) {
 
-    console.log(result);
-
     // This gives you a Google Access Token. You can use it to access the Google API.
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
@@ -565,19 +557,16 @@ function signedIn(result) {
 
     for (var i = 0; i < availableSites.length; i++) {
 
-        console.log(availableSites, i);
-
         var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
 
         getMetadata(fileRef)
             .then((data) => {
                 accessibleSites.push(data.name.split('.')[0]);
-                console.log(accessibleSites);
                 siteList(accessibleSites);
             })
             .catch((err) => {
 
-                console.log(err);
+                console.error(err);
 
             })
     }
@@ -685,25 +674,22 @@ dropd.addEventListener('change', (event) => {
 
     // .glb, load model
 
-    console.log('glb', modelRef)
-
     getBlob(modelRef)
         .then((blob) => {
             handleModels(blob);
         })
         .catch((err) => {
-            console.log(err);
+            console.error(err);
         })
 
     // .csv, load data
-    console.log('csv', dataRef)
 
     getBlob(dataRef)
         .then((blob) => {
             handleFiles(blob);
         })
         .catch((err) => {
-            console.log('No Data', err);
+            console.error('No Data', err);
         })
 })
 
@@ -758,7 +744,6 @@ flipBtn.addEventListener("click", (e) => {
         }
     })
 
-    console.log(minx, miny)
     if (minx == 0) {
         ms.forEach((m) => {
             if (m.i >= miny && m.i <= y) {
@@ -842,7 +827,6 @@ toggleBtn.addEventListener("click", (e) => {
         }
     })
 
-    console.log(minx, miny)
     if (minx == 0) {
         ms.forEach((m) => {
             if (m.i >= miny && m.i <= y) {
@@ -901,7 +885,6 @@ canvas2d.addEventListener("click", (e) => {
 textbox.addEventListener('input', e => {
     if (textbox.readOnly == false) {
         insights[firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
-        console.log(textbox.value)
     }
 })
 
@@ -930,7 +913,6 @@ window.addEventListener('hashchange', (e) => {
         var pos = new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
         var rot = new Vector3(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
 
-        console.log(pos, rot, camera.position.distanceTo(pos))
         //                                   min dist
         if (camera.position.distanceTo(new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))) > .03) {
 
@@ -1015,10 +997,6 @@ window.addEventListener('resize', () => {
 /*
 Animate
 */
-
-console.log(ms);
-console.log(ts);
-console.log(tracers);
 
 const tick = () => {
 
@@ -1108,6 +1086,7 @@ const tick = () => {
 
     //loading bar
     if ((Gxhr.loaded / Gxhr.total * 100) < 100) {
+        console.log('loading')
         ctx.beginPath();
         ctx.moveTo(0, sizes.height / 4);
         ctx.lineTo(sizes.width * (Gxhr.loaded / Gxhr.total), sizes.height / 4);

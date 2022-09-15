@@ -38,16 +38,12 @@ export default function Data(data) {
         views[i] = xyz;
     })
 
-    console.log(insights, views);
-
-
-
     const ms = [];
     const ts = [];
     const tracers = [];
 
     if (dataArray[1][1] == 'XYZ') {
-        console.log("XYZ FOUND")
+
         //data func if xyz
         for (var m = 0; m < dataArray[0].length; m++) {
             for (var t = 0; t < dataArray.length; t++) {
@@ -90,13 +86,11 @@ export default function Data(data) {
             }
         }
     } else {
-        console.log("XYZ NOT FOUND")
         //placeholder locations
 
         dataArray[0].forEach((e, i) => {
             if (e != '' && e != null) {
                 var pos = new THREE.Vector3(0, (i) * 3, 0);
-                console.log(e)
                 ms.push(new Point2d('M', i, 'red', pos, 10));
             }
         })
@@ -114,8 +108,7 @@ export default function Data(data) {
 
                 //Labels
                 if (m == 0 || t == 0) {
-                    console.log('Label: ' + dataArray[t][m]);
-
+                   
                     //CLM 1
                 } else if (m > 0 && t > 0) {
 
@@ -124,7 +117,7 @@ export default function Data(data) {
                     //}
 
                 } else {
-                    console.log('Error: ' + dataArray[t][m]);
+                    console.error('Error: ' + dataArray[t][m]);
                 }
             }
         }
@@ -194,8 +187,6 @@ export function saveFile(ms, ts, tracers, insights, views) {
         let row = rowArray.join(",");
         csvContent += row + "\r\n";
     });
-
-    console.log(csvContent);
 
     var encodedUri = encodeURI(csvContent);
     window.open(encodedUri);
