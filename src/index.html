@@ -18,38 +18,38 @@
                 <label style="font-size:3vw"> Poppy Data Viz</label>
             </div>
             <!-- Vertical Div 1.0 login -->
-            <div id="log" class="btn-group" style="display: block; height: 13%;">
-                <button id="login" style="width: 40%; margin: 3%;">Login</button>
-                <button id="logout" style="width: 40%; margin: 3%">Logout</button>
+            <div id="log" class="btn-group" style="display: block; height: 13%;" title="Login Screen">
+                <button id="login" style="width: 40%; margin: 3%;" title="Login">Login</button>
+                <button id="logout" style="width: 40%; margin: 3%" title="Logout">Logout</button>
 
             </div>
             <!-- Vertical Div 1.1, switch display, for logged in users -->
-            <div id="selectPanel1" style="display: none; height: 13%; overflow: hidden;">
+            <div id="selectPanel1" style="display: none; height: 13%; overflow: hidden;" title="Site Dropdown">
                 <label for="sites">Choose a site:</label>
-                <select name="sites" id="dropdown">
-                    <option value="Empty">Empty</option>
+                <select name="sites" id="dropdown" title="Dropdown">
+                    <option value="Empty">Example</option>
                 </select>
             </div>
             <!-- Vertical Div 1.2, dev -->
-            <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;">
-                <label for="datapicker"> Select data:</label><input type="file" id="datapicker" accept=".csv,.txt" title=" ">
+            <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;" title="Data Input">
+                <label for="datapicker" title="Input Data"> Select data:</label><input type="file" id="datapicker" accept=".csv,.txt" title=" ">
 
-                <label for="modelpicker"> Select model:</label><input type="file" id="modelpicker" accept=".glb,.gltf" title=" ">
+                <label for="modelpicker" title="Input Model"> Select model:</label><input type="file" id="modelpicker" accept=".glb,.gltf" title=" ">
             </div>
 
             <!-- Vertical Div 2.0 -->
             <div style="height: 8%;  position: relative;" class="btn-group">
-                <button id="valueBtn">/</button><button id="opacityBtn">-</button><button id="flipBtn">◐</button>
-                <button id="camBtn">🎥</button><button id="resetBtn">❎</button><button id="toggleBtn">◧</button>
+                <button id="valueBtn" title="Show values">/</button><button id="opacityBtn" title="Toggle transparency">-</button><button id="flipBtn" title="Flip selection visibility">◐</button>
+                <button id="camBtn" title="Change camera control mode">🎥</button><button id="resetBtn" title="Toggle all visibility">❎</button><button id="toggleBtn" title="Toggle selection visibility">◧</button>
             </div>
 
             <!-- Vertical Div 2.1 -->
             <div style="height: 30%;  position: relative;" id="spreadsheet">
-                <canvas id="left"></canvas>
+                <canvas id="left" title="spreadsheet"></canvas>
             </div>
             <!-- Vertical Div 3 -->
             <div style="height: 40%;">
-                <textarea id="textbox"
+                <textarea id="textbox" title="Custom Text"
                     readOnly>  </textarea>
             </div>
 
@@ -58,8 +58,8 @@
             3D Canvas AND 2D Drawing Canvas -->
         <div style="width: 70%; margin-left: 30%; height: 100%; position: relative;" id="3d">
 
-            <canvas class="webgl"></canvas>
-            <canvas style="position: absolute" id="2d"></canvas>
+            <canvas class="webgl" title="Renderer"></canvas>
+            <canvas style="position: absolute" id="2d" title="Display"></canvas>
 
         </div>
     </div>
