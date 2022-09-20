@@ -343,6 +343,10 @@ var sceneMeshes = [];
 
 // onLoad callback
 function onLoadLoad(obj) {
+    
+    sceneMeshes = [];
+
+    sceneMeshes.push(obj.scene.children[0]);
 
     obj.scene.children[0].children.forEach((e) => {
         sceneMeshes.push(e);
@@ -771,11 +775,11 @@ camBtn.addEventListener("click", (e) => {
     if (camBtn.innerHTML == '🎥') {
         camBtn.innerHTML = '📷';
         controls.enabled = false;
-        camFree = false;
+        camFree = true;
     } else if (camBtn.innerHTML == '📷') {
         camBtn.innerHTML = '📹';
-        controls.enabled = false;
-        camFree = true;
+        controls.enabled = true;
+        camFree = false;
     } else {
         camBtn.innerHTML = '🎥';
         controls.enabled = true;
@@ -879,7 +883,9 @@ canvas2d.addEventListener("click", (e) => {
 
             raycaster.setFromCamera(mouse, camera);
 
-            const intersects = raycaster.intersectObjects(sceneMeshes, false);
+            var intersects = raycaster.intersectObjects(sceneMeshes, true);
+
+            console.log(intersects, sceneMeshes);
 
             if (intersects.length > 0) {
                 if (firstClickX == 1) {
@@ -1012,6 +1018,33 @@ window.addEventListener('resize', () => {
     renderer.setSize(sizes.width, sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 })
+
+/*
+load example
+*/
+var modelRef = ref(storage, '/Example/example.glb');
+
+var dataRef = ref(storage, '/Example/data.csv');
+
+// .glb, load model
+
+getBlob(modelRef)
+    .then((blob) => {
+        handleModels(blob);
+    })
+    .catch((err) => {
+        console.error(err);
+    })
+
+// .csv, load data
+
+getBlob(dataRef)
+    .then((blob) => {
+        handleFiles(blob);
+    })
+    .catch((err) => {
+        console.error('No Data', err);
+    })
 
 /*
 Animate
