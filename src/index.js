@@ -90,6 +90,8 @@ const storage = getStorage(app);
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
+let Gxhr = 0;
+
 const div = document.getElementById("3d");
 
 const sizes = {
@@ -356,11 +358,9 @@ function onLoadLoad(obj) {
     globalObj = scene.children[scene.children.length - 1];
 }
 
-let Gxhr = 0;
 // onProgress callback
 function onProgressLog(xhr) {
-    console.log((xhr.loaded / xhr.total * 100))
-    Gxhr = xhr;
+    Gxhr = (xhr.loaded / xhr.total * 100);
 }
 
 // onError callback
@@ -452,11 +452,18 @@ function handleModels(input) {
 
     read.readAsArrayBuffer(input);
 
+    read.addEventListener('progress', (e) => {
+        if ((e.loaded / e.total * 100) == 100) {
+            Gxhr += 25;
+        }
+    })    
+
     read.onloadend = function () {
 
         const loader = new GLTFLoader();
 
         const dracoLoader = new DRACOLoader();
+
         dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
 
         loader.setDRACOLoader(dracoLoader);
@@ -480,6 +487,12 @@ function handleFiles(input) {
     blankClicks();
 
     var read = new FileReader();
+
+    read.addEventListener('progress', (e) => {
+        if ((e.loaded / e.total * 100) == 100) {
+            Gxhr += 25;
+        }
+    })    
 
     read.readAsBinaryString(input);
 
@@ -668,6 +681,8 @@ loginBtn.addEventListener("click", (e) => {
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
 
+    Gxhr = 0;
+
     [ms, ts, tracers, insights, views] = [
         [],
         [],
@@ -684,6 +699,7 @@ dropd.addEventListener('change', (event) => {
 
     getBlob(modelRef)
         .then((blob) => {
+            Gxhr += 25;
             handleModels(blob);
         })
         .catch((err) => {
@@ -694,6 +710,7 @@ dropd.addEventListener('change', (event) => {
 
     getBlob(dataRef)
         .then((blob) => {
+            Gxhr += 25;
             handleFiles(blob);
         })
         .catch((err) => {
@@ -1030,6 +1047,7 @@ var dataRef = ref(storage, '/Example/data.csv');
 
 getBlob(modelRef)
     .then((blob) => {
+        Gxhr += 25;
         handleModels(blob);
     })
     .catch((err) => {
@@ -1040,6 +1058,7 @@ getBlob(modelRef)
 
 getBlob(dataRef)
     .then((blob) => {
+        Gxhr += 25;
         handleFiles(blob);
     })
     .catch((err) => {
@@ -1137,14 +1156,23 @@ const tick = () => {
     }
 
     //loading bar
-    if ((Gxhr.loaded / Gxhr.total * 100) < 100) {
-        console.log('loading')
+    
+    if (Gxhr < 100) {
         ctx.beginPath();
         ctx.moveTo(0, sizes.height / 4);
-        ctx.lineTo(sizes.width * (Gxhr.loaded / Gxhr.total), sizes.height / 4);
+        ctx.lineTo(sizes.width * Gxhr / 100, sizes.height / 4);
         ctx.lineWidth = 10;
         ctx.strokeStyle = 'yellow';
         ctx.stroke();
+    } else if (Gxhr == 100) {
+        ctx.beginPath();
+        ctx.moveTo(0, sizes.height / 4);
+        ctx.lineTo(sizes.width, sizes.height / 4);
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = 'yellow';
+        ctx.stroke();
+
+        Gxhr = 0;    
     }
 
 
