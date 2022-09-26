@@ -555,7 +555,7 @@ function bounds(x1, y1, x2, y2) {
 }
 
 //sign in function
-const availableSites = ["IQ", "LHL", "Oshawa", "RWDI1", "RWDI1HEPA", "RWDI2", "RWDI3", "RZero", "Robinson", "Sanuvox", "Sarnia", "Sunflower"];
+const availableSites = ["IQ", "LHL", "Oshawa", "RWDI1", "RWDI1HEPA", "RWDI2", "RWDI3", "RZero", "Robinson", "Sanuvox", "Sarnia", "Sunflower", "Synergy"];
 const accessibleSites = [];
 
 function signedIn(result) {
@@ -1172,7 +1172,7 @@ const tick = () => {
         ctx.strokeStyle = 'yellow';
         ctx.stroke();
 
-        Gxhr = 0;    
+        Gxhr = 0;       
     }
 
 
