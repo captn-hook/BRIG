@@ -1004,8 +1004,49 @@ canvasleft.addEventListener('click', (e) => {
         }
         //double click, clear markers
     } else if (e.detail == 2) {
+
         blankClicks();
-    }
+
+        updateCam(cellX, cellY);
+
+        //get m/t/tracer by cellX and cellY
+        if (cellX <= 1 && cellY <= 1) {
+            //do nothing
+        } else if (cellY == 1) {
+            
+            var state = !ts[cellX - 2].visible
+
+            ts[cellX - 2].visible = state;
+
+            tracers.forEach((t) => {
+                if (t.t.i == cellX - 1) {
+                    t.visible = state;
+                }
+            })
+
+        } else if (cellX == 1) {
+            
+            var state = !ms[cellY - 1].visible
+
+            ms[cellY - 2].visible = state;
+            
+            tracers.forEach((t) => {
+                if (t.m.i == cellY - 2) {
+                    t.visible = state;
+                }
+            })
+
+        } else {
+
+            tracers.forEach((t) => {
+                if (t.m.i == cellY - 1 && t.t.i == cellX - 1) {
+                    t.visible = !t.visible;
+                }
+            })
+
+        }
+        
+        }
 
 }, false);
 
