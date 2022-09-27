@@ -11,11 +11,11 @@
     <div style="width: 100%;">
 
         <!-- Left Div -->
-        <div style="width: 30%; float: left; background: white;">
+        <div id="bg" style="width: 30%; float: left; background: rgb(83, 83, 84);">
 
             <!-- Vertical Div 0, title -->
             <div style="height: 9%; overflow: hidden;">
-                <label style="font-size:3vw"> Poppy Data Viz</label>
+                <label id="title" style="font-size:3vw; color:lightgray"> Poppy Data Viz</label>
             </div>
             <!-- Vertical Div 1.0 login -->
             <div id="log" class="btn-group" style="display: block; height: 13%;" title="Login Screen">
@@ -25,7 +25,7 @@
             </div>
             <!-- Vertical Div 1.1, switch display, for logged in users -->
             <div id="selectPanel1" style="display: none; height: 13%; overflow: hidden;" title="Site Dropdown">
-                <label for="sites">Choose a site:</label>
+                <label id="tx" for="sites" style="color:lightgrey;">Choose a site:</label>
                 <select name="sites" id="dropdown" title="Dropdown">
                     <option value="Empty">Example</option>
                 </select>
@@ -49,7 +49,7 @@
             </div>
             <!-- Vertical Div 3 -->
             <div style="height: 40%;">
-                <textarea id="textbox"
+                <textarea id="textbox" style="background-color:black; color:white;"
                     readOnly>  </textarea>
             </div>
 

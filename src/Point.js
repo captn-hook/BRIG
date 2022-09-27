@@ -43,7 +43,7 @@ class Point2d extends Point {
             return [x, y, proj.z]
     }
 
-    drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
+    drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw) {
         //main canvas
         var [x, y, z] = this.screenPt(camera, sizes.width / 2, sizes.height / 2);
     
@@ -74,7 +74,11 @@ class Point2d extends Point {
     
         if (this.visible) {
             ctxLeft.globalAlpha = 1.0;
+            if (bw) {
+            ctxLeft.fillStyle = "black";
+            } else {
             ctxLeft.fillStyle = "white";
+            }
         } else {
             ctxLeft.globalAlpha = 0.2;
             ctxLeft.fillStyle = "grey";
@@ -85,11 +89,19 @@ class Point2d extends Point {
     
         if (this.type == 'M') {
             ctxLeft.fillRect(0, this.i * cellHeight, cellWidth, cellHeight);
-            ctxLeft.fillStyle = "black";
+            if (!bw) {
+                ctxLeft.fillStyle = "black";
+            } else {
+            ctxLeft.fillStyle = "white";
+            }
             ctxLeft.fillText(this.name, 10, this.i * cellHeight + 10);
         } else if (this.type == 'D') {
             ctxLeft.fillRect(this.i * cellWidth, 0, cellWidth, cellHeight);
-            ctxLeft.fillStyle = "black";
+            if (!bw) {
+                ctxLeft.fillStyle = "black";
+            } else {
+            ctxLeft.fillStyle = "white";
+            }
             ctxLeft.fillText(this.name, this.i * cellWidth + 10, 10);
         } else {
             console.error('Type Error: Left Canvas')

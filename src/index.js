@@ -141,6 +141,7 @@ const ctx = canvas2d.getContext('2d');
 const spreadsheetDiv = document.getElementById("spreadsheet");
 
 const canvasleft = document.getElementById('left');
+
 canvasleft.oncontextmenu = () => false;
 
 const ctxLeft = canvasleft.getContext('2d');
@@ -263,6 +264,35 @@ var btn4 = {
     }
 }
 
+var back = document.getElementById("bg")
+
+var title = document.getElementById("title")
+
+var tx = document.getElementById("tx")
+
+var bw = true;
+
+var btn5 = {
+    blackandwhite: function () {
+        bw = !bw;
+
+        if (bw) {
+            scene.background = new THREE.Color(0x000000);
+            back.style.background = "rgb(83, 83, 84)";
+            title.style.color = "lightgray";
+            tx.style.color = "lightgray";
+            textbox.style.backgroundColor = "black" 
+            textbox.style.color = "white"
+        } else {
+            scene.background = new THREE.Color(0xffffff);
+            back.style.background = "white";
+            title.style.color = "black";
+            tx.style.color = "black";
+            textbox.style.backgroundColor = "white" 
+            textbox.style.color = "black"
+        }
+    }
+};
 
 
 function devMenu() {
@@ -280,6 +310,8 @@ function devMenu() {
     devGUI.add(btn3, 'editPos', 'editPosition');
 
     devGUI.add(btn4, 'update');
+
+    devGUI.add(btn5, 'blackandwhite');
 
     devGUI.add(targ, 'textField').onFinishChange((e) => {
         console.log(e);
@@ -1143,10 +1175,14 @@ const tick = () => {
     tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha, doVals));
 
     //Points
-    ms.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
-    ts.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
+    ms.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw));
+    ts.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw));
 
+    if (bw) {
+    ctxLeft.fillStyle = 'black';
+    } else {
     ctxLeft.fillStyle = 'white';
+    }
     ctxLeft.fillRect(0, 0, cellWidth, cellHeight);
 
     //click 1
@@ -1181,7 +1217,11 @@ const tick = () => {
         } else {
             ctxLeft.beginPath();
 
+            if (bw) {
             ctxLeft.strokeStyle = 'white'
+            } else {
+            ctxLeft.strokeStyle = 'black'
+            }
             ctxLeft.lineWidth = 4;
 
             var [x, y, w, h] = bounds(secondClickX, secondClickY, firstClickX, firstClickY);
