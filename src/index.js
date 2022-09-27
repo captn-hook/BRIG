@@ -118,7 +118,7 @@ var cameraTargView = new THREE.Vector3(0, 0, 0);
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xe0e0e0);
+scene.background = new THREE.Color(0x000000);
 scene.add(camera);
 
 //cam size
@@ -722,12 +722,12 @@ dropd.addEventListener('change', (event) => {
 //buttons
 
 valueBtn.addEventListener("click", (e) => {
-    if (valueBtn.innerHTML == '/') {
-        valueBtn.innerHTML = '%';
+    if (valueBtn.innerHTML == 'Show values') {
+        valueBtn.innerHTML = 'Hide values';
         //show values
         doVals = true;
     } else {
-        valueBtn.innerHTML = '/';
+        valueBtn.innerHTML = 'Show values';
         //hide values
         doVals = false;
     }
@@ -737,11 +737,11 @@ var alpha = true;
 
 opacityBtn.addEventListener("click", (e) => {
     if (!alpha) {
-        opacityBtn.innerHTML = '-';
+        opacityBtn.innerHTML = 'Transparent';
         alpha = true;
         //show values
     } else {
-        opacityBtn.innerHTML = '0';
+        opacityBtn.innerHTML = 'Opaque';
         alpha = false;
         //hide values
     }
@@ -750,11 +750,11 @@ opacityBtn.addEventListener("click", (e) => {
 
 flipBtn.addEventListener("click", (e) => {
 
-    if (flipBtn.innerHTML == '◐') {
-        flipBtn.innerHTML = '◑';
+    if (flipBtn.innerHTML == 'Flip Selection ◐') {
+        flipBtn.innerHTML = 'Flip Selection ◑';
         //show values
     } else {
-        flipBtn.innerHTML = '◐';
+        flipBtn.innerHTML = 'Flip Selection ◐';
         //hide values
     }
     //find the difference between click 1 and click 2
@@ -789,24 +789,24 @@ flipBtn.addEventListener("click", (e) => {
 var camFree = true;
 
 camBtn.addEventListener("click", (e) => {
-    if (camBtn.innerHTML == '🎥') {
-        camBtn.innerHTML = '📷';
+    if (camBtn.innerHTML == 'Multi 🎥') {
+        camBtn.innerHTML = 'Locked 📷';
         controls.enabled = false;
         camFree = true;
-    } else if (camBtn.innerHTML == '📷') {
-        camBtn.innerHTML = '📹';
+    } else if (camBtn.innerHTML == 'Locked 📷') {
+        camBtn.innerHTML = 'Free 📹';
         controls.enabled = true;
         camFree = false;
     } else {
-        camBtn.innerHTML = '🎥';
+        camBtn.innerHTML = 'Multi 🎥';
         controls.enabled = true;
         camFree = true;
     }
 })
 
 resetBtn.addEventListener("click", (e) => {
-    if (resetBtn.innerHTML == '❎') {
-        resetBtn.innerHTML = '✅';
+    if (resetBtn.innerHTML == 'Toggle all ❎') {
+        resetBtn.innerHTML = 'Toggle all ✅';
 
         //set every m, t, and tracer to visible
         ms.forEach((m) => {
@@ -820,7 +820,7 @@ resetBtn.addEventListener("click", (e) => {
         })
 
     } else {
-        resetBtn.innerHTML = '❎';
+        resetBtn.innerHTML = 'Toggle all ❎';
 
         //set every m, t, and tracer to hidden
         ms.forEach((m) => {
@@ -840,11 +840,11 @@ toggleBtn.addEventListener("click", (e) => {
 
     var mode = null;
 
-    if (toggleBtn.innerHTML == '◧') {
-        toggleBtn.innerHTML = '◨ ';
+    if (toggleBtn.innerHTML == 'Toggle selection ◧') {
+        toggleBtn.innerHTML = 'Toggle selection ◨';
         mode = true;
     } else {
-        toggleBtn.innerHTML = '◧';
+        toggleBtn.innerHTML = 'Toggle selection ◧';
         mode = false;
     }
 
