@@ -55,6 +55,8 @@ button {
     background-color: gray;
     /* Green background */
     border: 2px solid black;
+
+    border-radius: 12px;
     /* Green border */
     color: white;
     /* White text */

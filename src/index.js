@@ -302,11 +302,11 @@ var btn5 = {
             back.style.background = "white";
             title.style.color = "black";
             tx.style.color = "black";
-            textbox.style.backgroundColor = "white"
+            textbox.style.backgroundColor = "lightgray";
             textbox.style.color = "black"
 
             for (var i = 0; i < btns.length; i++) {
-                btns[i].style.backgroundColor = "white";
+                btns[i].style.backgroundColor = "lightgray";
                 btns[i].style.borderColor = "white";
                 btns[i].style.color = "black";
             }
