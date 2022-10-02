@@ -11,7 +11,7 @@
     <div style="width: 100%;">
 
         <!-- Left Div -->
-        <div id="bg" style="width: 30%; float: left; background: rgb(83, 83, 84);">
+        <div id="bg" style="width: 30%; float: left; background: black;">
 
             <!-- Vertical Div 0, title -->
             <div style="height: 9%; overflow: hidden;">
@@ -19,9 +19,7 @@
             </div>
             <!-- Vertical Div 1.0 login -->
             <div id="log" class="btn-group" style="display: block; height: 13%;" title="Login Screen">
-                <button id="login" style="width: 40%; margin: 3%;" title="Login">Login</button>
-                <button id="logout" style="width: 40%; margin: 3%" title="Logout">Logout</button>
-
+                <button class="Btn" id="login" style="width: 25%; margin: 3%;" title="Login">Login</button>
             </div>
             <!-- Vertical Div 1.1, switch display, for logged in users -->
             <div id="selectPanel1" style="display: none; height: 13%; overflow: hidden;" title="Site Dropdown">
@@ -29,6 +27,7 @@
                 <select name="sites" id="dropdown" title="Dropdown">
                     <option value="Empty">Example</option>
                 </select>
+                <br><button class="Btn" id="logout" style="width: 25%; height: 40%; margin: 3%" title="Logout">Logout</button>
             </div>
             <!-- Vertical Div 1.2, dev -->
             <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;" title="Data Input">
@@ -39,8 +38,8 @@
 
             <!-- Vertical Div 2.0 -->
             <div style="height: 8%;  position: relative;" class="btn-group">
-                <button id="valueBtn" title="Show values">Show values</button><button id="opacityBtn" title="Toggle Transparency">Transparent</button><button id="flipBtn" title="Flip selection visibility">Flip selection ◐</button>
-                <button id="camBtn" title="Change camera control mode">Multi 🎥</button><button id="resetBtn" title="Toggle all visibility">Toggle all ❎</button><button id="toggleBtn" title="Toggle selection visibility">Toggle selection ◧</button>
+                <button class="Btn" id="valueBtn" title="Show values">Show values</button><button class="Btn" id="opacityBtn" title="Toggle Transparency">Transparent</button><button class="Btn" id="flipBtn" title="Flip selection visibility">Flip selection ◐</button>
+                <button class="Btn" id="camBtn" title="Change camera control mode">Multi 🎥</button><button class="Btn" id="resetBtn" title="Toggle all visibility">Toggle all ❎</button><button class="Btn" id="toggleBtn" title="Toggle selection visibility">Toggle selection ◧</button>
             </div>
 
             <!-- Vertical Div 2.1 -->
@@ -49,7 +48,7 @@
             </div>
             <!-- Vertical Div 3 -->
             <div style="height: 40%;">
-                <textarea id="textbox" style="background-color:black; color:white;"
+                <textarea id="textbox" style="background-color:grey; color:white;"
                     readOnly>  </textarea>
             </div>
 

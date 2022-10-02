@@ -237,13 +237,15 @@ class Tracer2d extends Tracer {
 
         if (this.visible) {
 
-            ctxLeft.font = "12px Arial";
+            var size = parseInt(cellWidth /2.3);
+
+            ctxLeft.font = size.toString() + "px Arial";
             ctxLeft.textAlign = "center";
             ctxLeft.strokeStyle = 'black';
             ctxLeft.lineWidth = 2;
-            ctxLeft.strokeText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+            ctxLeft.strokeText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 1.5);
             ctxLeft.fillStyle = "white";
-            ctxLeft.fillText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 2);
+            ctxLeft.fillText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 1.5);
 
             /*
             ctxLeft.font = "12px Arial";

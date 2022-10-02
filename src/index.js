@@ -44,14 +44,19 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 */
 
 // Import the functions you need from the SDKs you need
+
+import * as firebase from 'firebase/app';
+
 import {
     initializeApp
-} from "firebase/app";
+} from 'firebase/app';
 import {
     getAuth,
     signInWithPopup,
-    GoogleAuthProvider
+    GoogleAuthProvider,
+    onAuthStateChanged
 } from "firebase/auth";
+
 import {
     getStorage,
     ref,
@@ -272,24 +277,39 @@ var tx = document.getElementById("tx")
 
 var bw = true;
 
+var btns = document.getElementsByClassName("Btn");
+
 var btn5 = {
     blackandwhite: function () {
         bw = !bw;
 
         if (bw) {
             scene.background = new THREE.Color(0x000000);
-            back.style.background = "rgb(83, 83, 84)";
+            back.style.background = "black";
             title.style.color = "lightgray";
             tx.style.color = "lightgray";
-            textbox.style.backgroundColor = "black" 
+            textbox.style.backgroundColor = "gray";
             textbox.style.color = "white"
+
+
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].style.backgroundColor = "gray";
+                btns[i].style.borderColor = "black";
+                btns[i].style.color = "white";
+            }
         } else {
             scene.background = new THREE.Color(0xffffff);
             back.style.background = "white";
             title.style.color = "black";
             tx.style.color = "black";
-            textbox.style.backgroundColor = "white" 
+            textbox.style.backgroundColor = "white"
             textbox.style.color = "black"
+
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].style.backgroundColor = "white";
+                btns[i].style.borderColor = "white";
+                btns[i].style.color = "black";
+            }
         }
     }
 };
@@ -377,7 +397,7 @@ var sceneMeshes = [];
 
 // onLoad callback
 function onLoadLoad(obj) {
-    
+
     sceneMeshes = [];
 
     sceneMeshes.push(obj.scene.children[0]);
@@ -488,7 +508,7 @@ function handleModels(input) {
         if ((e.loaded / e.total * 100) == 100) {
             Gxhr += 25;
         }
-    })    
+    })
 
     read.onloadend = function () {
 
@@ -524,7 +544,7 @@ function handleFiles(input) {
         if ((e.loaded / e.total * 100) == 100) {
             Gxhr += 25;
         }
-    })    
+    })
 
     read.readAsBinaryString(input);
 
@@ -590,13 +610,8 @@ function bounds(x1, y1, x2, y2) {
 const availableSites = ["IQ", "LHL", "Oshawa", "RWDI1", "RWDI1HEPA", "RWDI2", "RWDI3", "RZero", "Robinson", "Sanuvox", "Sarnia", "Sunflower", "Synergy"];
 const accessibleSites = [];
 
-function signedIn(result) {
-
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential.accessToken;
+function signedIn(user) {
     // The signed-in user info.
-    const user = result.user;
     // ...
     const ext = user.email.split('@')
 
@@ -665,31 +680,28 @@ var looking = false;
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
+const provider = new GoogleAuthProvider();
 
+const auth = getAuth();
 
-/*
-    EVENTS
-*/
+onAuthStateChanged(auth, (user) => {
+    console.log(user);
+    if (user) {
+        // User is signed in, see docs for a list of available properties
+        signedIn(user);
 
-document.addEventListener("DOMContentLoaded", (e) => {
-    updateSizes();
-})
+    } else {
+        // User is signed out
+        // ...
+    }
+});
 
-logoutBtn.addEventListener("click", (e) => {
-    const auth = getAuth();
-    auth.signOut();
-})
-
-loginBtn.addEventListener("click", (e) => {
-    updateSizes();
-
-    const provider = new GoogleAuthProvider();
-
-    const auth = getAuth();
+function login() {
     signInWithPopup(auth, provider)
 
         .then((result) => {
-            signedIn(result);
+            
+            signedIn(result.user);
 
 
         }).catch((error) => {
@@ -705,8 +717,24 @@ loginBtn.addEventListener("click", (e) => {
             console.error(error, errorCode, errorMessage, email, credential);
             // ...
         });
+}
+/*
+    EVENTS
+*/
 
+document.addEventListener("DOMContentLoaded", (e) => {
+    updateSizes();
+})
 
+logoutBtn.addEventListener("click", (e) => {
+    switchDisplay(0);
+    auth.signOut();
+})
+
+loginBtn.addEventListener("click", (e) => {
+    updateSizes();
+
+    login();
 
 })
 
@@ -1012,9 +1040,9 @@ canvasleft.addEventListener('mousedown', (e) => {
         firstClickX = cellX;
         firstClickY = cellY;
 
-       
 
-        window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+
+        window.location.hash = ("X=" + cellX + "&Y=" + cellY);
     }
 })
 
@@ -1025,16 +1053,16 @@ canvasleft.addEventListener('click', (e) => {
     }
     //single click, place markers 1 and 2
     if (e.detail == 1) {
-
         if (firstClick) {
-         //update camera on mouse click
-         updateCam(cellX, cellY)
 
-         //grabs position of mouse, upaated by mousemove event
-        firstClickX = cellX;
-        firstClickY = cellY;
+            //update camera on mouse click
+            updateCam(cellX, cellY)
 
-        window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+            //grabs position of mouse, upaated by mousemove event
+            firstClickX = cellX;
+            firstClickY = cellY;
+
+            window.location.hash = ("X=" + cellX + "&Y=" + cellY)
 
         } else {
             firstClick = true;
@@ -1060,7 +1088,7 @@ canvasleft.addEventListener('click', (e) => {
         if (cellX <= 1 && cellY <= 1) {
             //do nothing
         } else if (cellY == 1) {
-            
+
             var state = !ts[cellX - 2].visible
 
             ts[cellX - 2].visible = state;
@@ -1072,11 +1100,11 @@ canvasleft.addEventListener('click', (e) => {
             })
 
         } else if (cellX == 1) {
-            
+
             var state = !ms[cellY - 1].visible
 
             ms[cellY - 2].visible = state;
-            
+
             tracers.forEach((t) => {
                 if (t.m.i == cellY - 1) {
                     t.visible = state;
@@ -1092,8 +1120,8 @@ canvasleft.addEventListener('click', (e) => {
             })
 
         }
-        
-        }
+
+    }
 
 }, false);
 
@@ -1194,9 +1222,9 @@ const tick = () => {
     ts.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw));
 
     if (bw) {
-    ctxLeft.fillStyle = 'black';
+        ctxLeft.fillStyle = 'black';
     } else {
-    ctxLeft.fillStyle = 'white';
+        ctxLeft.fillStyle = 'white';
     }
     ctxLeft.fillRect(0, 0, cellWidth, cellHeight);
 
@@ -1233,9 +1261,9 @@ const tick = () => {
             ctxLeft.beginPath();
 
             if (bw) {
-            ctxLeft.strokeStyle = 'white'
+                ctxLeft.strokeStyle = 'white'
             } else {
-            ctxLeft.strokeStyle = 'black'
+                ctxLeft.strokeStyle = 'black'
             }
             ctxLeft.lineWidth = 4;
 
@@ -1252,7 +1280,7 @@ const tick = () => {
     }
 
     //loading bar
-    
+
     if (Gxhr < 100) {
         ctx.beginPath();
         ctx.moveTo(0, sizes.height / 4);
@@ -1268,7 +1296,7 @@ const tick = () => {
         ctx.strokeStyle = 'yellow';
         ctx.stroke();
 
-        Gxhr = 0;       
+        Gxhr = 0;
     }
 
 
