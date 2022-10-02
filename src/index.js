@@ -1000,26 +1000,41 @@ window.addEventListener('hashchange', (e) => {
 
 });
 
+canvasleft.addEventListener('mousedown', (e) => {
+    console.log(cellX, cellY)
+    if (firstClick) {
+        firstClick = false;
+
+        secondClickX = null;
+        secondClickY = null;
+
+        //grabs position of mouse, upaated by mousemove event
+        firstClickX = cellX;
+        firstClickY = cellY;
+
+       
+
+        window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+    }
+})
+
 canvasleft.addEventListener('click', (e) => {
+    console.log(cellX, cellY)
     if (camFree) {
         looking = true;
     }
     //single click, place markers 1 and 2
     if (e.detail == 1) {
+
         if (firstClick) {
-            firstClick = false;
+         //update camera on mouse click
+         updateCam(cellX, cellY)
 
-            secondClickX = null;
-            secondClickY = null;
+         //grabs position of mouse, upaated by mousemove event
+        firstClickX = cellX;
+        firstClickY = cellY;
 
-            //grabs position of mouse, upaated by mousemove event
-            firstClickX = cellX;
-            firstClickY = cellY;
-
-            //update camera on mouse click
-            updateCam(cellX, cellY)
-
-            window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+        window.location.hash = ("X=" + cellX + "&Y=" + cellY)
 
         } else {
             firstClick = true;
@@ -1063,7 +1078,7 @@ canvasleft.addEventListener('click', (e) => {
             ms[cellY - 2].visible = state;
             
             tracers.forEach((t) => {
-                if (t.m.i == cellY - 2) {
+                if (t.m.i == cellY - 1) {
                     t.visible = state;
                 }
             })
