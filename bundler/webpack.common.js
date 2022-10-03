@@ -56,11 +56,11 @@ module.exports = {
 
             // Images
             {
-                test: /\.(jpg|png|gif|svg)$/,
+                test: /\.(jpg|png|gif|svg|ico)$/,
                 use: [{
                     loader: 'file-loader',
                     options: {
-                        outputPath: 'assets/models/'
+                        outputPath: 'assets/images/'
                     }
                 }]
             },

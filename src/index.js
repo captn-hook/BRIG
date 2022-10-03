@@ -1,4 +1,13 @@
 import './style.css';
+import imageUrl1 from './images/logo.png';
+import imageUrl2 from './images/logoblack.png';
+import favi from './images/favi16.ico';
+
+var title = document.getElementById("title");
+title.src = imageUrl1;
+
+var icon = document.getElementById("icon");
+icon.href = favi;
 
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
@@ -271,8 +280,6 @@ var btn4 = {
 
 var back = document.getElementById("bg")
 
-var title = document.getElementById("title")
-
 var tx = document.getElementById("tx")
 
 var bw = true;
@@ -285,8 +292,8 @@ var btn5 = {
 
         if (bw) {
             scene.background = new THREE.Color(0x000000);
-            back.style.background = "black";
-            title.style.color = "lightgray";
+            back.style.background = "rgb(27, 27, 27)";
+            title.src = imageUrl1;
             tx.style.color = "lightgray";
             textbox.style.backgroundColor = "gray";
             textbox.style.color = "white"
@@ -294,20 +301,20 @@ var btn5 = {
 
             for (var i = 0; i < btns.length; i++) {
                 btns[i].style.backgroundColor = "gray";
-                btns[i].style.borderColor = "black";
+                btns[i].style.borderColor = "rgb(27, 27, 27)";
                 btns[i].style.color = "white";
             }
         } else {
             scene.background = new THREE.Color(0xffffff);
-            back.style.background = "white";
-            title.style.color = "black";
+            back.style.background = "rgb(230, 230, 230)";
+            title.src = imageUrl2;
             tx.style.color = "black";
             textbox.style.backgroundColor = "lightgray";
             textbox.style.color = "black"
 
             for (var i = 0; i < btns.length; i++) {
                 btns[i].style.backgroundColor = "lightgray";
-                btns[i].style.borderColor = "white";
+                btns[i].style.borderColor = "rgb(230, 230, 230)";
                 btns[i].style.color = "black";
             }
         }
@@ -1101,9 +1108,13 @@ canvasleft.addEventListener('click', (e) => {
 
         } else if (cellX == 1) {
 
-            var state = !ms[cellY - 1].visible
+            var state = !ms[cellY - 2].visible
 
             ms[cellY - 2].visible = state;
+
+            if (state == true) {
+                ts.forEach(t => { t.visible = true })
+            }
 
             tracers.forEach((t) => {
                 if (t.m.i == cellY - 1) {
