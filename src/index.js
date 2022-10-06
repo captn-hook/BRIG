@@ -529,6 +529,8 @@ function handleModels(input) {
 
         loader.parse(read.result, "", onLoadLoad, onErrorLog, onProgressLog);
 
+        Gxhr = 0;
+
     }
 }
 
@@ -1292,24 +1294,13 @@ const tick = () => {
 
     //loading bar
 
-    if (Gxhr < 100) {
+    if (0 < Gxhr && Gxhr < 100) {
         ctx.beginPath();
-        ctx.moveTo(0, sizes.height / 4);
-        ctx.lineTo(sizes.width * Gxhr / 100, sizes.height / 4);
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = 'yellow';
-        ctx.stroke();
-    } else if (Gxhr == 100) {
-        ctx.beginPath();
-        ctx.moveTo(0, sizes.height / 4);
-        ctx.lineTo(sizes.width, sizes.height / 4);
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = 'yellow';
-        ctx.stroke();
+        ctx.arc(sizes.width / 2, sizes.height / 2, Math.sin(elapsedTime) * 10 + 10, 0, 2 * Math.PI);
+        ctx.fillStyle = 'rgb(100, 100, ' + Math.sin(elapsedTime) * 255 + ')';
+        ctx.fill();
 
-        Gxhr = 0;
     }
-
 
 
     // Call tick again on the next frame
