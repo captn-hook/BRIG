@@ -10,7 +10,6 @@ var icon = document.getElementById("icon");
 icon.href = favi;
 
 import * as THREE from 'three';
-import * as dat from 'dat.gui';
 
 import {
     OrbitControls
@@ -27,11 +26,6 @@ import {
 import {
     DRACOLoader
 } from 'three/examples/jsm/loaders/DRACOLoader';
-
-//custom modules
-import {
-    MinMaxGUIHelper
-} from './Controls';
 
 import FileExt from './FileExt.js';
 
@@ -343,54 +337,6 @@ var btn6 = {
 
 ctrlBtn.addEventListener('click', btn6.adminMenu);
 
-function devMenu() {
-    // Debug
-    const gui = new dat.GUI();
-
-    const devGUI = gui.addFolder('Dev');
-
-    devGUI.add(btn0, 'editFiles');
-
-    devGUI.add(btn1, 'saveFiles');
-
-    devGUI.add(btn2, 'saveCam');
-
-    devGUI.add(btn3, 'editPos', 'editPosition');
-
-    devGUI.add(btn4, 'update');
-
-    devGUI.add(btn5, 'blackandwhite');
-
-    devGUI.add(btn6, 'adminMenu');
-
-    devGUI.add(targ, 'textField').onFinishChange((e) => {
-        console.log(e);
-    });
-
-    devGUI.add(textbox, 'readOnly', 'editText');
-
-    devGUI.open();
-
-    //cam menu
-    const camGUI = gui.addFolder('Cam');
-
-    camGUI.add(camera, 'fov', 1, 180).onChange(updateCamera);
-
-    const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-
-    camGUI.add(minMaxGUIHelper, 'min', 0.01, 50, 0.01).name('near').onChange(updateCamera);
-    camGUI.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
-
-    camGUI.add(camera.position, 'x', -100, 100).listen()
-    camGUI.add(camera.position, 'y', -100, 100).listen()
-    camGUI.add(camera.position, 'z', -100, 100).listen()
-
-    camGUI.add(camera.rotation, 'x', -100, 100).listen()
-    camGUI.add(camera.rotation, 'y', -100, 100).listen()
-    camGUI.add(camera.rotation, 'z', -100, 100).listen()
-
-    camGUI.open();
-}
 //set size
 updateSizes();
 

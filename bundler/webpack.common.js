@@ -12,7 +12,6 @@ module.exports = {
         library: "FileExt",
         library: "Point",
         library: "Tracer",
-        library: "Controls",
         library: "Data"
     },
     devtool: 'source-map',
