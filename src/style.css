@@ -52,20 +52,36 @@ input {
 }
 
 button {
-    background-color: gray;
-    /* Green background */
-    border: 2px solid rgb(27, 27, 27);
 
     border-radius: 12px;
     /* Green border */
-    color: white;
-    /* White text */
+
     cursor: pointer;
     /* Pointer/hand icon */
     width: 33%;
     height: 50%;
 
     vertical-align: middle;
+
+}
+
+.btDark {
+
+    background-color: gray;
+
+    border: 2px solid rgb(27, 27, 27);
+
+    color: white;
+
+}
+
+.btLight {
+
+    background-color: lightgray;
+
+    border: 2px solid rgb(230, 230, 230);
+    
+    color: black;
 
 }
 

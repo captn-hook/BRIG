@@ -180,6 +180,12 @@ const resetBtn = document.getElementById('resetBtn');
 
 const toggleBtn = document.getElementById('toggleBtn');
 
+const ctrlBtn = document.getElementById('ctrlBtn');
+
+const ctrl = document.getElementById('ctrl');
+
+const root = document.getElementById('root');
+
 //dev funcs
 
 var d0 = document.getElementById('log');
@@ -202,35 +208,35 @@ function switchDisplay(state) {
     }
 }
 //states: login 0, select panel 1, upload panel 2
-var btn0 = {
-    editFiles: function () {
-        if (d0.style.display == 'block') {
-            switchDisplay(1);
-        } else if (d1.style.display == 'block') {
-            switchDisplay(2);
-        } else {
-            switchDisplay(0);
-        }
+document.getElementById('editFiles').addEventListener('click', (e) => {
+    if (d0.style.display == 'block') {
+        switchDisplay(1);
+    } else if (d1.style.display == 'block') {
+        switchDisplay(2);
+    } else {
+        switchDisplay(0);
     }
-};
+})
 
-var btn1 = {
-    saveFiles: function () {
-        saveFile(ms, ts, tracers, insights, views);
+document.getElementById('saveFiles').addEventListener('click', (e) => {
+    saveFile(ms, ts, tracers, insights, views);
+})
+
+document.getElementById('saveCam').addEventListener('click', (e) => {
+    console.log("saveCam")
+    views[firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
+    console.log(views)
+})
+
+var editPos = false;
+
+document.getElementById('editPos').addEventListener('click', (e) => {
+    if (editPos) {
+        editPos = false;
+    } else {
+        editPos = true;
     }
-};
-
-var btn2 = {
-    saveCam: function () {
-        console.log("saveCam")
-        views[firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
-        console.log(views)
-    }
-};
-
-var btn3 = {
-    editPos: false
-};
+})
 
 var targ = {
     textField: "UID"
@@ -286,41 +292,56 @@ var bw = true;
 
 var btns = document.getElementsByClassName("Btn");
 
-var btn5 = {
-    blackandwhite: function () {
-        bw = !bw;
+document.getElementById('blackandwhite').addEventListener('click', (e) => {
 
-        if (bw) {
-            scene.background = new THREE.Color(0x000000);
-            back.style.background = "rgb(27, 27, 27)";
-            title.src = imageUrl1;
-            tx.style.color = "lightgray";
-            textbox.style.backgroundColor = "gray";
-            textbox.style.color = "white"
+    bw = !bw;
 
+    if (bw) {
+        scene.background = new THREE.Color(0x000000);
+        back.style.background = "rgb(27, 27, 27)";
+        title.src = imageUrl1;
+        tx.style.color = "lightgray";
+        textbox.style.backgroundColor = "gray";
+        textbox.style.color = "white"
+        ctrl.style.backgroundColor = "rgb(27, 27, 27)";
 
-            for (var i = 0; i < btns.length; i++) {
-                btns[i].style.backgroundColor = "gray";
-                btns[i].style.borderColor = "rgb(27, 27, 27)";
-                btns[i].style.color = "white";
-            }
-        } else {
-            scene.background = new THREE.Color(0xffffff);
-            back.style.background = "rgb(230, 230, 230)";
-            title.src = imageUrl2;
-            tx.style.color = "black";
-            textbox.style.backgroundColor = "lightgray";
-            textbox.style.color = "black"
-
-            for (var i = 0; i < btns.length; i++) {
-                btns[i].style.backgroundColor = "lightgray";
-                btns[i].style.borderColor = "rgb(230, 230, 230)";
-                btns[i].style.color = "black";
-            }
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].classList.remove("btLight");
+            btns[i].classList.add("btDark");
         }
+    } else {
+        scene.background = new THREE.Color(0xffffff);
+        back.style.background = "rgb(230, 230, 230)";
+        title.src = imageUrl2;
+        tx.style.color = "black";
+        textbox.style.backgroundColor = "lightgray";
+        textbox.style.color = "black"
+
+        ctrl.style.backgroundColor = "rgb(230, 230, 230)";
+
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].classList.remove("btDark");
+            btns[i].classList.add("btLight");
+        }
+    }
+})
+
+var btn6 = {
+    adminMenu: function () {
+        if (ctrl.style.display == 'block') {
+            ctrl.style.display = 'none';
+            root.style.width = '100%';
+        } else {
+            ctrl.style.display = 'block';
+            root.style.width = '80%';
+        }
+        window.dispatchEvent(new Event('resize'));
     }
 };
 
+// btn event listeners
+
+ctrlBtn.addEventListener('click', btn6.adminMenu);
 
 function devMenu() {
     // Debug
@@ -339,6 +360,8 @@ function devMenu() {
     devGUI.add(btn4, 'update');
 
     devGUI.add(btn5, 'blackandwhite');
+
+    devGUI.add(btn6, 'adminMenu');
 
     devGUI.add(targ, 'textField').onFinishChange((e) => {
         console.log(e);
@@ -623,7 +646,7 @@ function signedIn(user) {
     const ext = user.email.split('@')
 
     if (ext[1] == 'poppy.com') {
-        devMenu();
+        ctrlBtn.style.display = 'block';
     }
 
     switchDisplay(1);
@@ -707,7 +730,7 @@ function login() {
     signInWithPopup(auth, provider)
 
         .then((result) => {
-            
+
             signedIn(result.user);
 
 
@@ -957,7 +980,7 @@ canvas2d.addEventListener("click", (e) => {
         }
 
 
-        if (btn3.editPos) {
+        if (editPos) {
 
             var raycaster = new THREE.Raycaster();
             var mouse = {
@@ -1113,7 +1136,9 @@ canvasleft.addEventListener('click', (e) => {
             ms[cellY - 2].visible = state;
 
             if (state == true) {
-                ts.forEach(t => { t.visible = true })
+                ts.forEach(t => {
+                    t.visible = true
+                })
             }
 
             tracers.forEach((t) => {
