@@ -236,47 +236,27 @@ var targ = {
     textField: "UID"
 };
 
-var btn4 = {
-    update: function () {
+document.getElementById('update').addEventListener('click', (e) => {
 
-        // Update metadata properties
-        const metadata = {
-            customMetadata: {
-                'WqkeGuRlDebTAWfMgR9mjYIUF4S2': true,
-            }
-        };
+    listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
 
-        listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
+        res.items.forEach((itemRef) => {
 
-            res.prefixes.forEach((folderRef) => {
-                updateMetadata(folderRef, metadata)
-                    .then((metadata) => {
-                        // Updated metadata for 'images/forest.jpg' is returned in the Promise
-                        console.log(metadata);
-                    }).catch((error) => {
-                        // Uh-oh, an error occurred!
-                        console.error(error);
-                    });
-            });
-
-            res.items.forEach((itemRef) => {
-
-                updateMetadata(itemRef, metadata)
-                    .then((metadata) => {
-                        // Updated metadata for 'images/forest.jpg' is returned in the Promise
-                        console.log(metadata);
-                    }).catch((error) => {
-                        // Uh-oh, an error occurred!
-                        console.error(error);
-                    });
+            updateMetadata(itemRef, metadata)
+                .then((metadata) => {
+                    // Updated metadata for 'images/forest.jpg' is returned in the Promise
+                    console.log(metadata);
+                }).catch((error) => {
+                    // Uh-oh, an error occurred!
+                    console.error(error);
+                });
 
 
-            })
-        }).catch((error) => {
-            console.error(error);
         })
-    }
-}
+    }).catch((error) => {
+        console.error(error);
+    })
+})
 
 var back = document.getElementById("bg")
 
@@ -332,6 +312,58 @@ var btn6 = {
         window.dispatchEvent(new Event('resize'));
     }
 };
+
+function validateEmail(email) {
+    return email.match(
+        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
+const table = document.getElementById("table");
+const emaiLInput = document.getElementById("emailInput");
+
+emaiLInput.addEventListener('input', (e) => {
+    const addr = e.target.outerText;
+    console.log(addr)
+    if (validateEmail(addr)) {
+        e.target.style.backgroundColor = "lightgreen";
+        auth
+            .getUserByEmail(addr)
+            .then((userRecord) => {
+                // See the UserRecord reference doc for the contents of userRecord.
+                console.log(`Successfully fetched user data: ${userRecord.toJSON()}`);
+            })
+            .catch((error) => {
+                console.log('Error fetching user data:', error);
+            });
+    } else {
+        e.target.style.backgroundColor = "red";
+    }
+    1
+})
+
+function populateTable() {
+
+    listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
+
+        res.items.forEach((itemRef) => {
+            getMetadata(itemRef).then((metadata) => {
+
+                if (metadata.customMetadata != null) {
+                    console.log(metadata.customMetadata);
+
+                    var row = table.insertRow(1);
+
+                    row.innerHTML = '<tr class="dynamicRows">\n<td>' + metadata[0] + '</td>\n</tr>';
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        })
+    }).catch((error) => {
+        console.error(error);
+    });
+}
 
 // btn event listeners
 
@@ -499,6 +531,8 @@ function handleModels(input) {
         loader.parse(read.result, "", onLoadLoad, onErrorLog, onProgressLog);
 
         Gxhr = 0;
+
+        populateTable();
 
     }
 }
