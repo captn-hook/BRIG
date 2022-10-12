@@ -96,4 +96,13 @@ button {
     background-color: #5eae51;
 }
 
+th, td {
+    border: 1px solid white;
+    color: white;
+    font-size: 12px;
+    border-collapse: collapse;
+    padding: 5px;
+    width: 80%;
+}
+
 /*# sourceMappingURL=main.css.map*/

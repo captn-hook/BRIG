@@ -74,7 +74,7 @@ import {
 import {
     getFunctions,
     httpsCallable,
-    connectFunctionsEmulator
+    //connectFunctionsEmulator
 } from 'firebase/functions';
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -103,7 +103,7 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
 const functions = getFunctions(app);
-connectFunctionsEmulator(functions, "localhost", 5001);
+//connectFunctionsEmulator(functions, "localhost", 5001);
 
 const listUsers = httpsCallable(functions, 'listUsers');
 
@@ -359,61 +359,63 @@ function getList() {
 }
 */
 const table = document.getElementById("table");
-const emaiLInput = document.getElementById("emailInput");
 
-emaiLInput.addEventListener('input', (e) => {
-    const addr = e.target.outerText;
-    console.log(addr)
-    if (validateEmail(addr)) {
-        e.target.style.backgroundColor = "lightgreen";
-        auth
-            .getUserByEmail(addr)
-            .then((userRecord) => {
-                // See the UserRecord reference doc for the contents of userRecord.
-                console.log(`Successfully fetched user data: ${userRecord.toJSON()}`);
-            })
-            .catch((error) => {
-                console.log('Error fetching user data:', error);
-            });
-    } else {
-        e.target.style.backgroundColor = "red";
-    }
-    1
-})
+var inUsers;
 
 function populateTable() {
 
-    const users = [];
+    var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
-    listUsers().
-    then((u) => {
-        users = u.users;
-    })
-    .catch((error) => {
-        console.log('Error listing users:', error);
-    });
-    
-    console.log(users);
+    getMetadata(itemRef).then((metadata) => {
 
-    listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
+        if (metadata.customMetadata != null) {
 
-        res.items.forEach((itemRef) => {
-            getMetadata(itemRef).then((metadata) => {
+            var names = Object.keys(metadata.customMetadata);
+            var data = Object.values(metadata.customMetadata);
 
-                if (metadata.customMetadata != null) {
-                    console.log(metadata.customMetadata);
 
-                    var row = table.insertRow(1);
+            names.forEach((user) => {
 
-                    row.innerHTML = '<tr class="dynamicRows">\n<td>' + metadata[0] + '</td>\n</tr>';
-                }
-            }).catch((error) => {
-                console.error(error);
+                inUsers.push([data[names.indexOf(user)], user]);
+
             });
-        })
+
+        }
+
     }).catch((error) => {
         console.error(error);
     });
+
+    console.log(inUsers);
+
+    console.log(allUsers);  
+
+    for (var userI in inUsers) {
+        console.log(userI)
+    }
+
+    allUsers.forEach((user) => {
+
+        inUsers.forEach((inUser) => {
+
+            console.log(user['uid'] == inUser[0]);
+
+            if (user['uid'] == inUser[0]) {
+
+                console.log(user);
+
+            } else {
+
+                console.log("nope");
+
+            }
+
+            //var row = table.insertRow(1);
+
+            //row.innerHTML = '<tr class="dynamicRows">\n<td>' + user.email + '</td>\n</tr>';
+        });
+
+    })
 }
 
 // btn event listeners
@@ -673,6 +675,8 @@ function bounds(x1, y1, x2, y2) {
 const availableSites = ["IQ", "LHL", "Oshawa", "RWDI1", "RWDI1HEPA", "RWDI2", "RWDI3", "RZero", "Robinson", "Sanuvox", "Sarnia", "Sunflower", "Synergy"];
 const accessibleSites = [];
 
+var allUsers = [];
+
 function signedIn(user) {
     // The signed-in user info.
     // ...
@@ -680,6 +684,16 @@ function signedIn(user) {
 
     if (ext[1] == 'poppy.com') {
         ctrlBtn.style.display = 'block';
+
+        listUsers().
+        then((u) => {
+
+                allUsers = u.data.users;
+            })
+
+            .catch((error) => {
+                console.log('Error listing users:', error);
+            });
     }
 
     switchDisplay(1);
