@@ -81,7 +81,7 @@ export default function Data(data) {
                     //}
 
                 } else {
-                    console.error('Error: ' + dataArray[t][m]);
+                    //console.error('Error: ' + dataArray[t][m]);
                 }
             }
         }

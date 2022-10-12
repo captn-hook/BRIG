@@ -53,6 +53,7 @@ import * as firebase from 'firebase/app';
 import {
     initializeApp
 } from 'firebase/app';
+
 import {
     getAuth,
     signInWithPopup,
@@ -69,6 +70,13 @@ import {
     getMetadata,
     list
 } from "firebase/storage";
+
+import {
+    getFunctions,
+    httpsCallable,
+    connectFunctionsEmulator
+} from 'firebase/functions';
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -93,6 +101,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
+
+const functions = getFunctions(app);
+connectFunctionsEmulator(functions, "localhost", 5001);
+
+const listUsers = httpsCallable(functions, 'listUsers');
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -318,7 +331,33 @@ function validateEmail(email) {
         /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
+/*
+function getList() {
 
+    const https = require('https');
+
+    // Sample URL
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+    const request = https.request(url, (response) => {
+        let data = '';
+        response.on('data', (chunk) => {
+            data = data + chunk.toString();
+        });
+
+        response.on('end', () => {
+            const body = JSON.parse(data);
+            console.log(body);
+        });
+    })
+
+    request.on('error', (error) => {
+        console.log('An error', error);
+    });
+
+    request.end()
+}
+*/
 const table = document.getElementById("table");
 const emaiLInput = document.getElementById("emailInput");
 
@@ -343,6 +382,18 @@ emaiLInput.addEventListener('input', (e) => {
 })
 
 function populateTable() {
+
+    const users = [];
+
+    listUsers().
+    then((u) => {
+        users = u.users;
+    })
+    .catch((error) => {
+        console.log('Error listing users:', error);
+    });
+    
+    console.log(users);
 
     listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
 
@@ -697,7 +748,7 @@ const provider = new GoogleAuthProvider();
 const auth = getAuth();
 
 onAuthStateChanged(auth, (user) => {
-    console.log(user);
+    //console.log(user);
     if (user) {
         // User is signed in, see docs for a list of available properties
         signedIn(user);

@@ -3,21 +3,30 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-functions.https("userList", (req, res) => {
-  const allUsers = [];
-  return admin.auth().listUsers()
-      .then(function(listUsersResult) {
-        listUsersResult.users.forEach(function(userRecord) {
-          // For each user
-          const userData = userRecord.toJSON();
-          allUsers.push(userData);
-        });
-        res.status(200).send(JSON.stringify(allUsers));
-        return functions.logger.log("Sent Users");
-      })
-      .catch(function(error) {
-        console.log("Error listing users:", error);
-        res.status(500).send(error);
-        return functions.logger.log("User List Error");
+const auth = admin.auth();
+
+exports.listUsers = functions.https.onCall((data, context) => {
+
+  if (!context.auth) return {
+    status: 'error',
+    code: 401,
+    message: 'Not signed in'
+  }
+  if (context.auth.token.email.split('@')[1] == 'poppy.com') {
+    return new Promise((resolve, reject) => {
+      // find a user by data.uid and return the result
+      resolve(auth.listUsers());
+      reject({
+        status: 'error',
+        code: 500,
+        message: 'Promise rejected'
       });
+    })
+  } else {
+    return {
+      status: 'error',
+      code: 401,
+      message: 'Not authorized'
+    }
+  }
 });
