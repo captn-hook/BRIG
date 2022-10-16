@@ -360,62 +360,77 @@ function getList() {
 */
 const table = document.getElementById("table");
 
-var inUsers;
+
 
 function populateTable() {
+
+    table.innerHTML = "<tr>\n<th>No Access</th><th>Access</th>\n</tr>\n<tr>\n</tr>";
+
+    var inUsers = [];
 
     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
     getMetadata(itemRef).then((metadata) => {
 
-        if (metadata.customMetadata != null) {
+            if (metadata.customMetadata != null) {
 
-            var names = Object.keys(metadata.customMetadata);
-            var data = Object.values(metadata.customMetadata);
+                var names = Object.keys(metadata.customMetadata);
+                var data = Object.values(metadata.customMetadata);
 
+                names.forEach((user) => {
 
-            names.forEach((user) => {
+                    inUsers.push([data[names.indexOf(user)], user]);
 
-                inUsers.push([data[names.indexOf(user)], user]);
+                    for (var i = 0; i < allUsers.length; i++) {
+                        if (allUsers[i].email == user) {
+                            allUsers.splice(i, 1);
+                        }
+                    }
 
-            });
+                });
 
-        }
-
-    }).catch((error) => {
-        console.error(error);
-    });
-
-    console.log(inUsers);
-
-    console.log(allUsers);  
-
-    for (var userI in inUsers) {
-        console.log(userI)
-    }
-
-    allUsers.forEach((user) => {
-
-        inUsers.forEach((inUser) => {
-
-            console.log(user['uid'] == inUser[0]);
-
-            if (user['uid'] == inUser[0]) {
-
-                console.log(user);
-
-            } else {
-
-                console.log("nope");
+                pTable2(inUsers);
 
             }
+        })
+        .catch((error) => {
+            console.error(error);
+        })
 
-            //var row = table.insertRow(1);
+}
 
-            //row.innerHTML = '<tr class="dynamicRows">\n<td>' + user.email + '</td>\n</tr>';
-        });
+function pTable2(inUsers) {
 
-    })
+    var nerHTML = "<tr>\n<th>No Access</th><th>Access</th>\n</tr>\n";
+
+    var big = inUsers.length > allUsers.length ? inUsers.length : allUsers.length;
+
+    for (var i = 0; i < big; i++) {
+
+        nerHTML += "<tr>\n";
+
+        if (i < allUsers.length) {
+            nerHTML += "<td>" + allUsers[i].email + "</td>";
+        } else {
+            nerHTML += "<td></td>";
+        }
+
+        if (i < inUsers.length) {
+            nerHTML += "<td>" + inUsers[i][1] + "</td>";
+        } else {
+            nerHTML += "<td></td>";
+        }
+
+        nerHTML += "\n</tr>\n";
+
+    }
+
+    table.innerHTML = nerHTML;
+
+}
+
+function addToTable(user) {
+
 }
 
 // btn event listeners
