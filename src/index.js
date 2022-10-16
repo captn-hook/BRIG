@@ -3,10 +3,10 @@ import imageUrl1 from './images/logo.png';
 import imageUrl2 from './images/logoblack.png';
 import favi from './images/favi16.ico';
 
-var title = document.getElementById("title");
+var title = document.getElementById('title');
 title.src = imageUrl1;
 
-var icon = document.getElementById("icon");
+var icon = document.getElementById('icon');
 icon.href = favi;
 
 import * as THREE from 'three';
@@ -59,7 +59,7 @@ import {
     signInWithPopup,
     GoogleAuthProvider,
     onAuthStateChanged
-} from "firebase/auth";
+} from 'firebase/auth';
 
 import {
     getStorage,
@@ -69,7 +69,7 @@ import {
     updateMetadata,
     getMetadata,
     list
-} from "firebase/storage";
+} from 'firebase/storage';
 
 import {
     getFunctions,
@@ -90,12 +90,12 @@ import {
 
 const firebaseConfig = {
     apiKey: config.API_KEY,
-    authDomain: "brig-b2ca3.firebaseapp.com",
-    projectId: "brig-b2ca3",
-    storageBucket: "brig-b2ca3.appspot.com",
-    messagingSenderId: "536591450814",
-    appId: "1:536591450814:web:40eb73d5b1bf09ce36d4ef",
-    measurementId: "G-0D9RW0VMCQ"
+    authDomain: 'brig-b2ca3.firebaseapp.com',
+    projectId: 'brig-b2ca3',
+    storageBucket: 'brig-b2ca3.appspot.com',
+    messagingSenderId: '536591450814',
+    appId: '1:536591450814:web:40eb73d5b1bf09ce36d4ef',
+    measurementId: 'G-0D9RW0VMCQ'
 };
 
 // Initialize Firebase
@@ -103,7 +103,7 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
 const functions = getFunctions(app);
-//connectFunctionsEmulator(functions, "localhost", 5001);
+//connectFunctionsEmulator(functions, 'localhost', 5001);
 
 const listUsers = httpsCallable(functions, 'listUsers');
 
@@ -113,7 +113,7 @@ const listUsers = httpsCallable(functions, 'listUsers');
 
 let Gxhr = 0;
 
-const div = document.getElementById("3d");
+const div = document.getElementById('3d');
 
 const sizes = {
     width: div.offsetWidth,
@@ -152,14 +152,14 @@ canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
 //selet
-const dropd = document.getElementById("dropdown");
+const dropd = document.getElementById('dropdown');
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
 const ctx = canvas2d.getContext('2d');
 
-const spreadsheetDiv = document.getElementById("spreadsheet");
+const spreadsheetDiv = document.getElementById('spreadsheet');
 
 const canvasleft = document.getElementById('left');
 
@@ -230,7 +230,7 @@ document.getElementById('saveFiles').addEventListener('click', (e) => {
 })
 
 document.getElementById('saveCam').addEventListener('click', (e) => {
-    console.log("saveCam")
+    console.log('saveCam')
     views[firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
     console.log(views)
 })
@@ -246,7 +246,7 @@ document.getElementById('editPos').addEventListener('click', (e) => {
 })
 
 var targ = {
-    textField: "UID"
+    textField: 'UID'
 };
 
 document.getElementById('update').addEventListener('click', (e) => {
@@ -271,13 +271,15 @@ document.getElementById('update').addEventListener('click', (e) => {
     })
 })
 
-var back = document.getElementById("bg")
+var back = document.getElementById('bg')
 
-var tx = document.getElementById("tx")
+var tx = document.getElementById('tx')
 
 var bw = true;
 
-var btns = document.getElementsByClassName("Btn");
+var btns = document.getElementsByClassName('Btn');
+
+var cells = document.getElementsByClassName('cell');
 
 document.getElementById('blackandwhite').addEventListener('click', (e) => {
 
@@ -285,30 +287,40 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
 
     if (bw) {
         scene.background = new THREE.Color(0x000000);
-        back.style.background = "rgb(27, 27, 27)";
+        back.style.background = 'rgb(27, 27, 27)';
         title.src = imageUrl1;
-        tx.style.color = "lightgray";
-        textbox.style.backgroundColor = "gray";
-        textbox.style.color = "white"
-        ctrl.style.backgroundColor = "rgb(27, 27, 27)";
+        tx.style.color = 'lightgray';
+        textbox.style.backgroundColor = 'gray';
+        textbox.style.color = 'white'
+        ctrl.style.backgroundColor = 'rgb(27, 27, 27)';
 
         for (var i = 0; i < btns.length; i++) {
-            btns[i].classList.remove("btLight");
-            btns[i].classList.add("btDark");
+            btns[i].classList.remove('btLight');
+            btns[i].classList.add('btDark');
+        }
+
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].classList.remove('tbLight');
+            cells[i].classList.add('tbDark');
         }
     } else {
         scene.background = new THREE.Color(0xffffff);
-        back.style.background = "rgb(230, 230, 230)";
+        back.style.background = 'rgb(230, 230, 230)';
         title.src = imageUrl2;
-        tx.style.color = "black";
-        textbox.style.backgroundColor = "lightgray";
-        textbox.style.color = "black"
+        tx.style.color = 'black';
+        textbox.style.backgroundColor = 'lightgray';
+        textbox.style.color = 'black'
 
-        ctrl.style.backgroundColor = "rgb(230, 230, 230)";
+        ctrl.style.backgroundColor = 'rgb(230, 230, 230)';
 
         for (var i = 0; i < btns.length; i++) {
-            btns[i].classList.remove("btDark");
-            btns[i].classList.add("btLight");
+            btns[i].classList.remove('btDark');
+            btns[i].classList.add('btLight');
+        }
+
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].classList.add('tbLight');
+            cells[i].classList.remove('tbDark');
         }
     }
 })
@@ -328,7 +340,7 @@ var btn6 = {
 
 function validateEmail(email) {
     return email.match(
-        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        /^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
 /*
@@ -358,15 +370,14 @@ function getList() {
     request.end()
 }
 */
-const table = document.getElementById("table");
+const table = document.getElementById('table');
 
 
+var inUsers = [];
 
 function populateTable() {
 
-    table.innerHTML = "<tr>\n<th>No Access</th><th>Access</th>\n</tr>\n<tr>\n</tr>";
-
-    var inUsers = [];
+    inUsers = [];
 
     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
@@ -382,14 +393,14 @@ function populateTable() {
                     inUsers.push([data[names.indexOf(user)], user]);
 
                     for (var i = 0; i < allUsers.length; i++) {
-                        if (allUsers[i].email == user) {
+                        if (allUsers[i][1] == user) {
                             allUsers.splice(i, 1);
                         }
                     }
 
                 });
 
-                pTable2(inUsers);
+                pTable2(allUsers, inUsers);
 
             }
         })
@@ -399,38 +410,99 @@ function populateTable() {
 
 }
 
-function pTable2(inUsers) {
+var aU = [];
+var iU = [];
 
-    var nerHTML = "<tr>\n<th>No Access</th><th>Access</th>\n</tr>\n";
+function pTable2(aU0, iU0) {
 
-    var big = inUsers.length > allUsers.length ? inUsers.length : allUsers.length;
+    var nerHTML = '<tr>\n<th class="cell">No Access</th><th class="cell">Access</th>\n</tr>\n';
+
+    var big = iU0.length > aU0.length ? iU0.length : aU0.length;
+
+    var style = bw ? 'tbDark' : 'tbLight';
+
+    var tbIn = 'tbIn';
 
     for (var i = 0; i < big; i++) {
 
-        nerHTML += "<tr>\n";
+        nerHTML += '<tr>\n';
 
-        if (i < allUsers.length) {
-            nerHTML += "<td>" + allUsers[i].email + "</td>";
+        if (i < aU0.length) {
+
+            if (aU0[i].length > 2) {
+                tbIn = 'tbOut';
+            }
+
+            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell">' + aU0[i][1] + '</td>';
+
+            tbIn = 'tbIn';
         } else {
-            nerHTML += "<td></td>";
+            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell"></td>';
         }
 
-        if (i < inUsers.length) {
-            nerHTML += "<td>" + inUsers[i][1] + "</td>";
+        if (i < iU0.length) {
+
+            if (iU0[i].length > 2) {
+                tbIn = 'tbOut';
+            }
+
+            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell">' + iU0[i][1] + '</td>';
+
+            tbIn = 'tbIn';
         } else {
-            nerHTML += "<td></td>";
+            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell"></td>';
         }
 
-        nerHTML += "\n</tr>\n";
+        nerHTML += '\n</tr>\n';
 
     }
 
+    allUsers = aU0;
+    inUsers = iU0;
+
+    aU = []
+    iU = []
+
     table.innerHTML = nerHTML;
 
+    document.querySelectorAll('#table td')
+        .forEach(e => e.addEventListener("click", cellListener));
 }
 
-function addToTable(user) {
+function cellListener() {
 
+    for (var i = 0; i < allUsers.length; i++) {
+
+        if (allUsers[i][1] == this.innerHTML) {
+
+            iU.push([allUsers[i][0], allUsers[i][1], 'flag']);
+
+        } else {
+
+            aU.push(allUsers[i]);
+
+        }
+
+    }
+
+    for (var i = 0; i < inUsers.length; i++) {
+
+
+        if (inUsers[i][1] == this.innerHTML) {
+
+            aU.push([inUsers[i][0], inUsers[i][1], 'flag']);
+
+        } else {
+
+            iU.push(inUsers[i]);
+
+        }
+
+    }
+
+    console.log(aU, iU);
+
+    pTable2(aU, iU);
 }
 
 // btn event listeners
@@ -535,7 +607,7 @@ function load3DModel(base, mtlpath = null) {
             onProgressLog, onErrorLog
         );
     } else {
-        console.error("Could not load model")
+        console.error('Could not load model')
     }
 }
 
@@ -562,9 +634,9 @@ function updateSizes() {
 
 const clock = new THREE.Clock();
 
-const dataInput = document.getElementById("datapicker");
+const dataInput = document.getElementById('datapicker');
 
-const modelInput = document.getElementById("modelpicker");
+const modelInput = document.getElementById('modelpicker');
 
 
 //data funccs
@@ -596,7 +668,7 @@ function handleModels(input) {
 
         loader.setDRACOLoader(dracoLoader);
 
-        loader.parse(read.result, "", onLoadLoad, onErrorLog, onProgressLog);
+        loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
 
         Gxhr = 0;
 
@@ -687,7 +759,7 @@ function bounds(x1, y1, x2, y2) {
 }
 
 //sign in function
-const availableSites = ["IQ", "LHL", "Oshawa", "RWDI1", "RWDI1HEPA", "RWDI2", "RWDI3", "RZero", "Robinson", "Sanuvox", "Sarnia", "Sunflower", "Synergy"];
+const availableSites = ['IQ', 'LHL', 'Oshawa', 'RWDI1', 'RWDI1HEPA', 'RWDI2', 'RWDI3', 'RZero', 'Robinson', 'Sanuvox', 'Sarnia', 'Sunflower', 'Synergy'];
 const accessibleSites = [];
 
 var allUsers = [];
@@ -702,8 +774,9 @@ function signedIn(user) {
 
         listUsers().
         then((u) => {
-
-                allUsers = u.data.users;
+                u.data.users.forEach((user) => {
+                    allUsers.push([user.uid, user.email]);
+                });
             })
 
             .catch((error) => {
@@ -739,7 +812,7 @@ function siteList(s) {
         dropd.removeChild(dropd.firstChild);
     }
     s.forEach((site) => {
-        var option = document.createElement("option");
+        var option = document.createElement('option');
         option.text = site;
         dropd.add(option);
     })
@@ -814,16 +887,16 @@ function login() {
     EVENTS
 */
 
-document.addEventListener("DOMContentLoaded", (e) => {
+document.addEventListener('DOMContentLoaded', (e) => {
     updateSizes();
 })
 
-logoutBtn.addEventListener("click", (e) => {
+logoutBtn.addEventListener('click', (e) => {
     switchDisplay(0);
     auth.signOut();
 })
 
-loginBtn.addEventListener("click", (e) => {
+loginBtn.addEventListener('click', (e) => {
     updateSizes();
 
     login();
@@ -873,7 +946,7 @@ dropd.addEventListener('change', (event) => {
 
 //buttons
 
-valueBtn.addEventListener("click", (e) => {
+valueBtn.addEventListener('click', (e) => {
     if (valueBtn.innerHTML == 'Show values') {
         valueBtn.innerHTML = 'Hide values';
         //show values
@@ -887,7 +960,7 @@ valueBtn.addEventListener("click", (e) => {
 
 var alpha = true;
 
-opacityBtn.addEventListener("click", (e) => {
+opacityBtn.addEventListener('click', (e) => {
     if (!alpha) {
         opacityBtn.innerHTML = 'Transparent';
         alpha = true;
@@ -900,7 +973,7 @@ opacityBtn.addEventListener("click", (e) => {
 })
 
 
-flipBtn.addEventListener("click", (e) => {
+flipBtn.addEventListener('click', (e) => {
 
     if (flipBtn.innerHTML == 'Flip Selection ◐') {
         flipBtn.innerHTML = 'Flip Selection ◑';
@@ -940,7 +1013,7 @@ flipBtn.addEventListener("click", (e) => {
 
 var camFree = true;
 
-camBtn.addEventListener("click", (e) => {
+camBtn.addEventListener('click', (e) => {
     if (camBtn.innerHTML == 'Multi 🎥') {
         camBtn.innerHTML = 'Locked 📷';
         controls.enabled = false;
@@ -956,7 +1029,7 @@ camBtn.addEventListener("click", (e) => {
     }
 })
 
-resetBtn.addEventListener("click", (e) => {
+resetBtn.addEventListener('click', (e) => {
     if (resetBtn.innerHTML == 'Toggle all ❎') {
         resetBtn.innerHTML = 'Toggle all ✅';
 
@@ -988,7 +1061,7 @@ resetBtn.addEventListener("click", (e) => {
     }
 })
 
-toggleBtn.addEventListener("click", (e) => {
+toggleBtn.addEventListener('click', (e) => {
 
     var mode = null;
 
@@ -1030,13 +1103,13 @@ toggleBtn.addEventListener("click", (e) => {
 })
 
 //canvas
-canvas2d.addEventListener("mousedown", (e) => {
+canvas2d.addEventListener('mousedown', (e) => {
     if (camFree) {
         looking = false;
     }
 })
 
-canvas2d.addEventListener("click", (e) => {
+canvas2d.addEventListener('click', (e) => {
         if (camFree) {
             looking = false;
         }
@@ -1066,7 +1139,7 @@ canvas2d.addEventListener("click", (e) => {
         }
 
         //store pos in link
-        var pos = String(Math.round(camera.position.x * 100) / 100) + "&" + String(Math.round(camera.position.y * 100) / 100) + "&" + String(Math.round(camera.position.z * 100) / 100) + "&" + String(Math.round(camera.rotation.x * 100) / 100) + "&" + String(Math.round(camera.rotation.y * 100) / 100) + "&" + String(Math.round(camera.rotation.z * 100) / 100)
+        var pos = String(Math.round(camera.position.x * 100) / 100) + '&' + String(Math.round(camera.position.y * 100) / 100) + '&' + String(Math.round(camera.position.z * 100) / 100) + '&' + String(Math.round(camera.rotation.x * 100) / 100) + '&' + String(Math.round(camera.rotation.y * 100) / 100) + '&' + String(Math.round(camera.rotation.z * 100) / 100)
 
         if (pos[0] != null) {
             window.location.hash = pos;
@@ -1081,18 +1154,18 @@ textbox.addEventListener('input', e => {
 })
 
 //file input
-dataInput.addEventListener("change", (e) => {
+dataInput.addEventListener('change', (e) => {
     handleFiles(dataInput.files[0]);
 }, false);
 
-modelInput.addEventListener("change", (e) => {
+modelInput.addEventListener('change', (e) => {
     handleModels(modelInput.files[0]);
 }, false);
 
 window.addEventListener('hashchange', (e) => {
 
     var hash = window.location.hash.substring(1)
-    var params = hash.split("&")
+    var params = hash.split('&')
 
     if (params.length == 2) {
         if (params[0].substring(2) != cellX || params[1].substring(2) != cellY) {
@@ -1134,7 +1207,7 @@ canvasleft.addEventListener('mousedown', (e) => {
 
 
 
-        window.location.hash = ("X=" + cellX + "&Y=" + cellY);
+        window.location.hash = ('X=' + cellX + '&Y=' + cellY);
     }
 })
 
@@ -1154,7 +1227,7 @@ canvasleft.addEventListener('click', (e) => {
             firstClickX = cellX;
             firstClickY = cellY;
 
-            window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+            window.location.hash = ('X=' + cellX + '&Y=' + cellY)
 
         } else {
             firstClick = true;
@@ -1166,7 +1239,7 @@ canvasleft.addEventListener('click', (e) => {
             //update camera on mouse click
             updateCam(cellX, cellY)
 
-            window.location.hash = ("X=" + cellX + "&Y=" + cellY)
+            window.location.hash = ('X=' + cellX + '&Y=' + cellY)
 
         }
         //double click, clear markers
@@ -1224,7 +1297,7 @@ canvasleft.addEventListener('click', (e) => {
 }, false);
 
 //spreadsheet mouse move, tracks mouse position to cellX and cellY
-canvasleft.addEventListener("mousemove", (e) => {
+canvasleft.addEventListener('mousemove', (e) => {
     var rect = canvasleft.getBoundingClientRect();
     var x = e.pageX - rect.left;
     var y = e.pageY - rect.top;
