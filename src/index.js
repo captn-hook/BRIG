@@ -245,31 +245,52 @@ document.getElementById('editPos').addEventListener('click', (e) => {
     }
 })
 
-var targ = {
-    textField: 'UID'
-};
+document.getElementById('perms').addEventListener('click', (e) => {
 
-document.getElementById('update').addEventListener('click', (e) => {
+    var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
-    listAll(ref(storage, '/Sites/' + dropd.value)).then((res) => {
+    var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
 
-        res.items.forEach((itemRef) => {
+    var inner = '';
 
-            updateMetadata(itemRef, metadata)
-                .then((metadata) => {
-                    // Updated metadata for 'images/forest.jpg' is returned in the Promise
-                    console.log(metadata);
-                }).catch((error) => {
-                    // Uh-oh, an error occurred!
-                    console.error(error);
-                });
-
-
-        })
-    }).catch((error) => {
-        console.error(error);
+    inUsers.forEach((user) => {
+        inner += '"' + user[1] + '":"' + user[0] + '",';
     })
-})
+
+    inner = inner.slice(0, -1);
+
+    inner = '{"customMetadata":{' + inner + '}}';
+
+    console.log(inner)
+
+    const newMetadata = JSON.parse(inner);
+
+    console.log(newMetadata)
+
+    updateMetadata(itemRef, newMetadata).then((metadata) => {
+
+        console.log(metadata)
+
+        updateMetadata(dataRef, newMetadata).then((metadata) => {
+
+            console.log(metadata)
+    
+            populateTable();
+    
+        }).catch((error) => {
+    
+            console.log(error)
+    
+        });
+
+    }).catch((error) => {
+
+        console.log(error)
+
+    });
+
+
+});
 
 var back = document.getElementById('bg')
 
@@ -499,8 +520,6 @@ function cellListener() {
         }
 
     }
-
-    console.log(aU, iU);
 
     pTable2(aU, iU);
 }
