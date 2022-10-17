@@ -85,6 +85,33 @@ button {
 
 }
 
+.cell {
+    width: 50%;
+}
+
+.tbDark {
+
+    border: 2px solid rgb(27, 27, 27);
+
+    color: white;
+}
+
+.tbLight {
+
+    border: 2px solid rgb(230, 230, 230);
+    
+    color: black;
+
+}
+
+.tbIn {
+    background-color: #5eae51;
+}
+
+.tbOut {
+    background-color: #e51e1e;
+}
+
 
 
 /* Add a background color on hover */
@@ -103,6 +130,10 @@ th, td {
     border-collapse: collapse;
     padding: 5px;
     width: 80%;
+}
+
+td:hover {
+    background-color: #c98416;
 }
 
 /*# sourceMappingURL=main.css.map*/

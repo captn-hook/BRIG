@@ -257,30 +257,26 @@ document.getElementById('perms').addEventListener('click', (e) => {
         inner += '"' + user[1] + '":"' + user[0] + '",';
     })
 
+    allUsers.forEach((user) => {
+        inner += '"' + user[1] + '":"false",';
+    })
+
     inner = inner.slice(0, -1);
 
     inner = '{"customMetadata":{' + inner + '}}';
 
-    console.log(inner)
-
     const newMetadata = JSON.parse(inner);
-
-    console.log(newMetadata)
 
     updateMetadata(itemRef, newMetadata).then((metadata) => {
 
-        console.log(metadata)
-
         updateMetadata(dataRef, newMetadata).then((metadata) => {
 
-            console.log(metadata)
-    
             populateTable();
-    
+
         }).catch((error) => {
-    
+
             console.log(error)
-    
+
         });
 
     }).catch((error) => {
@@ -395,9 +391,11 @@ const table = document.getElementById('table');
 
 
 var inUsers = [];
+var allUsers = [];
 
 function populateTable() {
 
+    allUsers = allUsersM;
     inUsers = [];
 
     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
@@ -411,11 +409,14 @@ function populateTable() {
 
                 names.forEach((user) => {
 
-                    inUsers.push([data[names.indexOf(user)], user]);
+                    if (data[names.indexOf(user)] != 'false') {
 
-                    for (var i = 0; i < allUsers.length; i++) {
-                        if (allUsers[i][1] == user) {
-                            allUsers.splice(i, 1);
+                        inUsers.push([data[names.indexOf(user)], user]);
+
+                        for (var i = 0; i < allUsers.length; i++) {
+                            if (allUsers[i][1] == user) {
+                                allUsers.splice(i, 1);
+                            }
                         }
                     }
 
@@ -429,6 +430,7 @@ function populateTable() {
             console.error(error);
         })
 
+    pTable2(allUsers, inUsers);
 }
 
 var aU = [];
@@ -781,7 +783,7 @@ function bounds(x1, y1, x2, y2) {
 const availableSites = ['IQ', 'LHL', 'Oshawa', 'RWDI1', 'RWDI1HEPA', 'RWDI2', 'RWDI3', 'RZero', 'Robinson', 'Sanuvox', 'Sarnia', 'Sunflower', 'Synergy'];
 const accessibleSites = [];
 
-var allUsers = [];
+var allUsersM = [];
 
 function signedIn(user) {
     // The signed-in user info.
@@ -794,7 +796,7 @@ function signedIn(user) {
         listUsers().
         then((u) => {
                 u.data.users.forEach((user) => {
-                    allUsers.push([user.uid, user.email]);
+                    allUsersM.push([user.uid, user.email]);
                 });
             })
 
