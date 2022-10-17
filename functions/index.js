@@ -29,4 +29,5 @@ exports.listUsers = functions.https.onCall((data, context) => {
       message: 'Not authorized'
     }
   }
+
 });

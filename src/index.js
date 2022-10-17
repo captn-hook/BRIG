@@ -68,7 +68,6 @@ import {
     getBlob,
     updateMetadata,
     getMetadata,
-    list
 } from 'firebase/storage';
 
 import {
@@ -780,8 +779,12 @@ function bounds(x1, y1, x2, y2) {
 }
 
 //sign in function
-const availableSites = ['IQ', 'LHL', 'Oshawa', 'RWDI1', 'RWDI1HEPA', 'RWDI2', 'RWDI3', 'RZero', 'Robinson', 'Sanuvox', 'Sarnia', 'Sunflower', 'Synergy'];
-const accessibleSites = [];
+
+var availableSites = [];
+
+var folderRef = ref(storage, '/Sites')
+
+var accessibleSites = [];
 
 var allUsersM = [];
 
@@ -809,21 +812,31 @@ function signedIn(user) {
 
     //check if site is accessible, if not, remove from available sites
 
-    for (var i = 0; i < availableSites.length; i++) {
+    listAll(folderRef).then((e) => {
 
-        var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
+        for (var i = 0; i < e.prefixes.length; i++) {
+            availableSites.push(e.prefixes[i].name)
+        }
 
-        getMetadata(fileRef)
-            .then((data) => {
-                accessibleSites.push(data.name.split('.')[0]);
-                siteList(accessibleSites);
-            })
-            .catch((err) => {
+        for (var i = 0; i < availableSites.length; i++) {
 
-                console.error(err);
+            var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
 
-            })
-    }
+            getMetadata(fileRef)
+                .then((data) => {
+                    availableSites.sort();
+                    accessibleSites.sort();
+                    accessibleSites.push(data.name.split('.')[0]);
+                    siteList(accessibleSites);
+                })
+                .catch((err) => {
+
+                    console.error(err);
+
+                })
+        }
+
+    })
 }
 
 function siteList(s) {
