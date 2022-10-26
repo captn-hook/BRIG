@@ -10,9 +10,14 @@ import {
     Tracer2d
 } from './Tracer';
 
+import {
+    addDoc,
+    collection
+} from "firebase/firestore";
+
 import * as THREE from 'three';
 
-export default function Data(data) {
+export function Data(data) {
 
     /*
     Data
@@ -108,7 +113,7 @@ export default function Data(data) {
 
                 //Labels
                 if (m == 0 || t == 0) {
-                   
+
                     //CLM 1
                 } else if (m > 0 && t > 0) {
 
@@ -146,7 +151,7 @@ export default function Data(data) {
 
 }
 
-export function saveFile(ms, ts, tracers, insights, views) {
+function assemble(ms, ts, tracers, insights, views) {
 
     let viewlist = [];
 
@@ -170,18 +175,55 @@ export function saveFile(ms, ts, tracers, insights, views) {
     tracers.forEach((e, i) => {
         dataArray[(i % ts.length) + 2].push(String(e.value))
     })
+
     insights[0] = 'INSIGHTS'
-    
-    for (var i = 0; i < ms.length + 1; i++){
+
+    for (var i = 0; i < ms.length + 1; i++) {
         if (i == 0) {
             viewlist[i] = 'VIEWS';
         } else if (views[i] != null) {
             viewlist[i] = views[i].join("/")
         }
     }
-    
+
     dataArray.push(insights);
     dataArray.push(viewlist);
+
+    return dataArray
+
+}
+
+export async function sendFile(ms, ts, tracers, insights, views, db, name) {
+
+    let dataArray = assemble(ms, ts, tracers, insights, views);
+
+    let document = {};
+
+    for (let i = 0; i < dataArray.length; i++) {
+
+        let row = []
+        for (let j = 1; j < dataArray[i].length; j++) {
+            if (dataArray[i][j] != null) {
+                row.push(dataArray[i][j]);
+            }
+
+            document[dataArray[i]] = row;
+        }
+
+    }
+
+    try {
+        const docRef = await addDoc(collection(db, name), document);
+        console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
+}
+
+export function saveFile(ms, ts, tracers, insights, views) {
+
+    let dataArray = assemble(ms, ts, tracers, insights, views);
+
 
     dataArray.forEach(function (rowArray) {
         let row = rowArray.join(",");

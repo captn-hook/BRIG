@@ -30,14 +30,11 @@ import {
 import FileExt from './FileExt.js';
 
 import {
-    Point3d
-} from './Point';
-
-import Data from './Data'
-
-import {
-    saveFile
+    Data,
+    saveFile,
+    sendFile
 } from './Data';
+
 import {
     Vector3
 } from 'three';
@@ -76,6 +73,10 @@ import {
     //connectFunctionsEmulator
 } from 'firebase/functions';
 
+import {
+    getFirestore,
+} from "firebase/firestore";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -99,7 +100,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
 const storage = getStorage(app);
+const db = getFirestore(app);
 
 const functions = getFunctions(app);
 //connectFunctionsEmulator(functions, 'localhost', 5001);
@@ -228,6 +231,11 @@ document.getElementById('saveFiles').addEventListener('click', (e) => {
     saveFile(ms, ts, tracers, insights, views);
 })
 
+document.getElementById('sendFiles').addEventListener('click', (e) => {
+    if (dropd.value != defaultDropd)
+        sendFile(ms, ts, tracers, insights, views, db, dropd.value);
+})
+
 document.getElementById('saveCam').addEventListener('click', (e) => {
     console.log('saveCam')
     views[firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
@@ -271,6 +279,7 @@ document.getElementById('perms').addEventListener('click', (e) => {
         updateMetadata(dataRef, newMetadata).then((metadata) => {
 
             populateTable();
+
 
         }).catch((error) => {
 
@@ -394,42 +403,45 @@ var allUsers = [];
 
 function populateTable() {
 
-    allUsers = allUsersM;
-    inUsers = [];
+    if (dropd.value != defaultDropd && dropd.value != 'Empty') {
 
-    var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
+        allUsers = allUsersM;
+        inUsers = [];
 
-    getMetadata(itemRef).then((metadata) => {
+        var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
-            if (metadata.customMetadata != null) {
+        getMetadata(itemRef).then((metadata) => {
 
-                var names = Object.keys(metadata.customMetadata);
-                var data = Object.values(metadata.customMetadata);
+                if (metadata.customMetadata != null) {
 
-                names.forEach((user) => {
+                    var names = Object.keys(metadata.customMetadata);
+                    var data = Object.values(metadata.customMetadata);
 
-                    if (data[names.indexOf(user)] != 'false') {
+                    names.forEach((user) => {
 
-                        inUsers.push([data[names.indexOf(user)], user]);
+                        if (data[names.indexOf(user)] != 'false') {
 
-                        for (var i = 0; i < allUsers.length; i++) {
-                            if (allUsers[i][1] == user) {
-                                allUsers.splice(i, 1);
+                            inUsers.push([data[names.indexOf(user)], user]);
+
+                            for (var i = 0; i < allUsers.length; i++) {
+                                if (allUsers[i][1] == user) {
+                                    allUsers.splice(i, 1);
+                                }
                             }
                         }
-                    }
 
-                });
+                    });
 
-                pTable2(allUsers, inUsers);
+                    pTable2(allUsers, inUsers);
 
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-        })
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            })
 
-    pTable2(allUsers, inUsers);
+        pTable2(allUsers, inUsers);
+    }
 }
 
 var aU = [];
@@ -549,6 +561,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 /*
     Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading
 */
+var defaultDropd = 'Select a site';
 
 //load data from file
 //var [ms, ts, tracers, insights, views] = Data(data);
@@ -692,6 +705,7 @@ function handleModels(input) {
 
         Gxhr = 0;
 
+
         populateTable();
 
     }
@@ -789,11 +803,17 @@ var accessibleSites = [];
 var allUsersM = [];
 
 function signedIn(user) {
+    //empty list 
+    siteList([]);
+
     // The signed-in user info.
     // ...
     const ext = user.email.split('@')
 
+    var allUsersM = []
+
     if (ext[1] == 'poppy.com') {
+
         ctrlBtn.style.display = 'block';
 
         listUsers().
@@ -811,6 +831,8 @@ function signedIn(user) {
     switchDisplay(1);
 
     //check if site is accessible, if not, remove from available sites
+    availableSites = [];
+
 
     listAll(folderRef).then((e) => {
 
@@ -818,38 +840,74 @@ function signedIn(user) {
             availableSites.push(e.prefixes[i].name)
         }
 
+        var promises = [];
+
         for (var i = 0; i < availableSites.length; i++) {
 
             var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
 
-            getMetadata(fileRef)
+            promises.push(getMetadata(fileRef)
                 .then((data) => {
                     availableSites.sort();
                     accessibleSites.sort();
-                    accessibleSites.push(data.name.split('.')[0]);
-                    siteList(accessibleSites);
+                    accessibleSites.push(data.name.split('.')[0])
+
                 })
                 .catch((err) => {
 
                     console.error(err);
 
-                })
+                }));
         }
+
+        Promise.all(promises).then(() => {
+            siteList(accessibleSites);
+        });
 
     })
 }
 
-function siteList(s) {
 
+function siteList(s) {
     //empty dropdown
     while (dropd.firstChild) {
         dropd.removeChild(dropd.firstChild);
     }
+
+    //add default option
+    var def = document.createElement('option');
+    def.text = defaultDropd;
+    dropd.add(def);
+
     s.forEach((site) => {
         var option = document.createElement('option');
         option.text = site;
         dropd.add(option);
     })
+
+}
+
+function loadRefs(ref1, ref2) {
+
+    getBlob(ref1)
+        .then((blob) => {
+            Gxhr += 25;
+            handleModels(blob);
+        })
+        .catch((err) => {
+            console.error(err);
+        })
+
+    // .csv, load data
+
+    getBlob(ref2)
+        .then((blob) => {
+            Gxhr += 25;
+            handleFiles(blob);
+        })
+        .catch((err) => {
+            console.error('No Data', err);
+        })
 
 }
 //live variables
@@ -887,7 +945,7 @@ onAuthStateChanged(auth, (user) => {
     //console.log(user);
     if (user) {
         // User is signed in, see docs for a list of available properties
-        signedIn(user);
+        login();
 
     } else {
         // User is signed out
@@ -896,6 +954,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 function login() {
+
     signInWithPopup(auth, provider)
 
         .then((result) => {
@@ -926,6 +985,9 @@ document.addEventListener('DOMContentLoaded', (e) => {
 })
 
 logoutBtn.addEventListener('click', (e) => {
+    siteList([]);
+    availableSites = [];
+    accessibleSites = [];
     switchDisplay(0);
     auth.signOut();
 })
@@ -950,31 +1012,35 @@ dropd.addEventListener('change', (event) => {
         []
     ];
 
-    var modelRef = ref(storage, '/Sites/' + event.target.value + '/' + event.target.value + '.glb');
+    if (event.target.value != defaultDropd) {
 
-    var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
+        var modelRef = ref(storage, '/Sites/' + event.target.value + '/' + event.target.value + '.glb');
 
-    // .glb, load model
+        var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
 
-    getBlob(modelRef)
-        .then((blob) => {
-            Gxhr += 25;
-            handleModels(blob);
-        })
-        .catch((err) => {
-            console.error(err);
-        })
+        // .glb, load model
 
-    // .csv, load data
+        loadRefs(modelRef, dataRef)
 
-    getBlob(dataRef)
-        .then((blob) => {
-            Gxhr += 25;
-            handleFiles(blob);
-        })
-        .catch((err) => {
-            console.error('No Data', err);
-        })
+    } else {
+        //load default
+
+        /*
+        load example
+        */
+        var modelRef = ref(storage, '/Example/example.glb');
+
+        var dataRef = ref(storage, '/Example/data.csv');
+
+        // .glb, load model
+
+        loadRefs(modelRef, dataRef)
+
+        /*
+        Animate
+        */
+
+    }
 })
 
 
@@ -1357,38 +1423,8 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 })
 
-/*
-load example
-*/
-var modelRef = ref(storage, '/Example/example.glb');
-
-var dataRef = ref(storage, '/Example/data.csv');
-
-// .glb, load model
-
-getBlob(modelRef)
-    .then((blob) => {
-        Gxhr += 25;
-        handleModels(blob);
-    })
-    .catch((err) => {
-        console.error(err);
-    })
-
-// .csv, load data
-
-getBlob(dataRef)
-    .then((blob) => {
-        Gxhr += 25;
-        handleFiles(blob);
-    })
-    .catch((err) => {
-        console.error('No Data', err);
-    })
-
-/*
-Animate
-*/
+//load defaullt 
+loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
 
 const tick = () => {
 
