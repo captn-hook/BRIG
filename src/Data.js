@@ -11,11 +11,81 @@ import {
 } from './Tracer';
 
 import {
-    addDoc,
-    collection
+    setDoc,
+    getDoc,
+    doc
 } from "firebase/firestore";
 
 import * as THREE from 'three';
+
+export async function RemoteData(db, name) {
+
+    
+    var ms = []
+    var ts = []
+    var tracers = []
+    var insights = []
+    var views = []
+        
+    const docRef = doc(db, name, 'data');
+    
+    await getDoc(docRef).then((doc) => {
+
+        let d = doc.data();
+
+        var leng = Object.keys(d).length;
+
+        var IV = 0;
+
+        if (d[leng - 2][0] == 'INSIGHTS') {
+
+            insights = d[leng - 2]
+
+            IV += 1;
+
+        }
+
+        if (d[leng - 1][0] == 'VIEWS') {
+
+            views = d[leng - 1]
+
+            IV += 1;
+
+        }
+
+        for (var i = 2; i < d[0].length; i++) {
+
+                var xyz = d[1][i].split('/');
+                var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+
+                ms.push(new Point2d("M", i - 1, 'red', pos, 10));
+                
+        }
+
+        for (var i = 2; i < leng - IV; i++) {
+
+            var xyz = d[i][1].split('/');
+            var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+
+            ts.push(new Point2d("D", i - 1, 'blue', pos, 5));
+
+        }
+
+        for (var m = 2; m < d[0].length; m++) {
+            for (var t = 2; t < leng - IV; t++) {
+           
+                tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], d[t][m]));
+
+            }
+        }
+    
+}).catch((error) => {
+    console.log("Error getting document:", error);
+});
+
+    return [ms, ts, tracers, insights, views]
+
+}
 
 export function Data(data) {
 
@@ -199,24 +269,21 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
 
     let document = {};
 
+    console.log(dataArray);
+
     for (let i = 0; i < dataArray.length; i++) {
 
-        let row = []
-        for (let j = 1; j < dataArray[i].length; j++) {
-            if (dataArray[i][j] != null) {
-                row.push(dataArray[i][j]);
-            }
-
-            document[dataArray[i]] = row;
-        }
+        document[i] = dataArray[i];
 
     }
 
+    console.log(document);
+
     try {
-        const docRef = await addDoc(collection(db, name), document);
-        console.log("Document written with ID: ", docRef.id);
+        const docRef = await setDoc(doc(db, name, 'data'), document);
+        console.log("Document written");
     } catch (e) {
-        console.error("Error adding document: ", e);
+        console.error("Error adding document");
     }
 }
 

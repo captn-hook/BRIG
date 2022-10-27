@@ -32,7 +32,8 @@ import FileExt from './FileExt.js';
 import {
     Data,
     saveFile,
-    sendFile
+    sendFile,
+    RemoteData
 } from './Data';
 
 import {
@@ -887,6 +888,32 @@ function siteList(s) {
 
 }
 
+function loadRefAndDoc(ref, doc){
+
+    getBlob(ref)
+        .then((blob) => {
+            Gxhr += 25;
+            handleModels(blob);
+        })
+        .catch((err) => {
+            console.error(err);
+        })
+
+       RemoteData(db, doc).then((data) => {
+
+        [ms, ts, tracers, insights, views] = data;
+
+        updateSizes();
+
+
+        cellWidth = (canvasleft.width / (ts.length + 1));
+        cellHeight = (canvasleft.height / (ms.length + 1));
+        
+       })
+
+
+}
+
 function loadRefs(ref1, ref2) {
 
     getBlob(ref1)
@@ -902,6 +929,7 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
+            console.log(blob);
             Gxhr += 25;
             handleFiles(blob);
         })
@@ -1016,11 +1044,14 @@ dropd.addEventListener('change', (event) => {
 
         var modelRef = ref(storage, '/Sites/' + event.target.value + '/' + event.target.value + '.glb');
 
-        var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
-
+       
         // .glb, load model
 
+        var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
+
         loadRefs(modelRef, dataRef)
+
+        //loadRefAndDoc(modelRef, event.target.value);
 
     } else {
         //load default
@@ -1227,8 +1258,6 @@ canvas2d.addEventListener('click', (e) => {
 
             var intersects = raycaster.intersectObjects(sceneMeshes, true);
 
-            console.log(intersects, sceneMeshes);
-
             if (intersects.length > 0) {
                 if (firstClickX == 1) {
                     ms[firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
@@ -1294,7 +1323,6 @@ window.addEventListener('hashchange', (e) => {
 });
 
 canvasleft.addEventListener('mousedown', (e) => {
-    console.log(cellX, cellY)
     if (firstClick) {
         firstClick = false;
 
@@ -1312,7 +1340,6 @@ canvasleft.addEventListener('mousedown', (e) => {
 })
 
 canvasleft.addEventListener('click', (e) => {
-    console.log(cellX, cellY)
     if (camFree) {
         looking = true;
     }
