@@ -76,6 +76,8 @@ import {
 
 import {
     getFirestore,
+    setDoc,
+    doc
 } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -253,20 +255,34 @@ document.getElementById('editPos').addEventListener('click', (e) => {
     }
 })
 
-document.getElementById('perms').addEventListener('click', (e) => {
+document.getElementById('perms').addEventListener('click', savePerms);
+
+async function savePerms(){
 
     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
-    var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
+   //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
 
     var inner = '';
 
+    let d = {}
+
+    
+
     inUsers.forEach((user) => {
         inner += '"' + user[1] + '":"' + user[0] + '",';
+
+        d[user[1]] = user[0];
+
+        setDoc(doc(db, user[0], dropd.value), {'access': true,})
     })
 
     allUsers.forEach((user) => {
         inner += '"' + user[1] + '":"false",';
+
+        d[user[1]] = 'false';
+
+        setDoc(doc(db, user[0], dropd.value), {'access': false,})
     })
 
     inner = inner.slice(0, -1);
@@ -277,25 +293,32 @@ document.getElementById('perms').addEventListener('click', (e) => {
 
     updateMetadata(itemRef, newMetadata).then((metadata) => {
 
+        /* updates csvs
         updateMetadata(dataRef, newMetadata).then((metadata) => {
-
+*/
             populateTable();
-
+/*s
 
         }).catch((error) => {
 
             console.log(error)
 
         });
-
+*/
     }).catch((error) => {
 
         console.log(error)
 
     });
-
-
-});
+/*
+    try {
+        const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
+        console.log("Document written");
+    } catch (e) {
+        console.error("Error adding document");
+    }
+*/
+};
 
 var back = document.getElementById('bg')
 
@@ -408,6 +431,7 @@ function populateTable() {
 
         allUsers = allUsersM;
         inUsers = [];
+
 
         var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
@@ -811,7 +835,7 @@ function signedIn(user) {
     // ...
     const ext = user.email.split('@')
 
-    var allUsersM = []
+    //var allUsersM = []
 
     if (ext[1] == 'poppy.com') {
 
@@ -820,12 +844,17 @@ function signedIn(user) {
         listUsers().
         then((u) => {
                 u.data.users.forEach((user) => {
+
+                    if (user.email.split('@')[1] != 'poppy.com') {
                     allUsersM.push([user.uid, user.email]);
+                    }
                 });
+
+                //console.log(allUsersM);
             })
 
             .catch((error) => {
-                console.log('Error listing users:', error);
+                //console.log('Error listing users:', error);
             });
     }
 
@@ -856,7 +885,7 @@ function signedIn(user) {
                 })
                 .catch((err) => {
 
-                    console.error(err);
+                    //console.error(err);
 
                 }));
         }
@@ -929,7 +958,7 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
-            console.log(blob);
+            //console.log(blob);
             Gxhr += 25;
             handleFiles(blob);
         })
@@ -1047,11 +1076,11 @@ dropd.addEventListener('change', (event) => {
        
         // .glb, load model
 
-        var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
+        //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
 
-        loadRefs(modelRef, dataRef)
+        //loadRefs(modelRef, dataRef)
 
-        //loadRefAndDoc(modelRef, event.target.value);
+        loadRefAndDoc(modelRef, event.target.value);
 
     } else {
         //load default

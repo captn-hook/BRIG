@@ -269,15 +269,11 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
 
     let document = {};
 
-    console.log(dataArray);
-
     for (let i = 0; i < dataArray.length; i++) {
 
         document[i] = dataArray[i];
 
     }
-
-    console.log(document);
 
     try {
         const docRef = await setDoc(doc(db, name, 'data'), document);
