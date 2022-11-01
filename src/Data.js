@@ -20,71 +20,82 @@ import * as THREE from 'three';
 
 export async function RemoteData(db, name) {
 
-    
     var ms = []
     var ts = []
     var tracers = []
     var insights = []
     var views = []
-        
+
     const docRef = doc(db, name, 'data');
-    
-    await getDoc(docRef).then((doc) => {
 
-        let d = doc.data();
+    const group0 = doc(db, name, 'group0');
 
-        var leng = Object.keys(d).length;
+    await getDoc(group0).then((g) =>
+        getDoc(docRef).then((doc) => {
 
-        var IV = 0;
+            let gru = g.data();
 
-        if (d[leng - 2][0] == 'INSIGHTS') {
+            let d = doc.data();
 
-            insights = d[leng - 2]
+            var leng = Object.keys(d).length;
 
-            IV += 1;
+            var IV = 0;
 
-        }
+            if (d[leng - 2][0] == 'INSIGHTS') {
 
-        if (d[leng - 1][0] == 'VIEWS') {
+                insights = d[leng - 2]
 
-            views = d[leng - 1]
+                IV += 1;
 
-            IV += 1;
+            }
 
-        }
+            if (d[leng - 1][0] == 'VIEWS') {
 
-        for (var i = 2; i < d[0].length; i++) {
+                views = d[leng - 1]
+
+                for (i in d[leng - 1]) {
+                    if (d[leng - 1][i].includes("/") != -1) {
+                        views[i] = d[leng - 1][i].split("/")
+                    }
+                }
+
+                IV += 1;
+
+            }
+
+            for (var i = 2; i < d[0].length; i++) {
 
                 var xyz = d[1][i].split('/');
                 var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
                 ms.push(new Point2d("M", i - 1, 'red', pos, 10));
-                
-        }
-
-        for (var i = 2; i < leng - IV; i++) {
-
-            var xyz = d[i][1].split('/');
-            var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
-
-            ts.push(new Point2d("D", i - 1, 'blue', pos, 5));
-
-        }
-
-        for (var m = 2; m < d[0].length; m++) {
-            for (var t = 2; t < leng - IV; t++) {
-           
-                tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], d[t][m]));
 
             }
-        }
-    
-}).catch((error) => {
-    console.log("Error getting document:", error);
-});
+
+            for (var i = 2; i < leng - IV; i++) {
+
+                var xyz = d[i][1].split('/');
+                var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+
+                ts.push(new Point2d("D", i - 1, 'blue', pos, 5));
+
+            }
+
+            for (var m = 2; m < d[0].length; m++) {
+                for (var t = 2; t < leng - IV; t++) {
+
+                    tracers.push(new Tracer2d(ms[m - 2], ts[t - 2], d[t][m]));
+
+                    if (gru != undefined && (String(m - 1) + "/" + String(t - 1)) in gru) {
+
+                        tracers[tracers.length - 1].visible = gru[String(m - 1) + "/" + String(t - 1)];
+                    }
+
+                }
+            }
+        }))
 
     return [ms, ts, tracers, insights, views]
-
 }
 
 export function Data(data) {
@@ -225,8 +236,6 @@ function assemble(ms, ts, tracers, insights, views) {
 
     let viewlist = [];
 
-    let csvContent = "data:text/csv;charset=utf-8,"
-
     let dataArray = [
         ["Labels", "M0"],
         ["T0", "XYZ"]
@@ -276,16 +285,57 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
     }
 
     try {
-        const docRef = await setDoc(doc(db, name, 'data'), document);
-        console.log("Document written");
+        await setDoc(doc(db, name, 'data'), document);
+        console.log("Document 1 written");
     } catch (e) {
         console.error("Error adding document");
     }
+
+    //create distance table
+
+    let group0 = {}
+
+    let distance = {};
+
+    tracers.forEach((t) => {
+
+       
+        var d = t.m.pos.distanceTo(t.t.pos);
+        var label = String(t.m.i) + "/" + String(t.t.i);
+
+        distance[label] = d;
+
+        if (d < 2) {
+            group0[label] = false;
+        } else {
+            group0[label] = true;
+        }
+
+    })
+
+    try {
+        await setDoc(doc(db, name, 'dist'), distance);
+        console.log("Document 2 written");
+    } catch (e) {
+        console.error("Error adding document");
+    }
+
+    try {
+        await setDoc(doc(db, name, 'group0'), group0);
+        console.log("Document 3 written");
+    } catch (e) {
+        console.error("Error adding document");
+    }
+
+
 }
 
 export function saveFile(ms, ts, tracers, insights, views) {
 
     let dataArray = assemble(ms, ts, tracers, insights, views);
+
+
+    let csvContent = "data:text/csv;charset=utf-8,"
 
 
     dataArray.forEach(function (rowArray) {
