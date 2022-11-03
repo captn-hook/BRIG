@@ -37,6 +37,10 @@ import {
 } from './Data';
 
 import {
+    Panel
+} from './Panel.js';
+
+import {
     Vector3
 } from 'three';
 
@@ -166,11 +170,11 @@ const ctx = canvas2d.getContext('2d');
 
 const spreadsheetDiv = document.getElementById('spreadsheet');
 
-const canvasleft = document.getElementById('left');
+const leftPanel = new Panel(document.getElementById('left'));
 
-canvasleft.oncontextmenu = () => false;
+//canvasleft.oncontextmenu = () => false;
 
-const ctxLeft = canvasleft.getContext('2d');
+//const ctxLeft = canvasleft.getContext('2d');
 
 const textbox = document.getElementById('textbox');
 
@@ -333,6 +337,8 @@ var cells = document.getElementsByClassName('cell');
 document.getElementById('blackandwhite').addEventListener('click', (e) => {
 
     bw = !bw;
+
+    leftPanel.setbw(bw)
 
     if (bw) {
         scene.background = new THREE.Color(0x000000);
@@ -683,11 +689,11 @@ function updateSizes() {
     canvas2d.width = sizes.width;
     canvas2d.height = sizes.height;
 
-    ctxLeft.canvas.innerWidth = spreadsheetDiv.offsetWidth;
-    ctxLeft.canvas.innerHeight = spreadsheetDiv.offsetHeight;
+    leftPanel.ctx.canvas.innerWidth = spreadsheetDiv.offsetWidth;
+    leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
 
-    canvasleft.width = spreadsheetDiv.offsetWidth;
-    canvasleft.height = spreadsheetDiv.offsetHeight;
+    leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
+    leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
 }
 
 const clock = new THREE.Clock();
@@ -767,8 +773,7 @@ function handleFiles(input) {
         updateSizes();
 
 
-        cellWidth = (canvasleft.width / (ts.length + 1));
-        cellHeight = (canvasleft.height / (ms.length + 1));
+        leftPanel.cellSize(ts.length, ms.length);
     }
 }
 
@@ -804,17 +809,6 @@ function updateCam(x, y) {
 
         }
     }
-}
-
-function bounds(x1, y1, x2, y2) {
-    //returns the bounds of the current selection
-    var x = (((x1 < x2) ? x1 : x2) - 1) * cellWidth
-    var y = (((y1 < y2) ? y1 : y2) - 1) * cellHeight
-
-    var w = (Math.abs(x1 - x2) + 1) * cellWidth
-    var h = (Math.abs(y1 - y2) + 1) * cellHeight
-
-    return [x, y, w, h]
 }
 
 //sign in function
@@ -935,8 +929,8 @@ function loadRefAndDoc(ref, doc){
         updateSizes();
 
 
-        cellWidth = (canvasleft.width / (ts.length + 1));
-        cellHeight = (canvasleft.height / (ms.length + 1));
+        leftPanel.cellWidth = (leftPanel.canvas.width / (ts.length + 1));
+        leftPanel.cellHeight = (leftPanel.canvas.height / (ms.length + 1));
         
        })
 
@@ -968,10 +962,6 @@ function loadRefs(ref1, ref2) {
 
 }
 //live variables
-
-var cellWidth = (canvasleft.width / (ts.length + 1));
-var cellHeight = (canvasleft.height / (ms.length + 1));
-
 
 var cellX = 0;
 var cellY = 0;
@@ -1178,14 +1168,17 @@ camBtn.addEventListener('click', (e) => {
         camBtn.innerHTML = 'Locked 📷';
         controls.enabled = false;
         camFree = true;
+        leftPanel.setcam(camFree)
     } else if (camBtn.innerHTML == 'Locked 📷') {
         camBtn.innerHTML = 'Free 📹';
         controls.enabled = true;
         camFree = false;
+        leftPanel.setcam(camFree)
     } else {
         camBtn.innerHTML = 'Multi 🎥';
         controls.enabled = true;
         camFree = true;
+        leftPanel.setcam(camFree)
     }
 })
 
@@ -1279,7 +1272,7 @@ canvas2d.addEventListener('click', (e) => {
 
             var raycaster = new THREE.Raycaster();
             var mouse = {
-                x: (e.clientX - canvasleft.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
+                x: (e.clientX - leftPanel.canvas.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
                 y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
             };
 
@@ -1350,7 +1343,7 @@ window.addEventListener('hashchange', (e) => {
     }
 
 });
-
+/*
 canvasleft.addEventListener('mousedown', (e) => {
     if (firstClick) {
         firstClick = false;
@@ -1460,6 +1453,7 @@ canvasleft.addEventListener('mousemove', (e) => {
     cellX = Math.ceil(x / cellWidth);
     cellY = Math.ceil(y / cellHeight);
 });
+*/
 
 //resize
 window.addEventListener('resize', () => {
@@ -1467,8 +1461,7 @@ window.addEventListener('resize', () => {
     updateSizes();
 
 
-    cellWidth = (canvasleft.width / (ts.length + 1));
-    cellHeight = (canvasleft.height / (ms.length + 1));
+    leftPanel.cellSize(ts.length, ms.length)
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -1509,22 +1502,24 @@ const tick = () => {
 
     //New Frame
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
-    ctxLeft.clearRect(0, 0, canvasleft.width, canvasleft.height);
+    leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
 
     //Tracers
-    tracers.forEach(t => t.drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha, doVals));
+    tracers.forEach(t => t.drawTracer(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight, alpha, doVals));
 
     //Points
-    ms.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw));
-    ts.forEach(pt => pt.drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw));
+    ms.forEach(pt => pt.drawPt(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight, bw));
+    ts.forEach(pt => pt.drawPt(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight, bw));
 
     if (bw) {
-        ctxLeft.fillStyle = 'black';
+        leftPanel.ctx.fillStyle = 'black';
     } else {
-        ctxLeft.fillStyle = 'white';
+        leftPanel.ctx.fillStyle = 'white';
     }
-    ctxLeft.fillRect(0, 0, cellWidth, cellHeight);
+    leftPanel.ctx.fillRect(0, 0, leftPanel.cellWidth, leftPanel.cellHeight);
 
+    leftPanel.frame();
+    /*
     //click 1
     if (firstClick != null) {
 
@@ -1570,10 +1565,11 @@ const tick = () => {
 
         }
     }
+    */
 
     //values
     if (doVals) {
-        tracers.forEach(t => t.drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight));
+        tracers.forEach(t => t.drawValues(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight));
     }
 
     //loading bar

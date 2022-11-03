@@ -12,7 +12,10 @@ module.exports = {
         library: "FileExt",
         library: "Point",
         library: "Tracer",
-        library: "Data"
+        library: "Data",
+        library: "Panal",
+        library: "ScreenSizes",
+        library: "Buttons"
     },
     devtool: 'source-map',
     plugins: [
