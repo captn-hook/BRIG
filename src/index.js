@@ -245,7 +245,7 @@ document.getElementById('sendFiles').addEventListener('click', (e) => {
 
 document.getElementById('saveCam').addEventListener('click', (e) => {
     console.log('saveCam')
-    views[firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
+    views[leftPanel.firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
     console.log(views)
 })
 
@@ -742,18 +742,10 @@ function handleModels(input) {
     }
 }
 
-function blankClicks() {
-    firstClick = true;
-    firstClickX = null;
-    firstClickY = null;
-    secondClickX = null;
-    secondClickY = null;
-}
-
 function handleFiles(input) {
 
     //remove old stuff first
-    blankClicks();
+    leftPanel.blankClicks();
 
     var read = new FileReader();
 
@@ -767,8 +759,9 @@ function handleFiles(input) {
 
     read.onloadend = function () {
 
-        [ms, ts, tracers, insights, views] = Data(read.result);
-
+        [ms, ts, tracers, insights, views] = Data(read.result)
+        
+        leftPanel.setTracers(ms, ts, tracers)
         //resize sheet
         updateSizes();
 
@@ -777,38 +770,35 @@ function handleFiles(input) {
     }
 }
 
-function updateCam(x, y) {
+function updateCam() {
 
-    if (camFree) {
+    if (leftPanel.camFree) {
 
-        if (x <= 1 && y <= 1) {
+        if (leftPanel.mt == 0) {
 
-        } else if (y == 1) {
+        } else if (leftPanel.mt == 2) {
             //if y (row) == 1, ts
-            var t = x - 2;
 
-            cameraTargPos = new THREE.Vector3(parseFloat(ts[t].pos.x) + 14, parseFloat(ts[t].pos.z) + 30, parseFloat(ts[t].pos.y) + 8);
-            cameraTargView = new THREE.Vector3(parseFloat(ts[t].pos.x), parseFloat(ts[t].pos.z), parseFloat(ts[t].pos.y));
+            cameraTargPos = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
+            cameraTargView = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
 
             //throws errors if it trys to select row before/after last
-        } else if (1 < y && y < ms.length + 2) {
+        } else if (leftPanel.mt == 1) {
             //if x (column) == 1, ms
-
-            var m = y - 2;
-
             //special views
-            if (views[y - 1] != null && views[y - 1][0] != '') {
-                cameraTargPos = new THREE.Vector3(parseFloat(views[y - 1][0]), parseFloat(views[y - 1][1]), parseFloat(views[y - 1][2]));
+            if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
+                cameraTargPos = new THREE.Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
             } else {
-                cameraTargPos = new THREE.Vector3(parseFloat(ms[m].pos.x) + 14, parseFloat(ms[m].pos.z) + 30, parseFloat(ms[m].pos.y) + 8);
+                cameraTargPos = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
             }
-            cameraTargView = new THREE.Vector3(parseFloat(ms[m].pos.x), parseFloat(ms[m].pos.z), parseFloat(ms[m].pos.y));
+            cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
 
             //insights
-            textbox.value = (insights[y] == null) ? '' : decodeURI(insights[y]).replaceAll('~', ',');
+            textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
 
         }
     }
+
 }
 
 //sign in function
@@ -926,6 +916,8 @@ function loadRefAndDoc(ref, doc){
 
         [ms, ts, tracers, insights, views] = data;
 
+        leftPanel.setTracers(ms, ts, tracers)
+
         updateSizes();
 
 
@@ -963,22 +955,8 @@ function loadRefs(ref1, ref2) {
 }
 //live variables
 
-var cellX = 0;
-var cellY = 0;
-
 var doVals = false;
 
-
-//spreadsheet click
-var firstClickX = null;
-var firstClickY = null;
-
-var secondClickX = null;
-var secondClickY = null;
-
-var firstClick = null;
-
-var looking = false;
 
 /*
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
@@ -1133,10 +1111,10 @@ flipBtn.addEventListener('click', (e) => {
         //hide values
     }
     //find the difference between click 1 and click 2
-    var minx = ((firstClickX < secondClickX) ? firstClickX : secondClickX) - 1;
-    var miny = ((firstClickY < secondClickY) ? firstClickY : secondClickY) - 1;
-    var x = Math.abs(secondClickX - firstClickX) + minx;
-    var y = Math.abs(secondClickY - firstClickY) + miny;
+    var minx = ((leftPanel.firstClickX < leftPanel.secondClickX) ? leftPanel.firstClickX : leftPanel.secondClickX) - 1;
+    var miny = ((leftPanel.firstClickY < leftPanel.secondClickY) ? leftPanel.firstClickY : leftPanel.secondClickY) - 1;
+    var x = Math.abs(leftPanel.secondClickX - leftPanel.firstClickX) + minx;
+    var y = Math.abs(leftPanel.secondClickY - leftPanel.firstClickY) + miny;
 
     tracers.forEach((t) => {
         if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
@@ -1227,10 +1205,10 @@ toggleBtn.addEventListener('click', (e) => {
     }
 
     //find the difference between click 1 and click 2
-    var minx = ((firstClickX < secondClickX) ? firstClickX : secondClickX) - 1;
-    var miny = ((firstClickY < secondClickY) ? firstClickY : secondClickY) - 1;
-    var x = Math.abs(secondClickX - firstClickX) + minx;
-    var y = Math.abs(secondClickY - firstClickY) + miny;
+    var minx = ((leftPanel.firstClickX < leftPanel.secondClickX) ? leftPanel.firstClickX : leftPanel.secondClickX) - 1;
+    var miny = ((leftPanel.firstClickY < leftPanel.secondClickY) ? leftPanel.firstClickY : leftPanel.secondClickY) - 1;
+    var x = Math.abs(leftPanel.secondClickX - leftPanel.firstClickX) + minx;
+    var y = Math.abs(leftPanel.secondClickY - leftPanel.firstClickY) + miny;
 
     tracers.forEach((t) => {
         if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
@@ -1258,13 +1236,13 @@ toggleBtn.addEventListener('click', (e) => {
 //canvas
 canvas2d.addEventListener('mousedown', (e) => {
     if (camFree) {
-        looking = false;
+        leftPanel.looking = false;
     }
 })
 
 canvas2d.addEventListener('click', (e) => {
         if (camFree) {
-            looking = false;
+            leftPanel.looking = false;
         }
 
 
@@ -1281,10 +1259,10 @@ canvas2d.addEventListener('click', (e) => {
             var intersects = raycaster.intersectObjects(sceneMeshes, true);
 
             if (intersects.length > 0) {
-                if (firstClickX == 1) {
-                    ms[firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
-                } else if (firstClickY == 1) {
-                    ts[firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                if (leftPanel.firstClickX == 1) {
+                    ms[leftPanel.firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                } else if (leftPanel.firstClickY == 1) {
+                    ts[leftPanel.firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
                 }
             }
         }
@@ -1300,7 +1278,7 @@ canvas2d.addEventListener('click', (e) => {
 
 textbox.addEventListener('input', e => {
     if (textbox.readOnly == false) {
-        insights[firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
+        insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
     }
 })
 
@@ -1319,10 +1297,10 @@ window.addEventListener('hashchange', (e) => {
     var params = hash.split('&')
 
     if (params.length == 2) {
-        if (params[0].substring(2) != cellX || params[1].substring(2) != cellY) {
-            firstClickX = params[0].substring(2);
-            firstClickY = params[1].substring(2);
-            updateCam(firstClickX, firstClickY)
+        if (params[0].substring(2) != leftPanel.cellX || params[1].substring(2) != leftPanel.cellY) {
+            leftPanel.firstClickX = params[0].substring(2);
+            leftPanel.firstClickY = params[1].substring(2);
+            updateCam();
         }
     } else if (params.length == 6) {
 
@@ -1332,7 +1310,7 @@ window.addEventListener('hashchange', (e) => {
         //                                   min dist
         if (camera.position.distanceTo(new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))) > .03) {
 
-            looking = true;
+            leftPanel.looking = true;
             cameraTargPos = new THREE.Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
             camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
 
@@ -1479,18 +1457,22 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
 
+    if (leftPanel.looking) {
+        updateCam();
+    }
+
     //if camera.position isnt cameraTargPos, move camera towards point
-    if (looking && camera.position.distanceTo(cameraTargPos) > .05) {
+    if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) > .05) {
         camera.position.lerp(cameraTargPos, .03)
-    } else {
-        looking = false;
+    } else if (leftPanel.looking && controls.target.distanceTo(cameraTargView) < .05) {
+        leftPanel.looking = false;
     }
 
     //if controls.target isnt cameraTargView, turn camera towards point
-    if (looking && controls.target.distanceTo(cameraTargView) > .05) {
+    if (leftPanel.looking && controls.target.distanceTo(cameraTargView) > .05) {
         controls.target.lerp(cameraTargView, .03)
-    } else {
-        looking = false;
+    } else if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) < .05)    {
+        leftPanel.looking = false;
     }
 
     // Update Orbital Controls

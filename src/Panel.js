@@ -16,21 +16,65 @@ class Panel {
         this.cellWidth = null;
         this.cellHeight = null;
 
+        this.looking = true;
+
         this.canvas = c;
 
         this.ctx = c.getContext('2d');
 
         this.canvas.oncontextmenu = () => false;
 
-        this.canvas.addEventListener('mousedown', this.clicks);
+        this.canvas.addEventListener('mousedown', this.clicks.bind(this));
 
-        this.canvas.addEventListener('click', this.place);
+        this.canvas.addEventListener('click', this.place.bind(this));
 
-        this.canvas.addEventListener('mousemove', this.move);
+        this.canvas.addEventListener('mousemove', this.move.bind(this));
 
-        this.bw = false;
+        this.bw = true;
 
         this.camFree = true;
+
+        this.mt = 0;
+
+        this.n = 0;
+
+        this.mlen = 0;
+
+        this.tracers;
+
+        this.ms;
+
+        this.ts;
+        
+    }
+
+    camPos(x, y) {
+
+        if (this.camFree) {
+    
+            if (x <= 1 && y <= 1) {
+
+                this.mt = 0;
+                this.n = 0;
+    
+            } else if (y == 1) {
+                //if y (row) == 1, ts
+                this.mt = 2;
+                this.n = x - 2;
+                //throws errors if it trys to select row before/after last
+
+            } else if (1 < y && y < this.mlen + 2) {
+                //if x (column) == 1, ms
+                this.mt = 1;
+                this.n = y - 2;
+            }
+        }
+    }
+
+    setTracers(ms, ts, tracers) {
+        this.tracers = tracers;
+        this.ms = ms;
+        this.ts = ts;
     }
 
     setbw(bw) {
@@ -41,7 +85,17 @@ class Panel {
         this.camFree = camFree;
     }
 
+    blankClicks() {
+        this.firstClick = true;
+        this.firstClickX = null;
+        this.firstClickY = null;
+        this.secondClickX = null;
+        this.secondClickY = null;
+    }
+
     cellSize(ts, ms) {
+
+        this.mlen = ms;
 
         this.cellWidth = (this.canvas.width / (ts + 1));
         this.cellHeight = (this.canvas.height / (ms + 1));
@@ -60,20 +114,20 @@ class Panel {
             this.firstClickY = this.cellY;
 
             //this is for linking to a specific location
-            //window.location.hash = ('X=' + cellX + '&Y=' + cellY);
+            window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY);
         }
     }
 
     place(e) {
         if (this.camFree) {
-            looking = true;
+            this.looking = true;
         }
         //single click, place markers 1 and 2
         if (e.detail == 1) {
             if (this.firstClick) {
 
                 //update camera on mouse click
-                updateCam(this.cellX, this.cellY)
+                this.camPos(this.cellX, this.cellY)
 
                 //grabs position of mouse, upaated by mousemove event
                 this.firstClickX = this.cellX;
@@ -89,7 +143,7 @@ class Panel {
                 this.secondClickY = this.cellY;
 
                 //update camera on mouse click
-                updateCam(this.cellX, this.cellY)
+                this.camPos(this.cellX, this.cellY)
 
                 window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY)
 
@@ -97,46 +151,45 @@ class Panel {
             //double click, clear markers
         } else if (e.detail == 2) {
 
-            blankClicks();
+            this.blankClicks();
 
-            updateCam(this.cellX, this.cellY);
+            this.camPos(this.cellX, this.cellY);
 
             //get m/t/tracer by cellX and cellY
             if (this.cellX <= 1 && this.cellY <= 1) {
                 //do nothing
             } else if (this.cellY == 1) {
 
-                var state = !ts[this.cellX - 2].visible
+                var state = !this.ts[this.cellX - 2].visible
 
-                ts[cellX - 2].visible = state;
+                this.ts[this.cellX - 2].visible = state;
 
-                tracers.forEach((t) => {
-                    if (t.t.i == cellX - 1) {
+                this.tracers.forEach((t) => {
+                    if (t.t.i == this.cellX - 1) {
                         t.visible = state;
                     }
                 })
 
             } else if (this.cellX == 1) {
 
-                var state = !ms[this.cellY - 2].visible
+                var state = !this.ms[this.cellY - 2].visible
 
-                ms[this.cellY - 2].visible = state;
+                this.ms[this.cellY - 2].visible = state;
 
                 if (state == true) {
-                    ts.forEach(t => {
+                    this.ts.forEach(t => {
                         t.visible = true
                     })
                 }
 
-                tracers.forEach((t) => {
+                this.tracers.forEach((t) => {
                     if (t.m.i == this.cellY - 1) {
                         t.visible = state;
                     }
                 })
 
             } else {
-
-                tracers.forEach((t) => {
+                this.tracers.forEach((t) => {
                     if (t.m.i == this.cellY - 1 && t.t.i == this.cellX - 1) {
                         t.visible = !t.visible;
                     }
@@ -150,9 +203,10 @@ class Panel {
 
     //spreadsheet mouse move, tracks mouse position to cellX and cellY
     move(e) { 
-        var rect = this.getBoundingClientRect();
+        var rect = this.canvas.getBoundingClientRect();
         var x = e.pageX - rect.left;
         var y = e.pageY - rect.top;
+
         this.cellX = Math.ceil(x / this.cellWidth);
         this.cellY = Math.ceil(y / this.cellHeight);
     }
@@ -168,11 +222,10 @@ class Panel {
         return [x, y, w, h]
     }
     
-    frame() {
+    frame() {        
 
         //click 1
         if (this.firstClick != null) {
-
 
             //click 2
             if (this.secondClickX == null && this.secondClickY == null) {
@@ -200,6 +253,7 @@ class Panel {
 
 
             } else {
+
                 this.ctx.beginPath();
 
                 if (this.bw) {
@@ -209,7 +263,7 @@ class Panel {
                 }
                 this.ctx.lineWidth = 4;
 
-                var [x, y, w, h] = bounds(this.secondClickX, this.secondClickY, this.firstClickX, this.firstClickY);
+                var [x, y, w, h] = this.bounds(this.secondClickX, this.secondClickY, this.firstClickX, this.firstClickY);
                 this.ctx.rect(x, y, w, h);
                 this.ctx.stroke()
 
