@@ -180,21 +180,185 @@ const textbox = document.getElementById('textbox');
 
 
 //buttons
-const loginBtn = document.getElementById('login');
 
-const logoutBtn = document.getElementById('logout');
+//buttons
 
-const valueBtn = document.getElementById('valueBtn');
+var alpha = true;
 
-const opacityBtn = document.getElementById('opacityBtn');
+document.getElementById('login').addEventListener('click', (e) => {
+    updateSizes();
+    login();
+})
 
-const flipBtn = document.getElementById('flipBtn');
+document.getElementById('logout').addEventListener('click', (e) => {
+    siteList([]);
+    availableSites = [];
+    accessibleSites = [];
+    switchDisplay(0);
+    auth.signOut();
+})
 
-const camBtn = document.getElementById('camBtn');
+document.getElementById('valueBtn').addEventListener('click', (e) => {
+    if (e.target.innerHTML == 'Show values') {
+        e.target.innerHTML = 'Hide values';
+        //show values
+        doVals = true;
+    } else {
+        e.target.innerHTML = 'Show values';
+        //hide values
+        doVals = false;
+    }
+})
 
-const resetBtn = document.getElementById('resetBtn');
+document.getElementById('opacityBtn').addEventListener('click', (e) => {
+    if (!alpha) {
+        e.target.innerHTML = 'Transparent';
+        alpha = true;
+        //show values
+    } else {
+        e.target.innerHTML = 'Opaque';
+        alpha = false;
+        //hide values
+    }
+})
 
-const toggleBtn = document.getElementById('toggleBtn');
+document.getElementById('flipBtn').addEventListener('click', (e) => {
+
+    if (e.target.innerHTML == 'Flip Selection ◐') {
+        e.target.innerHTML = 'Flip Selection ◑';
+        //show values
+    } else {
+        e.target.innerHTML = 'Flip Selection ◐';
+        //hide values
+    }
+    //find the difference between click 1 and click 2
+    var minx = ((leftPanel.firstClickX < leftPanel.secondClickX) ? leftPanel.firstClickX : leftPanel.secondClickX) - 1;
+    var miny = ((leftPanel.firstClickY < leftPanel.secondClickY) ? leftPanel.firstClickY : leftPanel.secondClickY) - 1;
+    var x = Math.abs(leftPanel.secondClickX - leftPanel.firstClickX) + minx;
+    var y = Math.abs(leftPanel.secondClickY - leftPanel.firstClickY) + miny;
+
+    tracers.forEach((t) => {
+        if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
+            t.visible = !t.visible;
+        }
+    })
+
+    if (minx == 0) {
+        ms.forEach((m) => {
+            if (m.i >= miny && m.i <= y) {
+                m.visible = !m.visible;
+            }
+        })
+    }
+
+    if (miny == 0) {
+        ts.forEach((d) => {
+            if (d.i >= minx && d.i <= x) {
+                d.visible = !d.visible;
+            }
+        })
+    }
+})
+
+var camFree = true;
+
+document.getElementById('camBtn').addEventListener('click', (e) => {
+    if (e.target.innerHTML == 'Multi 🎥') {
+        e.target.innerHTML = 'Locked 📷';
+        controls.enabled = false;
+        camFree = true;
+        leftPanel.setcam(camFree)
+    } else if (e.target.innerHTML == 'Locked 📷') {
+        e.target.innerHTML = 'Free 📹';
+        controls.enabled = true;
+        camFree = false;
+        leftPanel.setcam(camFree)
+    } else {
+        e.target.innerHTML = 'Multi 🎥';
+        controls.enabled = true;
+        camFree = true;
+        leftPanel.setcam(camFree)
+    }
+})
+
+document.getElementById('resetBtn').addEventListener('click', (e) => {
+    if (e.target.innerHTML == 'Toggle all ❎') {
+        e.target.innerHTML = 'Toggle all ✅';
+
+        //set every m, t, and tracer to visible
+        ms.forEach((m) => {
+            m.visible = true;
+        })
+        ts.forEach((t) => {
+            t.visible = true;
+        })
+        tracers.forEach((t) => {
+            t.visible = true;
+        })
+
+    } else {
+        e.target.innerHTML = 'Toggle all ❎';
+
+        //set every m, t, and tracer to hidden
+        ms.forEach((m) => {
+            m.visible = false;
+        })
+        ts.forEach((t) => {
+            t.visible = false;
+        })
+        tracers.forEach((t) => {
+            t.visible = false;
+        })
+
+    }
+})
+
+document.getElementById('toggleBtn')
+
+toggleBtn.addEventListener('click', (e) => {
+
+    var mode = null;
+
+    if (e.target.innerHTML == 'Toggle selection ◧') {
+        e.target.innerHTML = 'Toggle selection ◨';
+        mode = true;
+    } else {
+        e.target.innerHTML = 'Toggle selection ◧';
+        mode = false;
+    }
+
+    //find the difference between click 1 and click 2
+    var minx = ((leftPanel.firstClickX < leftPanel.secondClickX) ? leftPanel.firstClickX : leftPanel.secondClickX) - 1;
+    var miny = ((leftPanel.firstClickY < leftPanel.secondClickY) ? leftPanel.firstClickY : leftPanel.secondClickY) - 1;
+    var x = Math.abs(leftPanel.secondClickX - leftPanel.firstClickX) + minx;
+    var y = Math.abs(leftPanel.secondClickY - leftPanel.firstClickY) + miny;
+
+    tracers.forEach((t) => {
+        if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
+            t.visible = mode;
+        }
+    })
+
+    if (minx == 0) {
+        ms.forEach((m) => {
+            if (m.i >= miny && m.i <= y) {
+                m.visible = mode;
+            }
+        })
+    }
+
+    if (miny == 0) {
+        ts.forEach((d) => {
+            if (d.i >= minx && d.i <= x) {
+                d.visible = mode;
+            }
+        })
+    }
+})
+
+document.getElementById('groups').addEventListener('click', (e) => {
+    leftPanel.spreadsheet = !leftPanel.spreadsheet;
+})
 
 const ctrlBtn = document.getElementById('ctrlBtn');
 
@@ -1009,21 +1173,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
     updateSizes();
 })
 
-logoutBtn.addEventListener('click', (e) => {
-    siteList([]);
-    availableSites = [];
-    accessibleSites = [];
-    switchDisplay(0);
-    auth.signOut();
-})
-
-loginBtn.addEventListener('click', (e) => {
-    updateSizes();
-
-    login();
-
-})
-
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
 
@@ -1071,167 +1220,6 @@ dropd.addEventListener('change', (event) => {
     }
 })
 
-
-//buttons
-
-valueBtn.addEventListener('click', (e) => {
-    if (valueBtn.innerHTML == 'Show values') {
-        valueBtn.innerHTML = 'Hide values';
-        //show values
-        doVals = true;
-    } else {
-        valueBtn.innerHTML = 'Show values';
-        //hide values
-        doVals = false;
-    }
-})
-
-var alpha = true;
-
-opacityBtn.addEventListener('click', (e) => {
-    if (!alpha) {
-        opacityBtn.innerHTML = 'Transparent';
-        alpha = true;
-        //show values
-    } else {
-        opacityBtn.innerHTML = 'Opaque';
-        alpha = false;
-        //hide values
-    }
-})
-
-
-flipBtn.addEventListener('click', (e) => {
-
-    if (flipBtn.innerHTML == 'Flip Selection ◐') {
-        flipBtn.innerHTML = 'Flip Selection ◑';
-        //show values
-    } else {
-        flipBtn.innerHTML = 'Flip Selection ◐';
-        //hide values
-    }
-    //find the difference between click 1 and click 2
-    var minx = ((leftPanel.firstClickX < leftPanel.secondClickX) ? leftPanel.firstClickX : leftPanel.secondClickX) - 1;
-    var miny = ((leftPanel.firstClickY < leftPanel.secondClickY) ? leftPanel.firstClickY : leftPanel.secondClickY) - 1;
-    var x = Math.abs(leftPanel.secondClickX - leftPanel.firstClickX) + minx;
-    var y = Math.abs(leftPanel.secondClickY - leftPanel.firstClickY) + miny;
-
-    tracers.forEach((t) => {
-        if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
-            t.visible = !t.visible;
-        }
-    })
-
-    if (minx == 0) {
-        ms.forEach((m) => {
-            if (m.i >= miny && m.i <= y) {
-                m.visible = !m.visible;
-            }
-        })
-    }
-
-    if (miny == 0) {
-        ts.forEach((d) => {
-            if (d.i >= minx && d.i <= x) {
-                d.visible = !d.visible;
-            }
-        })
-    }
-})
-
-var camFree = true;
-
-camBtn.addEventListener('click', (e) => {
-    if (camBtn.innerHTML == 'Multi 🎥') {
-        camBtn.innerHTML = 'Locked 📷';
-        controls.enabled = false;
-        camFree = true;
-        leftPanel.setcam(camFree)
-    } else if (camBtn.innerHTML == 'Locked 📷') {
-        camBtn.innerHTML = 'Free 📹';
-        controls.enabled = true;
-        camFree = false;
-        leftPanel.setcam(camFree)
-    } else {
-        camBtn.innerHTML = 'Multi 🎥';
-        controls.enabled = true;
-        camFree = true;
-        leftPanel.setcam(camFree)
-    }
-})
-
-resetBtn.addEventListener('click', (e) => {
-    if (resetBtn.innerHTML == 'Toggle all ❎') {
-        resetBtn.innerHTML = 'Toggle all ✅';
-
-        //set every m, t, and tracer to visible
-        ms.forEach((m) => {
-            m.visible = true;
-        })
-        ts.forEach((t) => {
-            t.visible = true;
-        })
-        tracers.forEach((t) => {
-            t.visible = true;
-        })
-
-    } else {
-        resetBtn.innerHTML = 'Toggle all ❎';
-
-        //set every m, t, and tracer to hidden
-        ms.forEach((m) => {
-            m.visible = false;
-        })
-        ts.forEach((t) => {
-            t.visible = false;
-        })
-        tracers.forEach((t) => {
-            t.visible = false;
-        })
-
-    }
-})
-
-toggleBtn.addEventListener('click', (e) => {
-
-    var mode = null;
-
-    if (toggleBtn.innerHTML == 'Toggle selection ◧') {
-        toggleBtn.innerHTML = 'Toggle selection ◨';
-        mode = true;
-    } else {
-        toggleBtn.innerHTML = 'Toggle selection ◧';
-        mode = false;
-    }
-
-    //find the difference between click 1 and click 2
-    var minx = ((leftPanel.firstClickX < leftPanel.secondClickX) ? leftPanel.firstClickX : leftPanel.secondClickX) - 1;
-    var miny = ((leftPanel.firstClickY < leftPanel.secondClickY) ? leftPanel.firstClickY : leftPanel.secondClickY) - 1;
-    var x = Math.abs(leftPanel.secondClickX - leftPanel.firstClickX) + minx;
-    var y = Math.abs(leftPanel.secondClickY - leftPanel.firstClickY) + miny;
-
-    tracers.forEach((t) => {
-        if (t.t.i >= minx && t.t.i <= x && t.m.i >= miny && t.m.i <= y) {
-            t.visible = mode;
-        }
-    })
-
-    if (minx == 0) {
-        ms.forEach((m) => {
-            if (m.i >= miny && m.i <= y) {
-                m.visible = mode;
-            }
-        })
-    }
-
-    if (miny == 0) {
-        ts.forEach((d) => {
-            if (d.i >= minx && d.i <= x) {
-                d.visible = mode;
-            }
-        })
-    }
-})
 
 //canvas
 canvas2d.addEventListener('mousedown', (e) => {
@@ -1321,117 +1309,6 @@ window.addEventListener('hashchange', (e) => {
     }
 
 });
-/*
-canvasleft.addEventListener('mousedown', (e) => {
-    if (firstClick) {
-        firstClick = false;
-
-        secondClickX = null;
-        secondClickY = null;
-
-        //grabs position of mouse, upaated by mousemove event
-        firstClickX = cellX;
-        firstClickY = cellY;
-
-
-
-        window.location.hash = ('X=' + cellX + '&Y=' + cellY);
-    }
-})
-
-canvasleft.addEventListener('click', (e) => {
-    if (camFree) {
-        looking = true;
-    }
-    //single click, place markers 1 and 2
-    if (e.detail == 1) {
-        if (firstClick) {
-
-            //update camera on mouse click
-            updateCam(cellX, cellY)
-
-            //grabs position of mouse, upaated by mousemove event
-            firstClickX = cellX;
-            firstClickY = cellY;
-
-            window.location.hash = ('X=' + cellX + '&Y=' + cellY)
-
-        } else {
-            firstClick = true;
-
-            //grabs position of mouse, upated by mousemove event
-            secondClickX = cellX;
-            secondClickY = cellY;
-
-            //update camera on mouse click
-            updateCam(cellX, cellY)
-
-            window.location.hash = ('X=' + cellX + '&Y=' + cellY)
-
-        }
-        //double click, clear markers
-    } else if (e.detail == 2) {
-
-        blankClicks();
-
-        updateCam(cellX, cellY);
-
-        //get m/t/tracer by cellX and cellY
-        if (cellX <= 1 && cellY <= 1) {
-            //do nothing
-        } else if (cellY == 1) {
-
-            var state = !ts[cellX - 2].visible
-
-            ts[cellX - 2].visible = state;
-
-            tracers.forEach((t) => {
-                if (t.t.i == cellX - 1) {
-                    t.visible = state;
-                }
-            })
-
-        } else if (cellX == 1) {
-
-            var state = !ms[cellY - 2].visible
-
-            ms[cellY - 2].visible = state;
-
-            if (state == true) {
-                ts.forEach(t => {
-                    t.visible = true
-                })
-            }
-
-            tracers.forEach((t) => {
-                if (t.m.i == cellY - 1) {
-                    t.visible = state;
-                }
-            })
-
-        } else {
-
-            tracers.forEach((t) => {
-                if (t.m.i == cellY - 1 && t.t.i == cellX - 1) {
-                    t.visible = !t.visible;
-                }
-            })
-
-        }
-
-    }
-
-}, false);
-
-//spreadsheet mouse move, tracks mouse position to cellX and cellY
-canvasleft.addEventListener('mousemove', (e) => {
-    var rect = canvasleft.getBoundingClientRect();
-    var x = e.pageX - rect.left;
-    var y = e.pageY - rect.top;
-    cellX = Math.ceil(x / cellWidth);
-    cellY = Math.ceil(y / cellHeight);
-});
-*/
 
 //resize
 window.addEventListener('resize', () => {
@@ -1487,67 +1364,19 @@ const tick = () => {
     leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
 
     //Tracers
-    tracers.forEach(t => t.drawTracer(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight, alpha, doVals));
+    tracers.forEach(t => t.drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals));
 
     //Points
-    ms.forEach(pt => pt.drawPt(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight, bw));
-    ts.forEach(pt => pt.drawPt(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight, bw));
+    ms.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
+    ts.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
 
     if (bw) {
         leftPanel.ctx.fillStyle = 'black';
     } else {
         leftPanel.ctx.fillStyle = 'white';
     }
-    leftPanel.ctx.fillRect(0, 0, leftPanel.cellWidth, leftPanel.cellHeight);
 
     leftPanel.frame();
-    /*
-    //click 1
-    if (firstClick != null) {
-
-
-        //click 2
-        if (secondClickX == null && secondClickY == null) {
-
-            //spreadsheet highlight mousemove
-            ctxLeft.beginPath();
-            ctxLeft.strokeStyle = 'yellow'
-            ctxLeft.lineWidth = 2;
-
-            var [x, y, w, h] = bounds(firstClickX, firstClickY, cellX, cellY);
-
-            ctxLeft.rect(x, 0, w, cellHeight * (((firstClickY < cellY) ? cellY : firstClickY)));
-            ctxLeft.stroke()
-
-            ctxLeft.rect(0, y, cellWidth * (((firstClickX < cellX) ? cellX : firstClickX)), h);
-            ctxLeft.stroke()
-
-            ctxLeft.beginPath();
-
-            ctxLeft.strokeStyle = 'grey'
-            ctxLeft.lineWidth = 4;
-
-            ctxLeft.rect((firstClickX - 1) * cellWidth, (firstClickY - 1) * cellHeight, cellWidth, cellHeight);
-            ctxLeft.stroke()
-
-
-        } else {
-            ctxLeft.beginPath();
-
-            if (bw) {
-                ctxLeft.strokeStyle = 'white'
-            } else {
-                ctxLeft.strokeStyle = 'black'
-            }
-            ctxLeft.lineWidth = 4;
-
-            var [x, y, w, h] = bounds(secondClickX, secondClickY, firstClickX, firstClickY);
-            ctxLeft.rect(x, y, w, h);
-            ctxLeft.stroke()
-
-        }
-    }
-    */
 
     //values
     if (doVals) {

@@ -119,7 +119,7 @@ class Tracer2d extends Tracer {
         var x4 = ((proj2.x * w) + w);
         //headroom    ty                 
         var y4 = (-(proj2.y * h) + h);
-        
+
         /*
         MOVE M POINT ALONG LINE TO T POMT BY HEADROOM
         */
@@ -169,7 +169,11 @@ class Tracer2d extends Tracer {
 
     }
 
-    drawTracer(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, alpha, doVals) {
+    drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals) {
+
+        var ctxLeft = leftPanel.ctx;
+        var cellHeight = leftPanel.cellHeight;
+        var cellWidth = leftPanel.cellWidth;
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
         var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, z1, z2] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
@@ -210,7 +214,7 @@ class Tracer2d extends Tracer {
 
             if (doVals) {
 
-                ctx.font = "12px Arial";    
+                ctx.font = "12px Arial";
                 ctx.textAlign = "center";
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 2;
@@ -223,21 +227,23 @@ class Tracer2d extends Tracer {
         }
 
         //spreadsheet
-        if (this.visible) {
+        if (leftPanel.spreadsheet) {
+            if (this.visible) {
+                ctxLeft.globalAlpha = 1.0;
+            } else {
+                ctxLeft.globalAlpha = .2;
+            }
+            ctxLeft.fillStyle = this.color;
+            ctxLeft.fillRect(this.t.i * cellWidth, this.m.i * cellHeight, cellWidth, cellHeight);
             ctxLeft.globalAlpha = 1.0;
-        } else {
-            ctxLeft.globalAlpha = .2;
         }
-        ctxLeft.fillStyle = this.color;
-        ctxLeft.fillRect(this.t.i * cellWidth, this.m.i * cellHeight, cellWidth, cellHeight);
-        ctxLeft.globalAlpha = 1.0;
     };
 
     drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
 
         if (this.visible) {
 
-            var size = parseInt(cellWidth /2.3);
+            var size = parseInt(cellWidth / 2.3);
 
             ctxLeft.font = size.toString() + "px Arial";
             ctxLeft.textAlign = "center";

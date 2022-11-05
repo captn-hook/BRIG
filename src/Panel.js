@@ -1,6 +1,9 @@
-
 class Panel {
     constructor(c) {
+
+        this.spreadsheet = true;
+
+        this.groups = [];
 
         this.firstClick = false;
 
@@ -45,18 +48,18 @@ class Panel {
         this.ms;
 
         this.ts;
-        
+
     }
 
     camPos(x, y) {
 
         if (this.camFree) {
-    
+
             if (x <= 1 && y <= 1) {
 
                 this.mt = 0;
                 this.n = 0;
-    
+
             } else if (y == 1) {
                 //if y (row) == 1, ts
                 this.mt = 2;
@@ -103,128 +106,159 @@ class Panel {
     }
 
     clicks(e) {
-        if (this.firstClick) {
-            this.firstClick = false;
-
-            this.secondClickX = null;
-            this.secondClickY = null;
-
-            //grabs position of mouse, upaated by mousemove event
-            this.firstClickX = this.cellX;
-            this.firstClickY = this.cellY;
-
-            //this is for linking to a specific location
-            window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY);
-        }
-    }
-
-    place(e) {
-        if (this.camFree) {
-            this.looking = true;
-        }
-        //single click, place markers 1 and 2
-        if (e.detail == 1) {
+        if (this.spreadsheet) {
             if (this.firstClick) {
+                this.firstClick = false;
 
-                //update camera on mouse click
-                this.camPos(this.cellX, this.cellY)
+                this.secondClickX = null;
+                this.secondClickY = null;
 
                 //grabs position of mouse, upaated by mousemove event
                 this.firstClickX = this.cellX;
                 this.firstClickY = this.cellY;
 
-                window.location.hash = ('X=' + cellX + '&Y=' + cellY)
-
-            } else {
-                this.firstClick = true;
-
-                //grabs position of mouse, upated by mousemove event
-                this.secondClickX = this.cellX;
-                this.secondClickY = this.cellY;
-
-                //update camera on mouse click
-                this.camPos(this.cellX, this.cellY)
-
-                window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY)
-
+                //this is for linking to a specific location
+                window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY);
             }
-            //double click, clear markers
-        } else if (e.detail == 2) {
-
-            this.blankClicks();
-
-            this.camPos(this.cellX, this.cellY);
-
-            //get m/t/tracer by cellX and cellY
-            if (this.cellX <= 1 && this.cellY <= 1) {
-                //do nothing
-            } else if (this.cellY == 1) {
-
-                var state = !this.ts[this.cellX - 2].visible
-
-                this.ts[this.cellX - 2].visible = state;
-
-                this.tracers.forEach((t) => {
-                    if (t.t.i == this.cellX - 1) {
-                        t.visible = state;
-                    }
-                })
-
-            } else if (this.cellX == 1) {
-
-                var state = !this.ms[this.cellY - 2].visible
-
-                this.ms[this.cellY - 2].visible = state;
-
-                if (state == true) {
-                    this.ts.forEach(t => {
-                        t.visible = true
-                    })
-                }
-
-                this.tracers.forEach((t) => {
-                    if (t.m.i == this.cellY - 1) {
-                        t.visible = state;
-                    }
-                })
-
-            } else {
-                this.tracers.forEach((t) => {
-                    if (t.m.i == this.cellY - 1 && t.t.i == this.cellX - 1) {
-                        t.visible = !t.visible;
-                    }
-                })
-
-            }
+        } else {
 
         }
+    }
 
+    place(e) {
+
+        if (this.spreadsheet) {
+            if (this.camFree) {
+                this.looking = true;
+            }
+            //single click, place markers 1 and 2
+            if (e.detail == 1) {
+                if (this.firstClick) {
+
+                    //update camera on mouse click
+                    this.camPos(this.cellX, this.cellY)
+
+                    //grabs position of mouse, upaated by mousemove event
+                    this.firstClickX = this.cellX;
+                    this.firstClickY = this.cellY;
+
+                    window.location.hash = ('X=' + cellX + '&Y=' + cellY)
+
+                } else {
+                    this.firstClick = true;
+
+                    //grabs position of mouse, upated by mousemove event
+                    this.secondClickX = this.cellX;
+                    this.secondClickY = this.cellY;
+
+                    //update camera on mouse click
+                    this.camPos(this.cellX, this.cellY)
+
+                    window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY)
+
+                }
+                //double click, clear markers
+            } else if (e.detail == 2) {
+
+                this.blankClicks();
+
+                this.camPos(this.cellX, this.cellY);
+
+                //get m/t/tracer by cellX and cellY
+                if (this.cellX <= 1 && this.cellY <= 1) {
+                    //do nothing
+                } else if (this.cellY == 1) {
+
+                    var state = !this.ts[this.cellX - 2].visible
+
+                    this.ts[this.cellX - 2].visible = state;
+
+                    this.tracers.forEach((t) => {
+                        if (t.t.i == this.cellX - 1) {
+                            t.visible = state;
+                        }
+                    })
+
+                } else if (this.cellX == 1) {
+
+                    var state = !this.ms[this.cellY - 2].visible
+
+                    this.ms[this.cellY - 2].visible = state;
+
+                    if (state == true) {
+                        this.ts.forEach(t => {
+                            t.visible = true
+                        })
+                    }
+
+                    this.tracers.forEach((t) => {
+                        if (t.m.i == this.cellY - 1) {
+                            t.visible = state;
+                        }
+                    })
+
+                } else {
+                    this.tracers.forEach((t) => {
+                        if (t.m.i == this.cellY - 1 && t.t.i == this.cellX - 1) {
+                            t.visible = !t.visible;
+                        }
+                    })
+
+                }
+
+            }
+        } else {
+
+        }
     }
 
     //spreadsheet mouse move, tracks mouse position to cellX and cellY
-    move(e) { 
-        var rect = this.canvas.getBoundingClientRect();
-        var x = e.pageX - rect.left;
-        var y = e.pageY - rect.top;
+    move(e) {
+        if (this.spreadsheet) {
+            var rect = this.canvas.getBoundingClientRect();
+            var x = e.pageX - rect.left;
+            var y = e.pageY - rect.top;
 
-        this.cellX = Math.ceil(x / this.cellWidth);
-        this.cellY = Math.ceil(y / this.cellHeight);
+            this.cellX = Math.ceil(x / this.cellWidth);
+            this.cellY = Math.ceil(y / this.cellHeight);
+        } else {
+
+        }
     }
 
     bounds(x1, y1, x2, y2) {
         //returns the bounds of the current selection
         var x = (((x1 < x2) ? x1 : x2) - 1) * this.cellWidth
         var y = (((y1 < y2) ? y1 : y2) - 1) * this.cellHeight
-    
+
         var w = (Math.abs(x1 - x2) + 1) * this.cellWidth
         var h = (Math.abs(y1 - y2) + 1) * this.cellHeight
-    
+
         return [x, y, w, h]
     }
-    
-    frame() {        
 
+    frame() {
+        if (this.spreadsheet) {
+            this.spreadsheetFrame();
+        } else {
+            this.groupFrame();
+        }
+    }
+
+    getGroups() {
+        return []
+    }
+
+    groupFrame() {
+        if (this.groups.length == 0) {
+            this.groups = this.getGroups();
+        }
+    }
+
+    spreadsheetFrame() {
         //click 1
+        this.ctx.fillRect(0, 0, this.cellWidth, this.cellHeight);
+
         if (this.firstClick != null) {
 
             //click 2
@@ -235,7 +269,7 @@ class Panel {
                 this.ctx.strokeStyle = 'yellow'
                 this.ctx.lineWidth = 2;
 
-                var [x, y, w, h] = this.bounds(this.firstClickX, this.firstClickY, this.cellX, this. cellY);
+                var [x, y, w, h] = this.bounds(this.firstClickX, this.firstClickY, this.cellX, this.cellY);
 
                 this.ctx.rect(x, 0, w, this.cellHeight * (((this.firstClickY < this.cellY) ? this.cellY : this.firstClickY)));
                 this.ctx.stroke()

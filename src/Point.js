@@ -43,7 +43,12 @@ class Point2d extends Point {
             return [x, y, proj.z]
     }
 
-    drawPt(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight, bw) {
+    drawPt(ctx, leftPanel, camera, sizes, bw) {
+
+        var ctxLeft = leftPanel.ctx;
+        var cellHeight = leftPanel.cellHeight;
+        var cellWidth = leftPanel.cellWidth;
+
         //main canvas
         var [x, y, z] = this.screenPt(camera, sizes.width / 2, sizes.height / 2);
     
@@ -69,42 +74,43 @@ class Point2d extends Point {
         }
     
         //left canvas
-    
-        ctxLeft.font = "10px Arial";
-    
-        if (this.visible) {
+            if (leftPanel.spreadsheet) {
+            ctxLeft.font = "10px Arial";
+        
+            if (this.visible) {
+                ctxLeft.globalAlpha = 1.0;
+                if (bw) {
+                ctxLeft.fillStyle = "black";
+                } else {
+                ctxLeft.fillStyle = "white";
+                }
+            } else {
+                ctxLeft.globalAlpha = 0.2;
+                ctxLeft.fillStyle = "grey";
+            }
             ctxLeft.globalAlpha = 1.0;
-            if (bw) {
-            ctxLeft.fillStyle = "black";
+        
+            ctxLeft.textAlign = "center";
+            
+            if (this.type == 'M') {
+                ctxLeft.fillRect(0, this.i * cellHeight, cellWidth, cellHeight);
+                if (!bw) {
+                    ctxLeft.fillStyle = "black";
+                } else {
+                ctxLeft.fillStyle = "white";
+                }
+                ctxLeft.fillText(this.name, 10, this.i * cellHeight + 10);
+            } else if (this.type == 'D') {
+                ctxLeft.fillRect(this.i * cellWidth, 0, cellWidth, cellHeight);
+                if (!bw) {
+                    ctxLeft.fillStyle = "black";
+                } else {
+                ctxLeft.fillStyle = "white";
+                }
+                ctxLeft.fillText(this.name, this.i * cellWidth + 10, 10);
             } else {
-            ctxLeft.fillStyle = "white";
+                console.error('Type Error: Left Canvas')
             }
-        } else {
-            ctxLeft.globalAlpha = 0.2;
-            ctxLeft.fillStyle = "grey";
-        }
-        ctxLeft.globalAlpha = 1.0;
-    
-        ctxLeft.textAlign = "center";
-    
-        if (this.type == 'M') {
-            ctxLeft.fillRect(0, this.i * cellHeight, cellWidth, cellHeight);
-            if (!bw) {
-                ctxLeft.fillStyle = "black";
-            } else {
-            ctxLeft.fillStyle = "white";
-            }
-            ctxLeft.fillText(this.name, 10, this.i * cellHeight + 10);
-        } else if (this.type == 'D') {
-            ctxLeft.fillRect(this.i * cellWidth, 0, cellWidth, cellHeight);
-            if (!bw) {
-                ctxLeft.fillStyle = "black";
-            } else {
-            ctxLeft.fillStyle = "white";
-            }
-            ctxLeft.fillText(this.name, this.i * cellWidth + 10, 10);
-        } else {
-            console.error('Type Error: Left Canvas')
         }
     }
     

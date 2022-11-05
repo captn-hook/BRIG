@@ -14,8 +14,7 @@ module.exports = {
         library: "Tracer",
         library: "Data",
         library: "Panal",
-        library: "ScreenSizes",
-        library: "Buttons"
+        library: "ScreenSizes"
     },
     devtool: 'source-map',
     plugins: [
