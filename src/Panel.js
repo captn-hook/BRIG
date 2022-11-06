@@ -49,6 +49,10 @@ class Panel {
 
         this.ts;
 
+        this.text = ''
+
+        this.gi;
+
     }
 
     camPos(x, y) {
@@ -121,7 +125,11 @@ class Panel {
                 window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY);
             }
         } else {
-
+            if (this.gi != this.cellY - 1) {
+                this.gi = this.cellY - 1
+            } else {
+                this.gi = -1;
+            }
         }
     }
 
@@ -214,16 +222,12 @@ class Panel {
 
     //spreadsheet mouse move, tracks mouse position to cellX and cellY
     move(e) {
-        if (this.spreadsheet) {
-            var rect = this.canvas.getBoundingClientRect();
-            var x = e.pageX - rect.left;
-            var y = e.pageY - rect.top;
+        var rect = this.canvas.getBoundingClientRect();
+        var x = e.pageX - rect.left;
+        var y = e.pageY - rect.top;
 
-            this.cellX = Math.ceil(x / this.cellWidth);
-            this.cellY = Math.ceil(y / this.cellHeight);
-        } else {
-
-        }
+        this.cellX = Math.ceil(x / this.cellWidth);
+        this.cellY = Math.ceil(y / this.cellHeight);
     }
 
     bounds(x1, y1, x2, y2) {
@@ -245,13 +249,38 @@ class Panel {
         }
     }
 
-    getGroups() {
-        return []
-    }
-
     groupFrame() {
-        if (this.groups.length == 0) {
-            this.groups = this.getGroups();
+        for (var i in this.groups) { //plus scroll?
+            if (this.groups[i]) {
+
+                var x = parseInt(i)
+
+                if (x < this.cellY && this.cellY <= (x + 1)) {
+                    this.ctx.fillStyle = 'yellow'
+                } else if (i == this.gi) {
+                    this.ctx.fillStyle = 'lightgrey'
+                } else {
+                    this.ctx.fillStyle = 'grey'
+                }
+
+                this.ctx.fillRect(0, i * this.cellHeight, this.canvas.width, this.cellHeight);
+
+                this.ctx.font = "12px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.strokeStyle = 'black';
+                this.ctx.lineWidth = 2;
+                this.ctx.fillStyle = 'white';
+
+                if (i == 0) {
+                    var text = 'Group ' + i;
+                } else {
+                    var text = this.groups[i]['name'];
+                }
+
+                this.ctx.strokeText(text, this.cellHeight / 2, i * this.cellHeight + this.cellHeight/2);
+                this.ctx.fillStyle = this.color;
+                this.ctx.fillText(text, this.cellHeight / 2, i * this.cellHeight + this.cellHeight/2);
+            }
         }
     }
 

@@ -18,7 +18,56 @@ import {
 
 import * as THREE from 'three';
 
+const MAX_GROUPS = 40;
+
 //need save group and get groups functions
+export function GetGroups(db, name) {
+
+    var groups = []
+
+    for (let i = 0; i < MAX_GROUPS; i++) {
+
+        const group = doc(db, name, 'group' + i);
+
+        getDoc(group).then((g) => {
+            groups.push(g.data())
+        })
+    }
+
+    return groups
+}
+
+export async function saveGroup(db, name, i, tracers, text) {
+
+    if (i) {
+
+        var group = {};
+
+        if (text[0] == undefined) {
+            group['name'] = 'group' + i
+        } else {
+            group['name'] = text[0];
+        }
+
+
+        group['text'] = text;
+
+        tracers.forEach((t) => {
+            var label = String(t.m.i) + "/" + String(t.t.i);
+
+            group[label] = t.visible;
+        })
+
+        try {
+            await setDoc(doc(db, name, 'group' + i), group);
+            console.log("Document written");
+            return group
+        } catch (e) {
+            console.error("Error adding document", e);
+        }
+    }
+
+}
 
 export async function RemoteData(db, name) {
 
@@ -301,13 +350,13 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
 
     tracers.forEach((t) => {
 
-       
+
         var d = t.m.pos.distanceTo(t.t.pos);
         var label = String(t.m.i) + "/" + String(t.t.i);
 
         distance[label] = d;
 
-        if (d < 2) {
+        if (d < 1) {
             group0[label] = false;
         } else {
             group0[label] = true;

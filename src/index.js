@@ -33,7 +33,9 @@ import {
     Data,
     saveFile,
     sendFile,
-    RemoteData
+    RemoteData,
+    GetGroups,
+    saveGroup
 } from './Data';
 
 import {
@@ -356,8 +358,45 @@ toggleBtn.addEventListener('click', (e) => {
     }
 })
 
+const bug1 = document.getElementById('bug1');
+const bug2 = document.getElementById('bug2');
+
 document.getElementById('groups').addEventListener('click', (e) => {
     leftPanel.spreadsheet = !leftPanel.spreadsheet;
+
+    if (leftPanel.spreadsheet) {
+        bug1.style.display = 'block'
+        bug2.style.display = 'none'
+    } else {
+        bug1.style.display = 'none'
+        bug2.style.display = 'block'
+    }
+})
+
+document.getElementById('saveGroup').addEventListener('click', plant1);
+
+async function plant1() {
+    if (leftPanel.gi != 0 && leftPanel.gi != -1) {
+        leftPanel.groups[leftPanel.gi] = await saveGroup(db, dropd.value, leftPanel.gi, tracers, leftPanel.text)
+    }
+}
+
+document.getElementById('addGroup').addEventListener('click', plant2)
+
+async function plant2() {
+    var i = 0;
+    leftPanel.groups.forEach((e) => {
+        if (e != undefined) {
+            i++;
+        }
+    })
+    leftPanel.groups[i] = saveGroup(db, dropd.value, i, tracers, leftPanel.text)
+
+}
+
+document.getElementById('deleteGroup').addEventListener('click', (e) => {
+    console.log(e);
+
 })
 
 const ctrlBtn = document.getElementById('ctrlBtn');
@@ -425,24 +464,26 @@ document.getElementById('editPos').addEventListener('click', (e) => {
 
 document.getElementById('perms').addEventListener('click', savePerms);
 
-async function savePerms(){
+async function savePerms() {
 
     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
-   //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
+    //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
 
     var inner = '';
 
     let d = {}
 
-    
+
 
     inUsers.forEach((user) => {
         inner += '"' + user[1] + '":"' + user[0] + '",';
 
         d[user[1]] = user[0];
 
-        setDoc(doc(db, user[0], dropd.value), {'access': true,})
+        setDoc(doc(db, user[0], dropd.value), {
+            'access': true,
+        })
     })
 
     allUsers.forEach((user) => {
@@ -450,7 +491,9 @@ async function savePerms(){
 
         d[user[1]] = 'false';
 
-        setDoc(doc(db, user[0], dropd.value), {'access': false,})
+        setDoc(doc(db, user[0], dropd.value), {
+            'access': false,
+        })
     })
 
     inner = inner.slice(0, -1);
@@ -464,28 +507,28 @@ async function savePerms(){
         /* updates csvs
         updateMetadata(dataRef, newMetadata).then((metadata) => {
 */
-            populateTable();
-/*s
+        populateTable();
+        /*s
 
-        }).catch((error) => {
+                }).catch((error) => {
 
-            console.log(error)
+                    console.log(error)
 
-        });
-*/
+                });
+        */
     }).catch((error) => {
 
         console.log(error)
 
     });
-/*
-    try {
-        const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
-        console.log("Document written");
-    } catch (e) {
-        console.error("Error adding document");
-    }
-*/
+    /*
+        try {
+            const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
+            console.log("Document written");
+        } catch (e) {
+            console.error("Error adding document");
+        }
+    */
 };
 
 var back = document.getElementById('bg')
@@ -589,6 +632,8 @@ function getList() {
     request.end()
 }
 */
+
+//set group to selected
 const table = document.getElementById('table');
 
 
@@ -924,7 +969,7 @@ function handleFiles(input) {
     read.onloadend = function () {
 
         [ms, ts, tracers, insights, views] = Data(read.result)
-        
+
         leftPanel.setTracers(ms, ts, tracers)
         //resize sheet
         updateSizes();
@@ -994,7 +1039,7 @@ function signedIn(user) {
                 u.data.users.forEach((user) => {
 
                     if (user.email.split('@')[1] != 'poppy.com') {
-                    allUsersM.push([user.uid, user.email]);
+                        allUsersM.push([user.uid, user.email]);
                     }
                 });
 
@@ -1065,7 +1110,7 @@ function siteList(s) {
 
 }
 
-function loadRefAndDoc(ref, doc){
+function loadRefAndDoc(ref, doc) {
 
     getBlob(ref)
         .then((blob) => {
@@ -1076,7 +1121,7 @@ function loadRefAndDoc(ref, doc){
             console.error(err);
         })
 
-       RemoteData(db, doc).then((data) => {
+    RemoteData(db, doc).then((data) => {
 
         [ms, ts, tracers, insights, views] = data;
 
@@ -1087,8 +1132,8 @@ function loadRefAndDoc(ref, doc){
 
         leftPanel.cellWidth = (leftPanel.canvas.width / (ts.length + 1));
         leftPanel.cellHeight = (leftPanel.canvas.height / (ms.length + 1));
-        
-       })
+
+    })
 
 
 }
@@ -1190,12 +1235,13 @@ dropd.addEventListener('change', (event) => {
 
         var modelRef = ref(storage, '/Sites/' + event.target.value + '/' + event.target.value + '.glb');
 
-       
+
         // .glb, load model
 
         //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
 
         //loadRefs(modelRef, dataRef)
+        leftPanel.groups = GetGroups(db, event.target.value);
 
         loadRefAndDoc(modelRef, event.target.value);
 
@@ -1266,7 +1312,11 @@ canvas2d.addEventListener('click', (e) => {
 
 textbox.addEventListener('input', e => {
     if (textbox.readOnly == false) {
-        insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
+        if (leftPanel.spreadsheet) {
+            insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
+        } else {
+            leftPanel.text = encodeURI(textbox.value.replaceAll(/,/g, '~'))
+        }
     }
 })
 
@@ -1327,6 +1377,8 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 })
 
+var lastgi = -1;
+
 //load defaullt 
 loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
 
@@ -1348,7 +1400,7 @@ const tick = () => {
     //if controls.target isnt cameraTargView, turn camera towards point
     if (leftPanel.looking && controls.target.distanceTo(cameraTargView) > .05) {
         controls.target.lerp(cameraTargView, .03)
-    } else if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) < .05)    {
+    } else if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) < .05) {
         leftPanel.looking = false;
     }
 
@@ -1391,6 +1443,19 @@ const tick = () => {
         ctx.fillStyle = 'rgb(100, 100, ' + Math.sin(elapsedTime) * 255 + ')';
         ctx.fill();
 
+    }
+
+    if (!leftPanel.spreadsheet && leftPanel.gi) {
+        if (leftPanel.gi != lastgi) {
+            lastgi = leftPanel.gi;
+            tracers.forEach((t) => {
+                var label = String(t.m.i) + "/" + String(t.t.i);
+
+                console.log(lastgi)
+                console.log(leftPanel.groups)
+                t.visible = leftPanel.groups[lastgi][label];
+            })
+        }
     }
 
 
