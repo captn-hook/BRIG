@@ -1451,9 +1451,11 @@ const tick = () => {
             tracers.forEach((t) => {
                 var label = String(t.m.i) + "/" + String(t.t.i);
 
-                console.log(lastgi)
-                console.log(leftPanel.groups)
-                t.visible = leftPanel.groups[lastgi][label];
+                try {
+                    t.visible = leftPanel.groups[lastgi][label];
+                } catch (e) {
+                    console.log(e)
+                }
             })
         }
     }
