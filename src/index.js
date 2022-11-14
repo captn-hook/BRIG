@@ -921,7 +921,7 @@ function updateSizes() {
 
         leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
 
-        leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
+        //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
 
     }
 }

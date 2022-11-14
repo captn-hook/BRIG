@@ -53,6 +53,8 @@ class Panel {
 
         this.gi;
 
+        this.sh = this.canvas.height;
+
     }
 
     camPos(x, y) {
@@ -105,7 +107,11 @@ class Panel {
         this.mlen = ms;
 
         this.cellWidth = (this.canvas.width / (ts + 1));
+
+        if (this.spreadsheet) {
         this.cellHeight = (this.canvas.height / (ms + 1));
+        }
+  
 
     }
 
