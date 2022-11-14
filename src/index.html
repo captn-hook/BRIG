@@ -73,7 +73,7 @@
 
             <!-- Vertical Div 2.1 Groups -->
             <div style="display: none; height: 8%;  position: relative;" class="btn-group" id="bug2">
-                <button class="Btn btDark" id="saveGroup" title="Save current display as group">Save Group</button><button class="Btn btDark" id="addGroup" title="Save as new group">Save New Group</button><button class="Btn btDark" id="deleteGroup" title="Delete Group">Delete Group</button>
+                <button style="display: none" class="Btn btDark" id="saveGroup" title="Save current display as group">Save Group</button><button style="display: none" class="Btn btDark" id="addGroup" title="Save as new group">Save New Group</button><button style="display: none" class="Btn btDark" id="deleteGroup" title="Delete Group">Delete Group</button>
             </div>
 
             <!-- Vertical Div 2.1 -->
@@ -90,8 +90,8 @@
             3D Canvas AND 2D Drawing Canvas -->
         <div style="width: 70%; margin-left: 30%; height: 100%; position: relative;" id="3d">
 
-            <canvas class="webgl"></canvas>
-            <canvas style="position: absolute" id="2d"></canvas>
+            <canvas style="height: 100%;" class="webgl"></canvas>
+            <canvas style="height: 100%; position: absolute" id="2d"></canvas>
 
             <button id="ctrlBtn" class="Btn btDark" title="Admin Menu" style="display: none; transform:rotate(-90deg); bottom: 12%; right: -4%; position: absolute; width: 10%; height: 3%;">Admin Menu</button>
 

@@ -127,6 +127,7 @@ class Panel {
         } else {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
+                this.text = this.groups[this.gi]['text']
             } else {
                 this.gi = -1;
             }
@@ -241,15 +242,15 @@ class Panel {
         return [x, y, w, h]
     }
 
-    frame() {
+    frame(textbox) {
         if (this.spreadsheet) {
             this.spreadsheetFrame();
         } else {
-            this.groupFrame();
+            this.groupFrame(textbox);
         }
     }
 
-    groupFrame() {
+    groupFrame(textbox) {
         for (var i in this.groups) { //plus scroll?
             if (this.groups[i]) {
 
@@ -277,9 +278,11 @@ class Panel {
                     var text = this.groups[i]['name'];
                 }
 
-                this.ctx.strokeText(text, this.cellHeight / 2, i * this.cellHeight + this.cellHeight/2);
+                this.ctx.strokeText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight/2);
                 this.ctx.fillStyle = this.color;
-                this.ctx.fillText(text, this.cellHeight / 2, i * this.cellHeight + this.cellHeight/2);
+                this.ctx.fillText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight/2);
+
+                textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
             }
         }
     }

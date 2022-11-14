@@ -83,6 +83,7 @@ import {
 import {
     getFirestore,
     setDoc,
+    deleteDoc,
     doc
 } from "firebase/firestore";
 
@@ -133,7 +134,7 @@ const sizes = {
 
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
-camera.position.set(0, 2.5, 2.5); // Set position like this
+camera.position.set(5, 5, 5); // Set position like this
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 // Controls
@@ -142,10 +143,9 @@ const canvas2d = document.getElementById('2d');
 const controls = new OrbitControls(camera, canvas2d);
 controls.enableDamping = true;
 
-camera.position.set(3, 3, 5);
 controls.target.set(0, 0, 0);
 
-var cameraTargPos = new THREE.Vector3(0, 0, 0);
+var cameraTargPos = new THREE.Vector3(5, 5, 5);
 var cameraTargView = new THREE.Vector3(0, 0, 0);
 
 // Scene
@@ -175,6 +175,10 @@ const spreadsheetDiv = document.getElementById('spreadsheet');
 const leftPanel = new Panel(document.getElementById('left'));
 
 //canvasleft.oncontextmenu = () => false;
+
+const sGroup = document.getElementById('saveGroup');
+const aGroup = document.getElementById('addGroup');
+const dGroup = document.getElementById('deleteGroup');
 
 //const ctxLeft = canvasleft.getContext('2d');
 
@@ -315,9 +319,11 @@ document.getElementById('resetBtn').addEventListener('click', (e) => {
     }
 })
 
-document.getElementById('toggleBtn')
+document.getElementById('readOnly').addEventListener('click', (e) => {
+    textbox.readOnly = !textbox.readOnly;
+})
 
-toggleBtn.addEventListener('click', (e) => {
+document.getElementById('toggleBtn').addEventListener('click', (e) => {
 
     var mode = null;
 
@@ -367,13 +373,16 @@ document.getElementById('groups').addEventListener('click', (e) => {
     if (leftPanel.spreadsheet) {
         bug1.style.display = 'block'
         bug2.style.display = 'none'
+        spreadsheetDiv.style.overflow = 'hidden';
     } else {
         bug1.style.display = 'none'
         bug2.style.display = 'block'
+        spreadsheetDiv.style.overflow = 'auto';
     }
+    updateSizes();
 })
 
-document.getElementById('saveGroup').addEventListener('click', plant1);
+sGroup.addEventListener('click', plant1);
 
 async function plant1() {
     if (leftPanel.gi != 0 && leftPanel.gi != -1) {
@@ -381,7 +390,7 @@ async function plant1() {
     }
 }
 
-document.getElementById('addGroup').addEventListener('click', plant2)
+aGroup.addEventListener('click', plant2)
 
 async function plant2() {
     var i = 0;
@@ -390,13 +399,13 @@ async function plant2() {
             i++;
         }
     })
-    leftPanel.groups[i] = saveGroup(db, dropd.value, i, tracers, leftPanel.text)
+    leftPanel.groups[i] = await saveGroup(db, dropd.value, i, tracers, leftPanel.text)
 
 }
 
-document.getElementById('deleteGroup').addEventListener('click', (e) => {
-    console.log(e);
-
+dGroup.addEventListener('click', (e) => {
+    deleteDoc(doc(db, dropd.value, 'group' + leftPanel.gi));
+    leftPanel.groups[leftPanel.gi] = undefined;
 })
 
 const ctrlBtn = document.getElementById('ctrlBtn');
@@ -899,10 +908,22 @@ function updateSizes() {
     canvas2d.height = sizes.height;
 
     leftPanel.ctx.canvas.innerWidth = spreadsheetDiv.offsetWidth;
-    leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
 
     leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
-    leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
+
+    if (leftPanel.spreadsheet) {
+        
+        leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
+
+        leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
+
+    } else {
+
+        leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
+
+        leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
+
+    }
 }
 
 const clock = new THREE.Clock();
@@ -1003,7 +1024,11 @@ function updateCam() {
             cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
 
             //insights
-            textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
+            if (leftPanel.spreadsheet) {
+                textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
+            } else {
+                textbox.value = (leftPanel.text == null) ? '' : decodeURI(leftPanel.text).replaceAll('~', ',');
+            }
 
         }
     }
@@ -1033,6 +1058,9 @@ function signedIn(user) {
     if (ext[1] == 'poppy.com') {
 
         ctrlBtn.style.display = 'block';
+        sGroup.style.display = 'inline-block';
+        aGroup.style.display = 'inline-block';
+        dGroup.style.display = 'inline-block';
 
         listUsers().
         then((u) => {
@@ -1043,7 +1071,6 @@ function signedIn(user) {
                     }
                 });
 
-                //console.log(allUsersM);
             })
 
             .catch((error) => {
@@ -1153,7 +1180,6 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
-            //console.log(blob);
             Gxhr += 25;
             handleFiles(blob);
         })
@@ -1176,7 +1202,6 @@ const provider = new GoogleAuthProvider();
 const auth = getAuth();
 
 onAuthStateChanged(auth, (user) => {
-    //console.log(user);
     if (user) {
         // User is signed in, see docs for a list of available properties
         login();
@@ -1316,6 +1341,7 @@ textbox.addEventListener('input', e => {
             insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
         } else {
             leftPanel.text = encodeURI(textbox.value.replaceAll(/,/g, '~'))
+            console.log(leftPanel.text);
         }
     }
 })
@@ -1428,7 +1454,7 @@ const tick = () => {
         leftPanel.ctx.fillStyle = 'white';
     }
 
-    leftPanel.frame();
+    leftPanel.frame(textbox);
 
     //values
     if (doVals) {
@@ -1442,7 +1468,6 @@ const tick = () => {
         ctx.arc(sizes.width / 2, sizes.height / 2, Math.sin(elapsedTime) * 10 + 10, 0, 2 * Math.PI);
         ctx.fillStyle = 'rgb(100, 100, ' + Math.sin(elapsedTime) * 255 + ')';
         ctx.fill();
-
     }
 
     if (!leftPanel.spreadsheet && leftPanel.gi) {
@@ -1454,7 +1479,7 @@ const tick = () => {
                 try {
                     t.visible = leftPanel.groups[lastgi][label];
                 } catch (e) {
-                    console.log(e)
+                    //console.log(leftPanel.groups0, lastgi, leftPanel.groups[lastgi], label)
                 }
             })
         }

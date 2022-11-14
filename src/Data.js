@@ -43,14 +43,15 @@ export async function saveGroup(db, name, i, tracers, text) {
 
         var group = {};
 
-        if (text[0] == undefined) {
+        if (text == '') {
             group['name'] = 'group' + i
         } else {
-            group['name'] = text[0];
+            //evertything up to the first newline
+            group['name'] =  decodeURI(text).replaceAll(',', '~').split(/\r?\n/)[0];
         }
 
 
-        group['text'] = text;
+        group['text'] = decodeURI(text).replaceAll(',', '~');
 
         tracers.forEach((t) => {
             var label = String(t.m.i) + "/" + String(t.t.i);
