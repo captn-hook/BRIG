@@ -41,8 +41,6 @@ class Panel {
 
         this.n = 0;
 
-        this.mlen = 0;
-
         this.tracers;
 
         this.ms;
@@ -72,7 +70,7 @@ class Panel {
                 this.n = x - 2;
                 //throws errors if it trys to select row before/after last
 
-            } else if (1 < y && y < this.mlen + 2) {
+            } else if (1 < y && y < this.ms.length + 2) {
                 //if x (column) == 1, ms
                 this.mt = 1;
                 this.n = y - 2;
@@ -102,17 +100,17 @@ class Panel {
         this.secondClickY = null;
     }
 
-    cellSize(ts, ms) {
+    cellSize(h) {
+        if (this.ms != undefined && this.ts != undefined) {
+            this.cellWidth = (this.canvas.width / (this.ts.length + 1));
 
-        this.mlen = ms;
+            if (this.spreadsheet) {
+                this.cellHeight = (this.canvas.height / (this.ms.length + 1));
+            } else {
+                this.cellHeight = (h / (this.ms.length + 1));
+            }
 
-        this.cellWidth = (this.canvas.width / (ts + 1));
-
-        if (this.spreadsheet) {
-        this.cellHeight = (this.canvas.height / (ms + 1));
         }
-  
-
     }
 
     clicks(e) {
@@ -284,9 +282,9 @@ class Panel {
                     var text = this.groups[i]['name'];
                 }
 
-                this.ctx.strokeText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight/2);
+                this.ctx.strokeText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight / 2);
                 this.ctx.fillStyle = this.color;
-                this.ctx.fillText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight/2);
+                this.ctx.fillText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight / 2);
 
                 textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
             }

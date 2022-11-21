@@ -13,12 +13,38 @@ import {
 import {
     setDoc,
     getDoc,
+    getDocs,
+    collection,
     doc
 } from "firebase/firestore";
 
 import * as THREE from 'three';
 
 const MAX_GROUPS = 40;
+
+export async function userSites(db, name) {
+
+    let sitelist = [];
+
+    return new Promise(function (resolve, reject) {
+        getDocs(collection(db, name)).then((querySnapshot) => {
+
+            querySnapshot.forEach((doc) => {
+                if (doc.data().access == true) {
+
+                    sitelist.push(doc.id)
+
+                }
+
+                resolve(sitelist);
+
+            });
+
+        }).catch((error) => {
+            reject(error);
+        });
+    });
+}
 
 //need save group and get groups functions
 export function GetGroups(db, name) {
@@ -47,7 +73,7 @@ export async function saveGroup(db, name, i, tracers, text) {
             group['name'] = 'group' + i
         } else {
             //evertything up to the first newline
-            group['name'] =  decodeURI(text).replaceAll(',', '~').split(/\r?\n/)[0];
+            group['name'] = decodeURI(text).replaceAll(',', '~').split(/\r?\n/)[0];
         }
 
 

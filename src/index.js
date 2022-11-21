@@ -35,7 +35,8 @@ import {
     sendFile,
     RemoteData,
     GetGroups,
-    saveGroup
+    saveGroup,
+    userSites
 } from './Data';
 
 import {
@@ -912,7 +913,7 @@ function updateSizes() {
     leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
 
     if (leftPanel.spreadsheet) {
-        
+
         leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
 
         leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
@@ -924,6 +925,8 @@ function updateSizes() {
         //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
 
     }
+
+    leftPanel.cellSize(spreadsheetDiv.offsetHeight);
 }
 
 const clock = new THREE.Clock();
@@ -994,9 +997,6 @@ function handleFiles(input) {
         leftPanel.setTracers(ms, ts, tracers)
         //resize sheet
         updateSizes();
-
-
-        leftPanel.cellSize(ts.length, ms.length);
     }
 }
 
@@ -1045,7 +1045,7 @@ var accessibleSites = [];
 
 var allUsersM = [];
 
-function signedIn(user) {
+async function signedIn(user) {
     //empty list 
     siteList([]);
 
@@ -1067,7 +1067,9 @@ function signedIn(user) {
                 u.data.users.forEach((user) => {
 
                     if (user.email.split('@')[1] != 'poppy.com') {
+
                         allUsersM.push([user.uid, user.email]);
+
                     }
                 });
 
@@ -1076,14 +1078,23 @@ function signedIn(user) {
             .catch((error) => {
                 //console.log('Error listing users:', error);
             });
+
+
+        allSites();
+
+    } else {
+        availableSites = [];
+
+        userSites(db, user.uid).then((u) => {
+            siteList(u);
+        })
     }
 
     switchDisplay(1);
+    
+}
 
-    //check if site is accessible, if not, remove from available sites
-    availableSites = [];
-
-
+function allSites() {
     listAll(folderRef).then((e) => {
 
         for (var i = 0; i < e.prefixes.length; i++) {
@@ -1116,7 +1127,6 @@ function signedIn(user) {
 
     })
 }
-
 
 function siteList(s) {
     //empty dropdown
@@ -1155,10 +1165,6 @@ function loadRefAndDoc(ref, doc) {
         leftPanel.setTracers(ms, ts, tracers)
 
         updateSizes();
-
-
-        leftPanel.cellWidth = (leftPanel.canvas.width / (ts.length + 1));
-        leftPanel.cellHeight = (leftPanel.canvas.height / (ms.length + 1));
 
     })
 
@@ -1390,9 +1396,6 @@ window.addEventListener('hashchange', (e) => {
 window.addEventListener('resize', () => {
     // Update sizes
     updateSizes();
-
-
-    leftPanel.cellSize(ts.length, ms.length)
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
