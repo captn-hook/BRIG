@@ -1079,7 +1079,8 @@ async function signedIn(user) {
                 //console.log('Error listing users:', error);
             });
 
-
+        availableSites = [];
+        
         allSites();
 
     } else {
@@ -1460,7 +1461,7 @@ const tick = () => {
     leftPanel.frame(textbox);
 
     //values
-    if (doVals) {
+    if (doVals && leftPanel.spreadsheet) {
         tracers.forEach(t => t.drawValues(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight));
     }
 
