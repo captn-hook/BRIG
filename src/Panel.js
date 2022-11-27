@@ -256,7 +256,7 @@ class Panel {
 
     groupFrame(textbox) {
         for (var i in this.groups) { //plus scroll?
-            if (this.groups[i]) {
+            if (this.groups[i] && i != 0) { //safety check, omit first group
 
                 var x = parseInt(i)
 
@@ -276,11 +276,8 @@ class Panel {
                 this.ctx.lineWidth = 2;
                 this.ctx.fillStyle = 'white';
 
-                if (i == 0) {
-                    var text = 'Group ' + i;
-                } else {
-                    var text = this.groups[i]['name'];
-                }
+                var text = this.groups[i]['name'];
+    
 
                 this.ctx.strokeText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight / 2);
                 this.ctx.fillStyle = this.color;
