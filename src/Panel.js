@@ -25,6 +25,13 @@ class Panel {
 
         this.ctx = c.getContext('2d');
 
+        //this.ctx.lineJoin = "round";
+
+        //this.ctx.lineJoin = "miter";
+        // // fiddle around until u find the miterLimit that looks best to you.
+        this.ctx.lineJoin = 'round';
+        //this.ctx.lineJoin = 'bevel';
+
         this.canvas.oncontextmenu = () => false;
 
         this.canvas.addEventListener('mousedown', this.clicks.bind(this));
@@ -52,6 +59,8 @@ class Panel {
         this.gi;
 
         this.sh = this.canvas.height;
+
+        this.fontsize = 12;
 
     }
 
@@ -82,6 +91,8 @@ class Panel {
         this.tracers = tracers;
         this.ms = ms;
         this.ts = ts;
+        this.fontsize = Math.ceil(this.canvas.height / 1.7 / (this.tracers.length / 4)) + 5;
+        //console.log(this.fontsize)
     }
 
     setbw(bw) {
@@ -232,7 +243,9 @@ class Panel {
         var y = e.pageY - rect.top;
 
         this.cellX = Math.ceil(x / this.cellWidth);
+
         this.cellY = Math.ceil(y / this.cellHeight);
+       
     }
 
     bounds(x1, y1, x2, y2) {
@@ -242,7 +255,7 @@ class Panel {
 
         var w = (Math.abs(x1 - x2) + 1) * this.cellWidth
         var h = (Math.abs(y1 - y2) + 1) * this.cellHeight
-
+0
         return [x, y, w, h]
     }
 
@@ -258,9 +271,11 @@ class Panel {
         for (var i in this.groups) { //plus scroll?
             if (this.groups[i] && i != 0) { //safety check, omit first group
 
-                var x = parseInt(i)
+                var h = Math.ceil(this.cellHeight)
 
-                if (x < this.cellY && this.cellY <= (x + 1)) {
+                i = parseInt(i)
+
+                if (i < this.cellY && this.cellY <= (i + 1)) {
                     this.ctx.fillStyle = 'yellow'
                 } else if (i == this.gi) {
                     this.ctx.fillStyle = 'lightgrey'
@@ -268,20 +283,21 @@ class Panel {
                     this.ctx.fillStyle = 'grey'
                 }
 
-                this.ctx.fillRect(0, i * this.cellHeight, this.canvas.width, this.cellHeight);
+                this.ctx.fillRect(0, i * h, this.canvas.width, h);
 
-                this.ctx.font = "12px Arial";
+                this.ctx.lineJoin = "round";
+                this.ctx.font = String(this.fontsize) + "px Arial";
                 this.ctx.textAlign = "center";
                 this.ctx.strokeStyle = 'black';
                 this.ctx.lineWidth = 2;
                 this.ctx.fillStyle = 'white';
 
                 var text = this.groups[i]['name'];
-    
 
-                this.ctx.strokeText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight / 2);
+
+                this.ctx.strokeText(text, this.canvas.width / 2, i * h + h / 1.3);
                 this.ctx.fillStyle = this.color;
-                this.ctx.fillText(text, this.canvas.width / 2, i * this.cellHeight + this.cellHeight / 2);
+                this.ctx.fillText(text, this.canvas.width / 2, i * h + h / 1.3);
 
                 textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
             }

@@ -1,3 +1,4 @@
+import { clearIndexedDbPersistence } from 'firebase/firestore';
 import * as THREE from 'three';
 import Point2d from './Point';
 
@@ -91,14 +92,16 @@ class Tracer2d extends Tracer {
 
         super(m, t, value, headroom, lift);
 
-        const maxwidth = 30;
+        const maxwidth = 50;
+
+        const minwidth = 1;
 
         this.rgbval = this.hexToRgb(this.color);
 
         var white = this.rgbToHex(255, 255, 255)
         var hex2 = this.rgbToHex(this.rgbval)
 
-        this.outline = this.rescale(Math.min(value, 10), 0, 25, .4, maxwidth);
+        this.outline = this.rescale(Math.min(value, 10), 0, 25, minwidth, maxwidth);
 
         //console.log(this.value, this.a)
     }

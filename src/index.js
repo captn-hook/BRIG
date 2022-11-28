@@ -171,6 +171,9 @@ const canvas3d = document.querySelector('canvas.webgl');
 
 const ctx = canvas2d.getContext('2d');
 
+ctx.lineJoin = 'round';
+//ctx.miterLimit = 1;
+
 const spreadsheetDiv = document.getElementById('spreadsheet');
 
 const leftPanel = new Panel(document.getElementById('left'));
@@ -1037,11 +1040,11 @@ function updateCam() {
        // console.log("SJEEZ")
 
         try {
-            //console.log(leftPanel.groups[leftPanel.gi]['pos'])
+            //console.log(leftPanel.groups[leftPanel.gi]['pos']);
             leftPanel.looking = true;
 
-            cameraTargPos = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0] + 10, leftPanel.groups[leftPanel.gi]['pos'][1] + 14, leftPanel.groups[leftPanel.gi]['pos'][2] + 8);
-            cameraTargView = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0], leftPanel.groups[leftPanel.gi]['pos'][1], leftPanel.groups[leftPanel.gi]['pos'][2]);
+            cameraTargPos = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0] + 5, leftPanel.groups[leftPanel.gi]['pos'][2] + 10, leftPanel.groups[leftPanel.gi]['pos'][1] + 3);
+            cameraTargView = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0], leftPanel.groups[leftPanel.gi]['pos'][2], leftPanel.groups[leftPanel.gi]['pos'][1]);
         }
         catch (e) {
            // console.log(e)
@@ -1494,6 +1497,10 @@ const tick = () => {
     if (!leftPanel.spreadsheet && leftPanel.gi) {
         if (leftPanel.gi != lastgi) {
             lastgi = leftPanel.gi;
+
+            ms.forEach(pt => pt.visible = false);
+            ts.forEach(pt => pt.visible = false);
+
             tracers.forEach((t) => {
                 var label = String(t.m.i) + "/" + String(t.t.i);
 
@@ -1501,6 +1508,11 @@ const tick = () => {
                     t.visible = leftPanel.groups[lastgi][label];
                 } catch (e) {
                     //console.log(leftPanel.groups0, lastgi, leftPanel.groups[lastgi], label)
+                }
+
+                if (t.visible) {
+                    t.m.visible = true;
+                    t.t.visible = true;
                 }
             })
         }

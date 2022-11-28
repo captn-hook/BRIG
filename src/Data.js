@@ -107,7 +107,6 @@ export async function saveGroup(db, name, i, tracers, text) {
         let pos = [x / n, y / n, z / n];
 
         group['pos'] = pos;
-
         //average of all elements in posAvg
 
         try {
@@ -171,7 +170,7 @@ export async function RemoteData(db, name) {
                 var xyz = d[1][i].split('/');
                 var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-                ms.push(new Point2d("M", i - 1, 'red', pos, 10));
+                ms.push(new Point2d("M", i - 1, 'red', pos, 7));
 
             }
 
@@ -180,7 +179,7 @@ export async function RemoteData(db, name) {
                 var xyz = d[i][1].split('/');
                 var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
 
-                ts.push(new Point2d("D", i - 1, 'blue', pos, 5));
+                ts.push(new Point2d("D", i - 1, 'blue', pos, 3.5));
 
             }
 

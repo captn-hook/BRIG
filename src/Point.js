@@ -63,10 +63,11 @@ class Point2d extends Point {
             ctx.strokeStyle = this.color;
             ctx.stroke();
     
-            ctx.font = "12px Arial";
+            ctx.font = String(leftPanel.fontsize) + "px Arial";
             ctx.textAlign = "center";
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 4;
+            ctx.lineJoin = "round";
             ctx.strokeText(this.name, x, y + 4);
             ctx.fillStyle = "white";
             ctx.fillText(this.name, x, y + 4);
@@ -75,7 +76,7 @@ class Point2d extends Point {
     
         //left canvas
             if (leftPanel.spreadsheet) {
-            ctxLeft.font = "10px Arial";
+            ctxLeft.font = String(leftPanel.fontsize) + "px Arial";
         
             if (this.visible) {
                 ctxLeft.globalAlpha = 1.0;
