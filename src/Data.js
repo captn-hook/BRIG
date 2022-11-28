@@ -19,7 +19,6 @@ import {
 } from "firebase/firestore";
 
 import * as THREE from 'three';
-import { StringFormat } from 'firebase/storage';
 
 const MAX_GROUPS = 40;
 
@@ -85,12 +84,10 @@ export async function saveGroup(db, name, i, tracers, text) {
         tracers.forEach((t) => {
             var label = String(t.m.i) + "/" + String(t.t.i);
 
-            if (posAvg.find(e => e == t.m.pos) == null) {
-                posAvg.push(t.m.pos);
-            } else if (posAvg.find(e => e == t.t.pos) == null) {
-                posAvg.push(t.t.pos);
-            }
 
+            if (t.visible && posAvg.find(e => e == t.m.pos) == null) {
+                posAvg.push(t.m.pos);
+            }
 
             group[label] = t.visible;
         })
@@ -419,6 +416,8 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
 
     })
 
+    group0['pos'] = [10, 10, 10];
+
     try {
         await setDoc(doc(db, name, 'dist'), distance);
         console.log("Document 2 written");
@@ -433,6 +432,52 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
         console.error("Error adding document");
     }
 
+    
+    ms.forEach((m, i) => {
+
+        var group = {};
+        var posAvg = [];
+
+        tracers.forEach((t) => {
+         
+            var label = String(t.m.i) + "/" + String(t.t.i);
+
+            if (t.m.i == i + 1) {
+                group[label] = true;
+            } else {
+                group[label] = false;
+            }
+
+            if (t.visible && posAvg.find(e => e == t.m.pos) == null) {
+                posAvg.push(t.m.pos);
+            }
+
+        })
+
+        let n = 0;
+        let x = 0;
+        let y = 0;
+        let z = 0;
+
+        posAvg.forEach((p) => {
+            x += parseFloat(p.x);
+            y += parseFloat(p.y);
+            z += parseFloat(p.z);
+            n++;
+        })
+
+        let pos = [x / n, y / n, z / n];
+
+        group['pos'] = pos;
+        group['name'] = m.name;
+        group['text'] = m.name;
+
+        try {
+            setDoc(doc(db, name, 'group' + String(i + 1)), group);
+        } catch (e) {
+
+        }
+    })
 
 }
 

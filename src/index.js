@@ -1002,7 +1002,7 @@ function handleFiles(input) {
 
 function updateCam() {
 
-    if (leftPanel.camFree) {
+    if (leftPanel.camFree && leftPanel.spreadsheet) {
 
         if (leftPanel.mt == 0) {
 
@@ -1027,9 +1027,24 @@ function updateCam() {
             if (leftPanel.spreadsheet) {
                 textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
             } else {
+
                 textbox.value = (leftPanel.text == null) ? '' : decodeURI(leftPanel.text).replaceAll('~', ',');
             }
 
+        }
+    } else {
+
+       // console.log("SJEEZ")
+
+        try {
+            //console.log(leftPanel.groups[leftPanel.gi]['pos'])
+            leftPanel.looking = true;
+
+            cameraTargPos = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0] + 10, leftPanel.groups[leftPanel.gi]['pos'][1] + 14, leftPanel.groups[leftPanel.gi]['pos'][2] + 8);
+            cameraTargView = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0], leftPanel.groups[leftPanel.gi]['pos'][1], leftPanel.groups[leftPanel.gi]['pos'][2]);
+        }
+        catch (e) {
+           // console.log(e)
         }
     }
 
@@ -1080,7 +1095,7 @@ async function signedIn(user) {
             });
 
         availableSites = [];
-        
+
         allSites();
 
     } else {
@@ -1092,7 +1107,7 @@ async function signedIn(user) {
     }
 
     switchDisplay(1);
-    
+
 }
 
 function allSites() {
@@ -1417,6 +1432,8 @@ const tick = () => {
     const elapsedTime = clock.getElapsedTime();
 
     if (leftPanel.looking) {
+        updateCam();
+    } else if (!leftPanel.spreadsheet) {
         updateCam();
     }
 
