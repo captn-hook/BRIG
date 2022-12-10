@@ -1005,7 +1005,7 @@ function handleFiles(input) {
 
 function updateCam() {
 
-    console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
+    //console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
 
     if (leftPanel.camFree && leftPanel.spreadsheet) {
 
@@ -1021,10 +1021,15 @@ function updateCam() {
         } else if (leftPanel.mt == 1) {
             //if x (column) == 1, ms
             //special views
+            //console.log(views[leftPanel.n + 1])
             if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
                 cameraTargPos = new THREE.Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
             } else {
-                cameraTargPos = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
+                try {
+                    cameraTargPos = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
+                } catch (e) {
+                    console.log('error', e)
+                }
             }
             cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
 
@@ -1045,13 +1050,12 @@ function updateCam() {
             var i = 0;
         }
         try {
-        cameraTargPos = new THREE.Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
-        cameraTargView = new THREE.Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
-        } catch (e) {
-        }
+            cameraTargPos = new THREE.Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
+            cameraTargView = new THREE.Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
+        } catch (e) {}
 
-        console.log(cameraTargPos, cameraTargView)
-    
+        //console.log(cameraTargPos, cameraTargView)
+
     }
 
 }
@@ -1113,6 +1117,9 @@ async function signedIn(user) {
     }
 
     switchDisplay(1);
+
+    window.dispatchEvent(new Event('hashchange'));
+    window.dispatchEvent(new Event('resize'));
 
 }
 
@@ -1232,8 +1239,8 @@ const auth = getAuth();
 onAuthStateChanged(auth, (user) => {
     if (user) {
         // User is signed in, see docs for a list of available properties
-        login();
-
+        //login();
+        signedIn(user);
     } else {
         // User is signed out
         // ...
@@ -1298,6 +1305,8 @@ dropd.addEventListener('change', (event) => {
 
         loadRefAndDoc(modelRef, event.target.value);
 
+        leftPanel.siteheader = event.target.value;
+
     } else {
         //load default
 
@@ -1315,7 +1324,7 @@ dropd.addEventListener('change', (event) => {
         /*
         Animate
         */
-
+        leftPanel.siteheader = 'Example';
     }
 })
 
@@ -1355,10 +1364,10 @@ canvas2d.addEventListener('click', (e) => {
         }
 
         //store pos in link
-        var pos = String(Math.round(camera.position.x * 100) / 100) + '&' + String(Math.round(camera.position.y * 100) / 100) + '&' + String(Math.round(camera.position.z * 100) / 100) + '&' + String(Math.round(camera.rotation.x * 100) / 100) + '&' + String(Math.round(camera.rotation.y * 100) / 100) + '&' + String(Math.round(camera.rotation.z * 100) / 100)
+        var pos = String('P=' + Math.round(camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
 
         if (pos[0] != null) {
-            window.location.hash = pos;
+            window.location.hash = leftPanel.siteheader + '&' + pos;
         }
     },
     false);
@@ -1386,30 +1395,49 @@ modelInput.addEventListener('change', (e) => {
 window.addEventListener('hashchange', (e) => {
 
     var hash = window.location.hash.substring(1)
-    var params = hash.split('&')
 
-    if (params.length == 2) {
-        if (params[0].substring(2) != leftPanel.cellX || params[1].substring(2) != leftPanel.cellY) {
-            leftPanel.firstClickX = params[0].substring(2);
-            leftPanel.firstClickY = params[1].substring(2);
-            updateCam();
-        }
-    } else if (params.length == 6) {
+    if (hash[0] != '&') {
+        var params = hash.split('&')
 
-        var pos = new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
-        var rot = new Vector3(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
+        console.log(params);
 
-        //                                   min dist
-        if (camera.position.distanceTo(new Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))) > .03) {
-
-            leftPanel.looking = true;
-            cameraTargPos = new THREE.Vector3(parseFloat(params[0]), parseFloat(params[1]), parseFloat(params[2]))
-            camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
-
-            controls.update();
-
+        if (params[0] != dropd.value) {
+            dropd.value = params[0];
+            dropd.dispatchEvent(new Event('change'));
         }
 
+        if (params[1][0] == 'G') {
+            leftPanel.spreadsheet = false;
+            leftPanel.gi = params[1].substring(2);
+
+        } else if (params[1][0] == 'X') {
+            if (params[1].substring(2) != leftPanel.cellX || params[2].substring(2) != leftPanel.cellY) {
+                leftPanel.firstClickX = params[0].substring(2);
+                leftPanel.firstClickY = params[1].substring(2);
+                updateCam();
+            }
+        } else if (params[1][0] == 'P') {
+
+            var coords = params[1].substring(2).split('/')
+
+            var pos = new Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
+            //var rot = new Vector3(parseFloat(coords[3]), parseFloat(coords[4]), parseFloat(coords[5]))
+
+            //                                   min dist
+            if (camera.position.distanceTo(pos) > .03) {
+
+                console.log('moving camera');
+
+                leftPanel.looking = true;
+                cameraTargPos = pos
+                camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
+
+                controls.update();
+                updateCam();
+
+            }
+
+        }
     }
 
 });

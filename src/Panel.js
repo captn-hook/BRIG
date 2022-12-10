@@ -62,6 +62,8 @@ class Panel {
 
         this.fontsize = 12;
 
+        this.siteheader = '';
+
     }
 
     camPos(x, y) {
@@ -137,13 +139,16 @@ class Panel {
                 this.firstClickY = this.cellY;
 
                 //this is for linking to a specific location
-                window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY);
+                window.location.hash = (this.siteheader + '&X=' + this.cellX + '&Y=' + this.cellY);
             }
         } else {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
                 this.text = this.groups[this.gi]['text']
+
                 this.looking = true;
+
+                window.location.hash = (this.siteheader + '&G=' + this.gi);
             } else {
                 this.gi = -1;
             }
@@ -167,7 +172,7 @@ class Panel {
                     this.firstClickX = this.cellX;
                     this.firstClickY = this.cellY;
 
-                    window.location.hash = ('X=' + cellX + '&Y=' + cellY)
+                    //window.location.hash = ('X=' + cellX + '&Y=' + cellY)
 
                 } else {
                     this.firstClick = true;
@@ -179,7 +184,7 @@ class Panel {
                     //update camera on mouse click
                     this.camPos(this.cellX, this.cellY)
 
-                    window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY)
+                    //window.location.hash = ('X=' + this.cellX + '&Y=' + this.cellY)
 
                 }
                 //double click, clear markers
