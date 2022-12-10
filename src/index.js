@@ -655,7 +655,7 @@ var allUsers = [];
 
 function populateTable() {
 
-    if (dropd.value != defaultDropd && dropd.value != 'Empty') {
+    if (dropd.value != defaultDropd && dropd.value != 'Empty' && dropd.value != 'Select a site' && dropd.value != '') {
 
         allUsers = allUsersM;
         inUsers = [];
@@ -1008,39 +1008,42 @@ function updateCam() {
     //console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
 
     if (leftPanel.camFree && leftPanel.spreadsheet) {
+        try {
+            //fail quietly if cannot set camera
+            if (leftPanel.mt == 0) {
 
-        if (leftPanel.mt == 0) {
+            } else if (leftPanel.mt == 2) {
+                //if y (row) == 1, ts
 
-        } else if (leftPanel.mt == 2) {
-            //if y (row) == 1, ts
+                cameraTargPos = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
+                cameraTargView = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
 
-            cameraTargPos = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
-            cameraTargView = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
+                //throws errors if it trys to select row before/after last
+            } else if (leftPanel.mt == 1) {
+                //if x (column) == 1, ms
+                //special views
+                //console.log(views[leftPanel.n + 1])
+                if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
+                    cameraTargPos = new THREE.Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
+                } else {
 
-            //throws errors if it trys to select row before/after last
-        } else if (leftPanel.mt == 1) {
-            //if x (column) == 1, ms
-            //special views
-            //console.log(views[leftPanel.n + 1])
-            if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
-                cameraTargPos = new THREE.Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
-            } else {
-                try {
                     cameraTargPos = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
-                } catch (e) {
-                    console.log('error', e)
+
                 }
+                cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
+
+                //insights
+                if (leftPanel.spreadsheet) {
+                    textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
+                } else {
+
+                    textbox.value = (leftPanel.text == null) ? '' : decodeURI(leftPanel.text).replaceAll('~', ',');
+                }
+
+
             }
-            cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
-
-            //insights
-            if (leftPanel.spreadsheet) {
-                textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
-            } else {
-
-                textbox.value = (leftPanel.text == null) ? '' : decodeURI(leftPanel.text).replaceAll('~', ',');
-            }
-
+        } catch (e) {
+            //console.log(e)
         }
     } else if (!leftPanel.spreadsheet && leftPanel.camFree) {
 
@@ -1291,9 +1294,17 @@ dropd.addEventListener('change', (event) => {
         []
     ];
 
-    if (event.target.value != defaultDropd) {
+    //console.log(event.target.value);
 
-        var modelRef = ref(storage, '/Sites/' + event.target.value + '/' + event.target.value + '.glb');
+    if (event.target.value == null || event.target.value == undefined || event.target.value == '') {
+        var targ = leftPanel.siteheader;
+    } else {
+        var targ = event.target.value;
+    }
+
+    if (targ != defaultDropd) {
+
+        var modelRef = ref(storage, '/Sites/' + targ + '/' + targ + '.glb');
 
 
         // .glb, load model
@@ -1301,11 +1312,11 @@ dropd.addEventListener('change', (event) => {
         //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
 
         //loadRefs(modelRef, dataRef)
-        leftPanel.groups = GetGroups(db, event.target.value);
+        leftPanel.groups = GetGroups(db, targ);
 
-        loadRefAndDoc(modelRef, event.target.value);
+        loadRefAndDoc(modelRef, targ);
 
-        leftPanel.siteheader = event.target.value;
+        leftPanel.siteheader = targ;
 
     } else {
         //load default
@@ -1399,9 +1410,10 @@ window.addEventListener('hashchange', (e) => {
     if (hash[0] != '&') {
         var params = hash.split('&')
 
-        console.log(params);
+        //console.log(params);
 
         if (params[0] != dropd.value) {
+            leftPanel.siteheader = params[0];
             dropd.value = params[0];
             dropd.dispatchEvent(new Event('change'));
         }
@@ -1409,12 +1421,17 @@ window.addEventListener('hashchange', (e) => {
         if (params[1][0] == 'G') {
             leftPanel.spreadsheet = false;
             leftPanel.gi = params[1].substring(2);
+            
+            leftPanel.canvas.dispatchEvent(new Event('click'));
 
         } else if (params[1][0] == 'X') {
+            leftPanel.spreadsheet = true;
             if (params[1].substring(2) != leftPanel.cellX || params[2].substring(2) != leftPanel.cellY) {
                 leftPanel.firstClickX = params[0].substring(2);
                 leftPanel.firstClickY = params[1].substring(2);
                 updateCam();
+                
+                leftPanel.canvas.dispatchEvent(new Event('click'));
             }
         } else if (params[1][0] == 'P') {
 
@@ -1426,7 +1443,7 @@ window.addEventListener('hashchange', (e) => {
             //                                   min dist
             if (camera.position.distanceTo(pos) > .03) {
 
-                console.log('moving camera');
+                //console.log('moving camera');
 
                 leftPanel.looking = true;
                 cameraTargPos = pos
