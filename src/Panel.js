@@ -143,6 +143,7 @@ class Panel {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
                 this.text = this.groups[this.gi]['text']
+                this.looking = true;
             } else {
                 this.gi = -1;
             }

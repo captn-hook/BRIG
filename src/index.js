@@ -863,7 +863,7 @@ function load3DModel(base, mtlpath = null) {
         //mesh decompression wip, using uncompressed mesh for now
 
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
         loader.setDRACOLoader(dracoLoader);
 
         //loads with above loader
@@ -964,7 +964,7 @@ function handleModels(input) {
 
         const dracoLoader = new DRACOLoader();
 
-        dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 
         loader.setDRACOLoader(dracoLoader);
 
@@ -1005,6 +1005,8 @@ function handleFiles(input) {
 
 function updateCam() {
 
+    console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
+
     if (leftPanel.camFree && leftPanel.spreadsheet) {
 
         if (leftPanel.mt == 0) {
@@ -1035,20 +1037,21 @@ function updateCam() {
             }
 
         }
-    } else {
+    } else if (!leftPanel.spreadsheet && leftPanel.camFree) {
 
-       // console.log("SJEEZ")
-
+        if (leftPanel.gi) {
+            var i = leftPanel.gi;
+        } else {
+            var i = 0;
+        }
         try {
-            //console.log(leftPanel.groups[leftPanel.gi]['pos']);
-            leftPanel.looking = true;
+        cameraTargPos = new THREE.Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
+        cameraTargView = new THREE.Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
+        } catch (e) {
+        }
 
-            cameraTargPos = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0] + 5, leftPanel.groups[leftPanel.gi]['pos'][2] + 10, leftPanel.groups[leftPanel.gi]['pos'][1] + 3);
-            cameraTargView = new THREE.Vector3(leftPanel.groups[leftPanel.gi]['pos'][0], leftPanel.groups[leftPanel.gi]['pos'][2], leftPanel.groups[leftPanel.gi]['pos'][1]);
-        }
-        catch (e) {
-           // console.log(e)
-        }
+        console.log(cameraTargPos, cameraTargView)
+    
     }
 
 }
@@ -1319,13 +1322,13 @@ dropd.addEventListener('change', (event) => {
 
 //canvas
 canvas2d.addEventListener('mousedown', (e) => {
-    if (camFree) {
+    if (leftPanel.camFree) {
         leftPanel.looking = false;
     }
 })
 
 canvas2d.addEventListener('click', (e) => {
-        if (camFree) {
+        if (leftPanel.camFree) {
             leftPanel.looking = false;
         }
 
@@ -1434,9 +1437,7 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
 
-    if (leftPanel.looking) {
-        updateCam();
-    } else if (!leftPanel.spreadsheet) {
+    if (leftPanel.looking || !leftPanel.spreadsheet) {
         updateCam();
     }
 
