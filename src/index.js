@@ -1178,7 +1178,7 @@ function siteList(s) {
     })
 
 }
-
+var stupid = null;
 function loadRefAndDoc(ref, doc) {
 
     getBlob(ref)
@@ -1195,6 +1195,11 @@ function loadRefAndDoc(ref, doc) {
         [ms, ts, tracers, insights, views] = data;
 
         leftPanel.setTracers(ms, ts, tracers)
+
+        if (stupid != null) {
+            leftPanel.gi = stupid;
+            stupid = null;
+        }
 
         updateSizes();
 
@@ -1399,6 +1404,11 @@ dataInput.addEventListener('change', (e) => {
     handleFiles(dataInput.files[0]);
 }, false);
 
+function giHack(params) {
+    leftPanel.spreadsheet = false;
+    leftPanel.gi = params[1].substring(2);
+}
+
 modelInput.addEventListener('change', (e) => {
     handleModels(modelInput.files[0]);
 }, false);
@@ -1419,10 +1429,9 @@ window.addEventListener('hashchange', (e) => {
         }
 
         if (params[1][0] == 'G') {
+            //setTimeout(giHack, 1500, params);
             leftPanel.spreadsheet = false;
-            leftPanel.gi = params[1].substring(2);
-            
-            leftPanel.canvas.dispatchEvent(new Event('click'));
+            stupid = params[1].substring(2);
 
         } else if (params[1][0] == 'X') {
             leftPanel.spreadsheet = true;
@@ -1430,8 +1439,8 @@ window.addEventListener('hashchange', (e) => {
                 leftPanel.firstClickX = params[0].substring(2);
                 leftPanel.firstClickY = params[1].substring(2);
                 updateCam();
-                
-                leftPanel.canvas.dispatchEvent(new Event('click'));
+
+                //leftPanel.canvas.dispatchEvent(new Event('click'));
             }
         } else if (params[1][0] == 'P') {
 
