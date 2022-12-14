@@ -1422,7 +1422,7 @@ window.addEventListener('hashchange', (e) => {
 
         //console.log(params);
 
-        if (params[0] != dropd.value) {
+        if (params[0] != dropd.value && params[0][0] != 'X' && params[0][0] != 'P' && params[0][0] != 'G') {
             leftPanel.siteheader = params[0];
             dropd.value = params[0];
             dropd.dispatchEvent(new Event('change'));
@@ -1431,7 +1431,13 @@ window.addEventListener('hashchange', (e) => {
         if (params[1][0] == 'G') {
             //setTimeout(giHack, 1500, params);
             leftPanel.spreadsheet = false;
+            if (params[0] != dropd.value) {
             stupid = params[1].substring(2);
+            } else {
+                leftPanel.gi = params[1].substring(2);
+                updateSizes();
+            }
+
 
         } else if (params[1][0] == 'X') {
             leftPanel.spreadsheet = true;
@@ -1465,6 +1471,9 @@ window.addEventListener('hashchange', (e) => {
 
         }
     }
+
+    leftPanel.setFontsize();
+
 
 });
 

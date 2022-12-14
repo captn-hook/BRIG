@@ -93,8 +93,16 @@ class Panel {
         this.tracers = tracers;
         this.ms = ms;
         this.ts = ts;
-        this.fontsize = Math.ceil(this.canvas.height / 1.7 / (this.tracers.length / 4)) + 5;
+        this.setFontsize();
         //console.log(this.fontsize)
+    }
+
+    setFontsize() {
+        var x =  Math.ceil(this.canvas.parentElement.clientHeight / 1.7 / (this.tracers.length / 4)) + 5;
+        if (x > 20) {
+            x = 20;
+        }
+        this.fontsize = x
     }
 
     setbw(bw) {
