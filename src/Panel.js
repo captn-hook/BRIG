@@ -98,7 +98,8 @@ class Panel {
     }
 
     setFontsize() {
-        var x =  Math.ceil(this.canvas.parentElement.clientHeight / 1.7 / (this.tracers.length / 4)) + 5;
+        var m = Math.floor(Match.min(this.canvas.parentElement.clientWidth, this.canvas.parentElement.clientHeight));
+        var x =  Math.ceil(m / 1.7 / (this.tracers.length / 4)) + 5;
         if (x > 20) {
             x = 20;
         }

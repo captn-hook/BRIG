@@ -270,7 +270,8 @@ document.getElementById('flipBtn').addEventListener('click', (e) => {
     }
 })
 
-var camFree = true;
+var camFree = false;
+leftPanel.setcam(camFree)
 
 document.getElementById('camBtn').addEventListener('click', (e) => {
     if (e.target.innerHTML == 'Multi 🎥') {
@@ -1493,9 +1494,10 @@ window.addEventListener('resize', () => {
 
 var lastgi = -1;
 
-//load defaullt 
-loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
-
+//load defaullt if no hash
+if (window.location.hash == '') {
+    loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
+}
 const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
