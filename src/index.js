@@ -10,14 +10,16 @@ var icon = document.getElementById('icon');
 icon.href = favi;
 
 import * as THREE from 'three';
+/*
 
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
     GLTFLoader
 } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
     DRACOLoader
 } from 'three/examples/jsm/loaders/DRACOLoader';
-
+*/
 import {
     Data,
     saveFile,
@@ -72,8 +74,7 @@ import {
     getFirestore,
     setDoc,
     deleteDoc,
-    doc,
-    DocumentSnapshot
+    doc
 } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -85,9 +86,6 @@ import {
 import {
     config
 } from './key';
-import {
-    WebGLBindingStates
-} from 'three/src/renderers/webgl/WebGLBindingStates';
 
 
 const firebaseConfig = {
@@ -902,13 +900,34 @@ const modelInput = document.getElementById('modelpicker');
 
 //data funccs
 
+function getGLTFLoader() {
+    return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
+        return new GLTF.GLTFLoader;
+    });
+}
+
+function getDRACOLoader() {
+    return getGLTFLoader().then((GLTFLoader) => {
+        return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
+
+            const DRACOLoader = new DRACO.DRACOLoader();
+
+            DRACOLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+
+            GLTFLoader.setDRACOLoader(DRACOLoader);
+
+            return GLTFLoader;
+        });
+    })
+}
+
 function handleModels(input) {
     //remove old stuff first
 
     if (globalObj != null) {
         scene.remove(globalObj);
     }
-    
+
     var read = new FileReader();
 
     read.readAsArrayBuffer(input);
@@ -919,20 +938,32 @@ function handleModels(input) {
         }
     })
 
+
     read.onloadend = function () {
+        /*
+function getControls() {
+    return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
 
-        const loader = new GLTFLoader();
+        const ctrl = new OB.OrbitControls(camera, canvas2d);
 
-        const dracoLoader = new DRACOLoader();
+        ctrl.enableDamping = true;
 
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+        ctrl.target.set(0, 0, 0);
 
-        loader.setDRACOLoader(dracoLoader);
+        controls = ctrl;
 
-        loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
+    });
+}
+getControls()
+*/
 
-        Gxhr = 0;
+        getDRACOLoader().then((loader) => {
+            
+            loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
 
+            Gxhr = 0;
+
+        })
 
         populateTable();
 
