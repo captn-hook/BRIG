@@ -15,16 +15,8 @@ import {
     GLTFLoader
 } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
-    OBJLoader
-} from 'three/examples/jsm/loaders/OBJLoader.js';
-import {
-    MTLLoader
-} from 'three/examples/jsm/loaders/MTLLoader.js';
-import {
     DRACOLoader
 } from 'three/examples/jsm/loaders/DRACOLoader';
-
-import FileExt from './FileExt.js';
 
 import {
     Data,
@@ -49,8 +41,6 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 */
 
 // Import the functions you need from the SDKs you need
-
-import * as firebase from 'firebase/app';
 
 import {
     initializeApp
@@ -82,7 +72,8 @@ import {
     getFirestore,
     setDoc,
     deleteDoc,
-    doc
+    doc,
+    DocumentSnapshot
 } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -94,7 +85,9 @@ import {
 import {
     config
 } from './key';
-import { WebGLBindingStates } from 'three/src/renderers/webgl/WebGLBindingStates';
+import {
+    WebGLBindingStates
+} from 'three/src/renderers/webgl/WebGLBindingStates';
 
 
 const firebaseConfig = {
@@ -140,9 +133,10 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));
 const canvas2d = document.getElementById('2d');
 
 var controls;
+
 function getControls() {
     return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
-        
+
         const ctrl = new OB.OrbitControls(camera, canvas2d);
 
         ctrl.enableDamping = true;
@@ -864,49 +858,6 @@ function onErrorLog(err) {
     console.error(err)
 }
 
-function load3DModel(base, mtlpath = null) {
-    //checks file type
-    if (FileExt(base)) {
-        const loader = new GLTFLoader();
-
-
-        //mesh decompression wip, using uncompressed mesh for now
-
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-        loader.setDRACOLoader(dracoLoader);
-
-        //loads with above loader
-        //NOTE:      path  func on load     func on progress                         func on error 
-        loader.load(base, onLoadLoad, onProgressLog, onErrorLog);
-
-    } else if (mtlpath != null) {
-        //currently not working, images are not getting webpack'd to the site, cannot access imgs linked in .mtl file
-        const mtlLoader = new MTLLoader();
-
-        mtlLoader.load(mtlpath,
-            //callback on load
-            function (materials) {
-                //when materials are loaded, load obj
-
-                materials.preload();
-
-                //load obj w/ mat
-                const loader = new OBJLoader();
-                loader.setMaterials(materials);
-
-                //loads with above loader
-                loader.load(base, onLoadLoad, onProgressLog, onErrorLog);
-
-            },
-
-            onProgressLog, onErrorLog
-        );
-    } else {
-        console.error('Could not load model')
-    }
-}
-
 /*
 Misc
 */
@@ -957,7 +908,7 @@ function handleModels(input) {
     if (globalObj != null) {
         scene.remove(globalObj);
     }
-
+    
     var read = new FileReader();
 
     read.readAsArrayBuffer(input);
@@ -1185,10 +1136,17 @@ function siteList(s) {
         var option = document.createElement('option');
         option.text = site;
         dropd.add(option);
+
+        if (window.location.hash != '' && window.location.hash[1] != '&') {
+            if (window.location.hash.split('&')[0].substring(1) == dropd.options[dropd.length - 1].text) {
+                dropd.selectedIndex = dropd.length - 1;
+            }
+        }
     })
 
 }
 var stupid = null;
+
 function loadRefAndDoc(ref, doc) {
 
     getBlob(ref)
@@ -1298,7 +1256,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
-
     Gxhr = 0;
 
     [ms, ts, tracers, insights, views] = [
@@ -1328,7 +1285,6 @@ dropd.addEventListener('change', (event) => {
 
         //loadRefs(modelRef, dataRef)
         leftPanel.groups = GetGroups(db, targ);
-
         loadRefAndDoc(modelRef, targ);
 
         leftPanel.siteheader = targ;
@@ -1352,8 +1308,8 @@ dropd.addEventListener('change', (event) => {
         */
         leftPanel.siteheader = 'Example';
     }
-    
-    window.location.hash = leftPanel.siteheader + '&';
+
+    //window.location.hash = leftPanel.siteheader + '&';
 
 })
 
@@ -1364,6 +1320,14 @@ canvas2d.addEventListener('mousedown', (e) => {
         leftPanel.looking = false;
     }
 })
+
+canvas2d.addEventListener('wheel', (event) => {
+    if (leftPanel.camFree) {
+        leftPanel.looking = false;
+    }
+}, {
+    passive: true
+});
 
 canvas2d.addEventListener('click', (e) => {
         if (leftPanel.camFree) {
@@ -1417,12 +1381,8 @@ dataInput.addEventListener('change', (e) => {
     handleFiles(dataInput.files[0]);
 }, false);
 
-function giHack(params) {
-    leftPanel.spreadsheet = false;
-    leftPanel.gi = params[1].substring(2);
-}
-
 modelInput.addEventListener('change', (e) => {
+    console.log('modelInput');
     handleModels(modelInput.files[0]);
 }, false);
 
@@ -1431,9 +1391,7 @@ window.addEventListener('hashchange', (e) => {
     var hash = window.location.hash.substring(1)
 
     if (hash[0] != '&') {
-        var params = hash.split('&')
-
-        //console.log(params);
+        var params = hash.split('&');
 
         if (params[0] != dropd.value && params[0][0] != 'X' && params[0][0] != 'P' && params[0][0] != 'G') {
             leftPanel.siteheader = params[0];
@@ -1445,7 +1403,7 @@ window.addEventListener('hashchange', (e) => {
             //setTimeout(giHack, 1500, params);
             leftPanel.spreadsheet = false;
             if (params[0] != dropd.value) {
-            stupid = params[1].substring(2);
+                stupid = params[1].substring(2);
             } else {
                 leftPanel.gi = params[1].substring(2);
                 updateSizes();
@@ -1472,7 +1430,7 @@ window.addEventListener('hashchange', (e) => {
             if (camera.position.distanceTo(pos) > .03) {
 
                 //console.log('moving camera');
-               // if (leftPanel.camFree) {
+                // if (leftPanel.camFree) {
                 //    leftPanel.looking = true;
                 //}
 
