@@ -29,15 +29,6 @@ import {
     saveGroup,
     userSites
 } from './Data';
-
-import {
-    Panel
-} from './Panel.js';
-
-import {
-    Vector3
-} from 'three';
-
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
@@ -177,7 +168,20 @@ ctx.lineJoin = 'round';
 
 const spreadsheetDiv = document.getElementById('spreadsheet');
 
-const leftPanel = new Panel(document.getElementById('left'));
+var leftPanel;
+
+function getPanel() {
+    return import('./Panel.js').then((P) => {
+
+        const panel = new P.Panel(document.getElementById('left'));
+
+        leftPanel = panel;
+
+        leftPanel.setcam(false)
+
+    });
+}
+getPanel();
 
 //canvasleft.oncontextmenu = () => false;
 
@@ -272,7 +276,6 @@ document.getElementById('flipBtn').addEventListener('click', (e) => {
 })
 
 var camFree = false;
-leftPanel.setcam(camFree)
 
 document.getElementById('camBtn').addEventListener('click', (e) => {
     if (e.target.innerHTML == 'Multi 🎥') {
@@ -870,25 +873,27 @@ function updateSizes() {
     canvas2d.width = sizes.width;
     canvas2d.height = sizes.height;
 
-    leftPanel.ctx.canvas.innerWidth = spreadsheetDiv.offsetWidth;
+    if (leftPanel) {
+        leftPanel.ctx.canvas.innerWidth = spreadsheetDiv.offsetWidth;
 
-    leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
+        leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
 
-    if (leftPanel.spreadsheet) {
+        if (leftPanel.spreadsheet) {
 
-        leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
+            leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
 
-        leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
+            leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
 
-    } else {
+        } else {
 
-        leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
+            leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
 
-        //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
+            //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
 
+        }
+
+        leftPanel.cellSize(spreadsheetDiv.offsetHeight);
     }
-
-    leftPanel.cellSize(spreadsheetDiv.offsetHeight);
 }
 
 const clock = new THREE.Clock();
@@ -958,7 +963,7 @@ getControls()
 */
 
         getDRACOLoader().then((loader) => {
-            
+
             loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
 
             Gxhr = 0;
@@ -1454,7 +1459,7 @@ window.addEventListener('hashchange', (e) => {
 
             var coords = params[1].substring(2).split('/')
 
-            var pos = new Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
+            var pos = new THREE.Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
             //var rot = new Vector3(parseFloat(coords[3]), parseFloat(coords[4]), parseFloat(coords[5]))
 
             //                                   min dist
@@ -1505,25 +1510,26 @@ if (window.location.hash == '' || window.location.hash[1] == '&') {
 const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
+    if (leftPanel) {
+        if (leftPanel.looking || !leftPanel.spreadsheet) {
+            updateCam();
+        }
 
-    if (leftPanel.looking || !leftPanel.spreadsheet) {
-        updateCam();
+
+        //if camera.position isnt cameraTargPos, move camera towards point
+        if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) > .05) {
+            camera.position.lerp(cameraTargPos, .03)
+        } else if (leftPanel.looking && controls && controls.target.distanceTo(cameraTargView) < .05) {
+            leftPanel.looking = false;
+        }
+
+        //if controls.target isnt cameraTargView, turn camera towards point
+        if (leftPanel.looking && controls && controls.target.distanceTo(cameraTargView) > .05) {
+            controls.target.lerp(cameraTargView, .03)
+        } else if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) < .05) {
+            leftPanel.looking = false;
+        }
     }
-
-    //if camera.position isnt cameraTargPos, move camera towards point
-    if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) > .05) {
-        camera.position.lerp(cameraTargPos, .03)
-    } else if (leftPanel.looking && controls && controls.target.distanceTo(cameraTargView) < .05) {
-        leftPanel.looking = false;
-    }
-
-    //if controls.target isnt cameraTargView, turn camera towards point
-    if (leftPanel.looking && controls && controls.target.distanceTo(cameraTargView) > .05) {
-        controls.target.lerp(cameraTargView, .03)
-    } else if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) < .05) {
-        leftPanel.looking = false;
-    }
-
     // Update Orbital Controls
 
     if (controls) {
@@ -1534,23 +1540,24 @@ const tick = () => {
 
     //New Frame
     ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
-    leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
-
+    if (leftPanel) {
+        leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
+    }
     //Tracers
     tracers.forEach(t => t.drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals));
 
     //Points
     ms.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
     ts.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
+    if (leftPanel) {
+        if (bw) {
+            leftPanel.ctx.fillStyle = 'black';
+        } else {
+            leftPanel.ctx.fillStyle = 'white';
+        }
 
-    if (bw) {
-        leftPanel.ctx.fillStyle = 'black';
-    } else {
-        leftPanel.ctx.fillStyle = 'white';
+        leftPanel.frame(textbox);
     }
-
-    leftPanel.frame(textbox);
-
     //values
     if (doVals && leftPanel.spreadsheet) {
         tracers.forEach(t => t.drawValues(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight));
@@ -1565,7 +1572,7 @@ const tick = () => {
         ctx.fill();
     }
 
-    if (!leftPanel.spreadsheet && leftPanel.gi) {
+    if (leftPanel && !leftPanel.spreadsheet && leftPanel.gi) {
         if (leftPanel.gi != lastgi) {
             lastgi = leftPanel.gi;
 
