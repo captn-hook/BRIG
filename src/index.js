@@ -1460,8 +1460,10 @@ window.addEventListener('hashchange', (e) => {
             if (camera.position.distanceTo(pos) > .03) {
 
                 //console.log('moving camera');
+               // if (leftPanel.camFree) {
+                //    leftPanel.looking = true;
+                //}
 
-                leftPanel.looking = true;
                 cameraTargPos = pos
                 camera.rotation.set(parseFloat(params[3]), parseFloat(params[4]), parseFloat(params[5]))
 
