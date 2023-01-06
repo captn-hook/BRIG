@@ -50,14 +50,16 @@ export async function userSites(db, name) {
 export function GetGroups(db, name) {
 
     var groups = []
+    if (name != '') {  
 
-    for (let i = 0; i < MAX_GROUPS; i++) {
+        for (let i = 0; i < MAX_GROUPS; i++) {
 
-        const group = doc(db, name, 'group' + i);
+            const group = doc(db, name, 'group' + i);
 
-        getDoc(group).then((g) => {
-            groups.push(g.data())
-        })
+            getDoc(group).then((g) => {
+                groups.push(g.data())
+            })
+        }
     }
 
     return groups
@@ -127,6 +129,7 @@ export async function RemoteData(db, name) {
     var tracers = []
     var insights = []
     var views = []
+
 
     const docRef = doc(db, name, 'data');
 
@@ -431,14 +434,14 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
         console.error("Error adding document");
     }
 
-    
+
     ms.forEach((m, i) => {
 
         var group = {};
         var posAvg = [];
 
         tracers.forEach((t) => {
-         
+
             var label = String(t.m.i) + "/" + String(t.t.i);
 
             if (t.m.i == i + 1) {

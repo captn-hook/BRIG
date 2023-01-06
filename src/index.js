@@ -12,9 +12,6 @@ icon.href = favi;
 import * as THREE from 'three';
 
 import {
-    OrbitControls
-} from 'three/examples/jsm/controls/OrbitControls.js';
-import {
     GLTFLoader
 } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
@@ -97,6 +94,7 @@ import {
 import {
     config
 } from './key';
+import { WebGLBindingStates } from 'three/src/renderers/webgl/WebGLBindingStates';
 
 
 const firebaseConfig = {
@@ -141,10 +139,21 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));
 // Controls
 const canvas2d = document.getElementById('2d');
 
-const controls = new OrbitControls(camera, canvas2d);
-controls.enableDamping = true;
+var controls;
+function getControls() {
+    return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
+        
+        const ctrl = new OB.OrbitControls(camera, canvas2d);
 
-controls.target.set(0, 0, 0);
+        ctrl.enableDamping = true;
+
+        ctrl.target.set(0, 0, 0);
+
+        controls = ctrl;
+
+    });
+}
+getControls()
 
 var cameraTargPos = new THREE.Vector3(5, 5, 5);
 var cameraTargView = new THREE.Vector3(0, 0, 0);
@@ -1343,6 +1352,9 @@ dropd.addEventListener('change', (event) => {
         */
         leftPanel.siteheader = 'Example';
     }
+    
+    window.location.hash = leftPanel.siteheader + '&';
+
 })
 
 
@@ -1429,7 +1441,7 @@ window.addEventListener('hashchange', (e) => {
             dropd.dispatchEvent(new Event('change'));
         }
 
-        if (params[1][0] == 'G') {
+        if (params[1] && params[1][0] == 'G') {
             //setTimeout(giHack, 1500, params);
             leftPanel.spreadsheet = false;
             if (params[0] != dropd.value) {
@@ -1440,7 +1452,7 @@ window.addEventListener('hashchange', (e) => {
             }
 
 
-        } else if (params[1][0] == 'X') {
+        } else if (params[1] && params[1][0] == 'X') {
             leftPanel.spreadsheet = true;
             if (params[1].substring(2) != leftPanel.cellX || params[2].substring(2) != leftPanel.cellY) {
                 leftPanel.firstClickX = params[0].substring(2);
@@ -1449,7 +1461,7 @@ window.addEventListener('hashchange', (e) => {
 
                 //leftPanel.canvas.dispatchEvent(new Event('click'));
             }
-        } else if (params[1][0] == 'P') {
+        } else if (params[1] && params[1][0] == 'P') {
 
             var coords = params[1].substring(2).split('/')
 
@@ -1497,9 +1509,10 @@ window.addEventListener('resize', () => {
 var lastgi = -1;
 
 //load defaullt if no hash
-if (window.location.hash == '') {
+if (window.location.hash == '' || window.location.hash[1] == '&') {
     loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
 }
+
 const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
@@ -1511,12 +1524,12 @@ const tick = () => {
     //if camera.position isnt cameraTargPos, move camera towards point
     if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) > .05) {
         camera.position.lerp(cameraTargPos, .03)
-    } else if (leftPanel.looking && controls.target.distanceTo(cameraTargView) < .05) {
+    } else if (leftPanel.looking && controls && controls.target.distanceTo(cameraTargView) < .05) {
         leftPanel.looking = false;
     }
 
     //if controls.target isnt cameraTargView, turn camera towards point
-    if (leftPanel.looking && controls.target.distanceTo(cameraTargView) > .05) {
+    if (leftPanel.looking && controls && controls.target.distanceTo(cameraTargView) > .05) {
         controls.target.lerp(cameraTargView, .03)
     } else if (leftPanel.looking && camera.position.distanceTo(cameraTargPos) < .05) {
         leftPanel.looking = false;
@@ -1524,8 +1537,9 @@ const tick = () => {
 
     // Update Orbital Controls
 
-    controls.update();
-
+    if (controls) {
+        controls.update();
+    }
     // Render
     renderer.render(scene, camera);
 
