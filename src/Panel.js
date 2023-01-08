@@ -98,11 +98,21 @@ class Panel {
     }
 
     setFontsize(l) {
+
+        if (l == undefined){
+            if (this.tracers != undefined) {
+                l = this.tracers.length;
+            } else {
+                l = 12;
+            }
+        }
+        
         var m = Math.floor(Math.min(this.canvas.parentElement.clientWidth, this.canvas.parentElement.clientHeight));
         var x =  Math.ceil(m / 1.7 / (l / 4)) + 5;
         if (x > 20) {
             x = 20;
         }
+        console.log(x, m, l)
         this.fontsize = x
     }
 

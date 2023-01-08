@@ -92,7 +92,6 @@ class Point2d extends Point {
             ctxLeft.globalAlpha = 1.0;
         
             ctxLeft.textAlign = "center";
-            const c = 4
             if (this.type == 'M') {
                 ctxLeft.fillRect(0, this.i * cellHeight, cellWidth, cellHeight);
                 if (!bw) {
@@ -100,7 +99,7 @@ class Point2d extends Point {
                 } else {
                 ctxLeft.fillStyle = "white";
                 }
-                ctxLeft.fillText(this.name, cellWidth/2, this.i * cellHeight + cellHeight / 2);
+                ctxLeft.fillText(this.name, cellWidth/2, this.i * cellHeight + cellHeight / 2 + leftPanel.fontsize / 3);
             } else if (this.type == 'D') {
                 ctxLeft.fillRect(this.i * cellWidth, 0, cellWidth, cellHeight);
                 if (!bw) {
@@ -108,7 +107,7 @@ class Point2d extends Point {
                 } else {
                 ctxLeft.fillStyle = "white";
                 }
-                ctxLeft.fillText(this.name, this.i * cellWidth + cellWidth / 2, cellHeight/2);
+                ctxLeft.fillText(this.name, this.i * cellWidth + cellWidth / 2, cellHeight/2 + leftPanel.fontsize / 3);
             } else {
                 console.error('Type Error: Left Canvas')
             }

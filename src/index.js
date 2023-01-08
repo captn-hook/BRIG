@@ -1483,7 +1483,6 @@ window.addEventListener('hashchange', (e) => {
 
     leftPanel.setFontsize();
 
-
 });
 
 //resize
