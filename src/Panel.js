@@ -112,7 +112,6 @@ class Panel {
         if (x > 20) {
             x = 20;
         }
-        console.log(x, m, l)
         this.fontsize = x
     }
 

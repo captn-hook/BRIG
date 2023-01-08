@@ -1191,7 +1191,7 @@ function loadRefAndDoc(ref, doc) {
             handleModels(blob);
         })
         .catch((err) => {
-            console.error(err);
+            //console.error(err);
         })
 
     RemoteData(db, doc).then((data) => {
@@ -1207,6 +1207,8 @@ function loadRefAndDoc(ref, doc) {
 
         updateSizes();
 
+    }).catch((err) => {
+        //console.error(err);
     })
 
 
