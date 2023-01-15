@@ -99,16 +99,16 @@ class Panel {
 
     setFontsize(l) {
 
-        if (l == undefined){
+        if (l == undefined) {
             if (this.tracers != undefined) {
                 l = this.tracers.length;
             } else {
                 l = 12;
             }
         }
-        
+
         var m = Math.floor(Math.min(this.canvas.parentElement.clientWidth, this.canvas.parentElement.clientHeight));
-        var x =  Math.ceil(m / 1.7 / (l / 4)) + 5;
+        var x = Math.ceil(m / 1.7 / (l / 4)) + 5;
         if (x > 20) {
             x = 20;
         }
@@ -162,12 +162,17 @@ class Panel {
         } else {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
-                this.text = this.groups[this.gi]['text']
 
+                if (this.groups[this.gi] != undefined) {
+                    this.text = this.groups[this.gi]['text']
+                } else {
+                    this.text = ''
+                }
+      
                 if (this.camFree) {
                     this.looking = true;
                 }
-                
+
                 window.location.hash = (this.siteheader + '&G=' + this.gi);
             } else {
                 this.gi = -1;
@@ -271,7 +276,7 @@ class Panel {
         this.cellX = Math.ceil(x / this.cellWidth);
 
         this.cellY = Math.ceil(y / this.cellHeight);
-       
+
     }
 
     bounds(x1, y1, x2, y2) {
@@ -281,7 +286,7 @@ class Panel {
 
         var w = (Math.abs(x1 - x2) + 1) * this.cellWidth
         var h = (Math.abs(y1 - y2) + 1) * this.cellHeight
-0
+        0
         return [x, y, w, h]
     }
 

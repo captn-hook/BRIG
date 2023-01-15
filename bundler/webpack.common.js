@@ -14,7 +14,8 @@ module.exports = {
         library: "Tracer",
         library: "Data",
         library: "Panal",
-        library: "ScreenSizes"
+        library: "ScreenSizes",
+        library: "UserTable.js"
     },
     devtool: 'source-map',
     plugins: [

@@ -9,17 +9,16 @@ title.src = imageUrl1;
 var icon = document.getElementById('icon');
 icon.href = favi;
 
-import * as THREE from 'three';
-/*
+import {
+    PerspectiveCamera,
+    Vector3,
+    Raycaster,
+    WebGLRenderer,
+    Color,
+    AmbientLight,
+    Scene
+} from 'three';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {
-    GLTFLoader
-} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {
-    DRACOLoader
-} from 'three/examples/jsm/loaders/DRACOLoader';
-*/
 import {
     Data,
     saveFile,
@@ -104,8 +103,6 @@ const listUsers = httpsCallable(functions, 'listUsers');
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
-let Gxhr = 0;
-
 const div = document.getElementById('3d');
 
 const sizes = {
@@ -113,10 +110,10 @@ const sizes = {
     height: div.offsetHeight
 }
 
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
 camera.position.set(5, 5, 5); // Set position like this
-camera.lookAt(new THREE.Vector3(0, 0, 0));
+camera.lookAt(new Vector3(0, 0, 0));
 
 // Controls
 const canvas2d = document.getElementById('2d');
@@ -138,20 +135,16 @@ function getControls() {
 }
 getControls()
 
-var cameraTargPos = new THREE.Vector3(5, 5, 5);
-var cameraTargView = new THREE.Vector3(0, 0, 0);
+var cameraTargPos = new Vector3(5, 5, 5);
+var cameraTargView = new Vector3(0, 0, 0);
+
 
 // Scene
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+const scene = new Scene();
+scene.background = new Color(0x000000);
 scene.add(camera);
 
 //cam size
-
-function updateCamera() {
-    camera.updateProjectionMatrix();
-}
-
 canvas2d.width = sizes.width;
 canvas2d.height = sizes.height;
 
@@ -175,13 +168,28 @@ function getPanel() {
 
         const panel = new P.Panel(document.getElementById('left'));
 
+        panel.setcam(false)
+
         leftPanel = panel;
-
-        leftPanel.setcam(false)
-
     });
 }
 getPanel();
+
+
+var userTable;
+
+function getTable() {
+    return import('./UserTable.js').then((U) => {
+
+        const table = new U.UserTable(document.getElementById('table'), defaultDropd);
+
+        userTable = table;
+    });
+}
+getTable();
+
+
+
 
 //canvasleft.oncontextmenu = () => false;
 
@@ -494,7 +502,7 @@ async function savePerms() {
 
 
 
-    inUsers.forEach((user) => {
+    userTable.inUsers.forEach((user) => {
         inner += '"' + user[1] + '":"' + user[0] + '",';
 
         d[user[1]] = user[0];
@@ -504,7 +512,7 @@ async function savePerms() {
         })
     })
 
-    allUsers.forEach((user) => {
+    userTable.allUsers.forEach((user) => {
         inner += '"' + user[1] + '":"false",';
 
         d[user[1]] = 'false';
@@ -525,7 +533,9 @@ async function savePerms() {
         /* updates csvs
         updateMetadata(dataRef, newMetadata).then((metadata) => {
 */
-        populateTable();
+
+
+        userTable.populateTable(storage, allUsersM, dropd.value, bw);
         /*s
 
                 }).catch((error) => {
@@ -565,8 +575,10 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
 
     leftPanel.setbw(bw)
 
+    userTable.bw = bw;
+
     if (bw) {
-        scene.background = new THREE.Color(0x000000);
+        scene.background = new Color(0x000000);
         back.style.background = 'rgb(27, 27, 27)';
         title.src = imageUrl1;
         tx.style.color = 'lightgray';
@@ -584,7 +596,7 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
             cells[i].classList.add('tbDark');
         }
     } else {
-        scene.background = new THREE.Color(0xffffff);
+        scene.background = new Color(0xffffff);
         back.style.background = 'rgb(230, 230, 230)';
         title.src = imageUrl2;
         tx.style.color = 'black';
@@ -623,177 +635,6 @@ function validateEmail(email) {
         /^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
-/*
-function getList() {
-
-    const https = require('https');
-
-    // Sample URL
-    const url = 'https://jsonplaceholder.typicode.com/todos/1';
-
-    const request = https.request(url, (response) => {
-        let data = '';
-        response.on('data', (chunk) => {
-            data = data + chunk.toString();
-        });
-
-        response.on('end', () => {
-            const body = JSON.parse(data);
-            console.log(body);
-        });
-    })
-
-    request.on('error', (error) => {
-        console.log('An error', error);
-    });
-
-    request.end()
-}
-*/
-
-//set group to selected
-const table = document.getElementById('table');
-
-
-var inUsers = [];
-var allUsers = [];
-
-function populateTable() {
-
-    if (dropd.value != defaultDropd && dropd.value != 'Empty' && dropd.value != 'Select a site' && dropd.value != '') {
-
-        allUsers = allUsersM;
-        inUsers = [];
-
-
-        var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
-
-        getMetadata(itemRef).then((metadata) => {
-
-                if (metadata.customMetadata != null) {
-
-                    var names = Object.keys(metadata.customMetadata);
-                    var data = Object.values(metadata.customMetadata);
-
-                    names.forEach((user) => {
-
-                        if (data[names.indexOf(user)] != 'false') {
-
-                            inUsers.push([data[names.indexOf(user)], user]);
-
-                            for (var i = 0; i < allUsers.length; i++) {
-                                if (allUsers[i][1] == user) {
-                                    allUsers.splice(i, 1);
-                                }
-                            }
-                        }
-
-                    });
-
-                    pTable2(allUsers, inUsers);
-
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-
-        pTable2(allUsers, inUsers);
-    }
-}
-
-var aU = [];
-var iU = [];
-
-function pTable2(aU0, iU0) {
-
-    var nerHTML = '<tr>\n<th class="cell">No Access</th><th class="cell">Access</th>\n</tr>\n';
-
-    var big = iU0.length > aU0.length ? iU0.length : aU0.length;
-
-    var style = bw ? 'tbDark' : 'tbLight';
-
-    var tbIn = 'tbIn';
-
-    for (var i = 0; i < big; i++) {
-
-        nerHTML += '<tr>\n';
-
-        if (i < aU0.length) {
-
-            if (aU0[i].length > 2) {
-                tbIn = 'tbOut';
-            }
-
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell">' + aU0[i][1] + '</td>';
-
-            tbIn = 'tbIn';
-        } else {
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell"></td>';
-        }
-
-        if (i < iU0.length) {
-
-            if (iU0[i].length > 2) {
-                tbIn = 'tbOut';
-            }
-
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell">' + iU0[i][1] + '</td>';
-
-            tbIn = 'tbIn';
-        } else {
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell"></td>';
-        }
-
-        nerHTML += '\n</tr>\n';
-
-    }
-
-    allUsers = aU0;
-    inUsers = iU0;
-
-    aU = []
-    iU = []
-
-    table.innerHTML = nerHTML;
-
-    document.querySelectorAll('#table td')
-        .forEach(e => e.addEventListener("click", cellListener));
-}
-
-function cellListener() {
-
-    for (var i = 0; i < allUsers.length; i++) {
-
-        if (allUsers[i][1] == this.innerHTML) {
-
-            iU.push([allUsers[i][0], allUsers[i][1], 'flag']);
-
-        } else {
-
-            aU.push(allUsers[i]);
-
-        }
-
-    }
-
-    for (var i = 0; i < inUsers.length; i++) {
-
-
-        if (inUsers[i][1] == this.innerHTML) {
-
-            aU.push([inUsers[i][0], inUsers[i][1], 'flag']);
-
-        } else {
-
-            iU.push(inUsers[i]);
-
-        }
-
-    }
-
-    pTable2(aU, iU);
-}
 
 // btn event listeners
 
@@ -803,13 +644,13 @@ ctrlBtn.addEventListener('click', btn6.adminMenu);
 updateSizes();
 
 // Lights
-const light = new THREE.AmbientLight(0x404040); // soft white light
+const light = new AmbientLight(0x404040); // soft white light
 light.intensity = 3;
 scene.add(light);
 
 
 //Renderer
-const renderer = new THREE.WebGLRenderer({
+const renderer = new WebGLRenderer({
     canvas: canvas3d
 });
 
@@ -851,7 +692,7 @@ function onLoadLoad(obj) {
 
 // onProgress callback
 function onProgressLog(xhr) {
-    Gxhr = (xhr.loaded / xhr.total * 100);
+    console.log("LOADING: ", xhr.loaded / xhr.total * 100);
 }
 
 // onError callback
@@ -896,8 +737,6 @@ function updateSizes() {
     }
 }
 
-const clock = new THREE.Clock();
-
 const dataInput = document.getElementById('datapicker');
 
 const modelInput = document.getElementById('modelpicker');
@@ -926,6 +765,7 @@ function getDRACOLoader() {
     })
 }
 
+
 function handleModels(input) {
     //remove old stuff first
 
@@ -937,40 +777,15 @@ function handleModels(input) {
 
     read.readAsArrayBuffer(input);
 
-    read.addEventListener('progress', (e) => {
-        if ((e.loaded / e.total * 100) == 100) {
-            Gxhr += 25;
-        }
-    })
-
-
     read.onloadend = function () {
-        /*
-function getControls() {
-    return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
-
-        const ctrl = new OB.OrbitControls(camera, canvas2d);
-
-        ctrl.enableDamping = true;
-
-        ctrl.target.set(0, 0, 0);
-
-        controls = ctrl;
-
-    });
-}
-getControls()
-*/
 
         getDRACOLoader().then((loader) => {
 
             loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
 
-            Gxhr = 0;
-
         })
 
-        populateTable();
+        userTable.populateTable(storage, allUsersM, dropd.value, bw);
 
     }
 }
@@ -981,12 +796,6 @@ function handleFiles(input) {
     leftPanel.blankClicks();
 
     var read = new FileReader();
-
-    read.addEventListener('progress', (e) => {
-        if ((e.loaded / e.total * 100) == 100) {
-            Gxhr += 25;
-        }
-    })
 
     read.readAsBinaryString(input);
 
@@ -1012,8 +821,8 @@ function updateCam() {
             } else if (leftPanel.mt == 2) {
                 //if y (row) == 1, ts
 
-                cameraTargPos = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
-                cameraTargView = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
+                cameraTargPos = new Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
+                cameraTargView = new Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
 
                 //throws errors if it trys to select row before/after last
             } else if (leftPanel.mt == 1) {
@@ -1021,13 +830,13 @@ function updateCam() {
                 //special views
                 //console.log(views[leftPanel.n + 1])
                 if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
-                    cameraTargPos = new THREE.Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
+                    cameraTargPos = new Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
                 } else {
 
-                    cameraTargPos = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
+                    cameraTargPos = new Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
 
                 }
-                cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
+                cameraTargView = new Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
 
                 //insights
                 if (leftPanel.spreadsheet) {
@@ -1050,8 +859,8 @@ function updateCam() {
             var i = 0;
         }
         try {
-            cameraTargPos = new THREE.Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
-            cameraTargView = new THREE.Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
+            cameraTargPos = new Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
+            cameraTargView = new Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
         } catch (e) {}
 
         //console.log(cameraTargPos, cameraTargView)
@@ -1187,7 +996,6 @@ function loadRefAndDoc(ref, doc) {
 
     getBlob(ref)
         .then((blob) => {
-            Gxhr += 25;
             handleModels(blob);
         })
         .catch((err) => {
@@ -1218,7 +1026,6 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref1)
         .then((blob) => {
-            Gxhr += 25;
             handleModels(blob);
         })
         .catch((err) => {
@@ -1229,7 +1036,6 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
-            Gxhr += 25;
             handleFiles(blob);
         })
         .catch((err) => {
@@ -1294,7 +1100,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
-    Gxhr = 0;
 
     [ms, ts, tracers, insights, views] = [
         [],
@@ -1341,6 +1146,8 @@ dropd.addEventListener('change', (event) => {
 
         loadRefs(modelRef, dataRef)
 
+        leftPanel.groups = GetGroups(db, targ);
+
         /*
         Animate
         */
@@ -1375,7 +1182,7 @@ canvas2d.addEventListener('click', (e) => {
 
         if (editPos) {
 
-            var raycaster = new THREE.Raycaster();
+            var raycaster = new Raycaster();
             var mouse = {
                 x: (e.clientX - leftPanel.canvas.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
                 y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
@@ -1387,9 +1194,9 @@ canvas2d.addEventListener('click', (e) => {
 
             if (intersects.length > 0) {
                 if (leftPanel.firstClickX == 1) {
-                    ms[leftPanel.firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    ms[leftPanel.firstClickY - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
                 } else if (leftPanel.firstClickY == 1) {
-                    ts[leftPanel.firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
                 }
             }
         }
@@ -1461,7 +1268,7 @@ window.addEventListener('hashchange', (e) => {
 
             var coords = params[1].substring(2).split('/')
 
-            var pos = new THREE.Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
+            var pos = new Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
             //var rot = new Vector3(parseFloat(coords[3]), parseFloat(coords[4]), parseFloat(coords[5]))
 
             //                                   min dist
@@ -1510,7 +1317,6 @@ if (window.location.hash == '' || window.location.hash[1] == '&') {
 
 const tick = () => {
 
-    const elapsedTime = clock.getElapsedTime();
     if (leftPanel) {
         if (leftPanel.looking || !leftPanel.spreadsheet) {
             updateCam();
@@ -1562,15 +1368,6 @@ const tick = () => {
     //values
     if (doVals && leftPanel.spreadsheet) {
         tracers.forEach(t => t.drawValues(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight));
-    }
-
-    //loading bar
-
-    if (0 < Gxhr && Gxhr < 100) {
-        ctx.beginPath();
-        ctx.arc(sizes.width / 2, sizes.height / 2, Math.sin(elapsedTime) * 10 + 10, 0, 2 * Math.PI);
-        ctx.fillStyle = 'rgb(100, 100, ' + Math.sin(elapsedTime) * 255 + ')';
-        ctx.fill();
     }
 
     if (leftPanel && !leftPanel.spreadsheet && leftPanel.gi) {
