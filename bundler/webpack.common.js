@@ -15,7 +15,7 @@ module.exports = {
         library: "Data",
         library: "Panal",
         library: "ScreenSizes",
-        library: "UserTable.js"
+        library: "UserTable"
     },
     devtool: 'source-map',
     plugins: [
