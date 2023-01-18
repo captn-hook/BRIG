@@ -28,6 +28,10 @@ import {
     saveGroup,
     userSites
 } from './Data';
+
+import {
+    Area
+} from './Area';
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
@@ -669,6 +673,8 @@ var ts = []
 var tracers = []
 var insights = []
 var views = []
+
+var areas = [];
 //loadfunc =====================================================<
 //load3DModel(building);
 
@@ -807,6 +813,10 @@ function handleFiles(input) {
         //resize sheet
         updateSizes();
     }
+}
+
+function createArea(i) {
+    areas[i] = new Area([new Vector3(-10,-10,0), new Vector3(-5,5,0), new Vector3(10,0,10), new Vector3(5,0,-5)], 13)
 }
 
 function updateCam() {
@@ -1315,6 +1325,8 @@ if (window.location.hash == '' || window.location.hash[1] == '&') {
     loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
 }
 
+createArea(0);
+
 const tick = () => {
 
     if (leftPanel) {
@@ -1352,6 +1364,9 @@ const tick = () => {
     }
     //Tracers
     tracers.forEach(t => t.drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals));
+
+    //Areas
+    areas.forEach(a => a.drawArea(ctx, camera, sizes));
 
     //Points
     ms.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));

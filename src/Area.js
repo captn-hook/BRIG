@@ -1,4 +1,6 @@
-import { Vector3, Vector2 } from 'three';
+import {
+    Vector3,
+} from 'three';
 //import Point2d from './Point';
 
 class Area {
@@ -83,102 +85,39 @@ class Area {
         } : null;
     }
 
-    screenPts(camera, w, h) {
+    screenPts(camera, w, h, x, y, z) {
 
+        let proj = new Vector3(x, z, y);
 
-        let proj1 = new Vector3(this.m.pos.x, this.m.pos.z, this.m.pos.y);
-
-        proj1.project(camera);
-
-        let proj2 = new Vector3(this.t.pos.x, this.t.pos.z, this.t.pos.y);
-
-        proj2.project(camera);
+        proj.project(camera);
 
         //end       tx                  
-        var x4 = ((proj2.x * w) + w);
+        var x = ((proj.x * w) + w);
         //headroom    ty                 
-        var y4 = (-(proj2.y * h) + h);
+        var y = (-(proj.y * h) + h);
 
-        /*
-        MOVE M POINT ALONG LINE TO T POMT BY HEADROOM
-        */
-
-        //m
-        var x1 = ((proj1.x * w) + w);
-        var y1 = (-(proj1.y * h) + h);
-
-        //m > T
-        //get unit vector of ((x4 - x1), (y4 - y1))
-        var u = new Vector2(x4 - x1, y4 - y1).normalize();
-
-        //mx + (tx - mx) /  scalar(headroom)
-        x1 += u.x * this.headroom;
-        //my + (ty - my) / scalar(headroom)
-        y1 += u.y * this.headroom;
-
-        //mid + lift
-        var [mx, my] = this.midpoint(x1, y1, x4, y4);
-        my -= this.lift;
-
-        //ctrl1  mid(start, mid)
-        var [x2, y2] = this.midpoint(x1, y1, mx, my);
-
-        //ctrl2  mid(end, mid)
-        var [x3, y3] = this.midpoint(x4, y4, mx, my);
-
-        var headwidth = Math.max(this.outline * 2, 2); // length of head in 
-
-        var dx = x4 - x1;
-        var dy = y4 - y1;
-
-        var angle = Math.atan2(dy, dx);
-
-        var arrowconst = 3;
-
-        var x5 = x1 + headwidth * Math.cos(angle - Math.PI / arrowconst);
-        var y5 = y1 + headwidth * Math.sin(angle - Math.PI / arrowconst);
-
-        var x6 = x1 + headwidth * Math.cos(angle + Math.PI / arrowconst);
-        var y6 = y1 + headwidth * Math.sin(angle + Math.PI / arrowconst);
-
-        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, proj1.z, proj2.z]
+        return [x, y]
 
     }
 
-}
+    drawArea(ctx, camera, sizes, alpha = true) {
 
-class Tracer2d extends Tracer {
-
-    constructor(m, t, value, headroom, lift) {
-
-        super(m, t, value, headroom, lift);
-
-        const maxwidth = 50;
-
-        const minwidth = 1;
-
-        this.rgbval = this.hexToRgb(this.color);
-
-        var white = this.rgbToHex(255, 255, 255)
-        var hex2 = this.rgbToHex(this.rgbval)
-
-        this.outline = this.rescale(Math.min(value, 10), 0, 25, minwidth, maxwidth);
-
-        //console.log(this.value, this.a)
-    }
-
-
-    drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals) {
-
-        var ctxLeft = leftPanel.ctx;
-        var cellHeight = leftPanel.cellHeight;
-        var cellWidth = leftPanel.cellWidth;
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, z1, z2] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
+        var screenpts = [];
 
+        for (var p in this.points) {
+
+            var x = this.points[p].x;
+            var y = this.points[p].y;
+            var z = this.points[p].z;
+
+            screenpts.push(this.screenPts(camera, sizes.width / 2, sizes.height / 2, x, y, z));
+
+        }
         //if z1 and z2 magnitude is less than 1, then draw the tracer
-        if (this.visible && Math.abs(z1) < 1 && Math.abs(z2) < 1) {
+
+        if (this.visible) {
 
 
             ctx.lineWidth = this.outline;
@@ -189,54 +128,29 @@ class Tracer2d extends Tracer {
                 var opac = 1;
             }
 
+            opac = this.opacity
+            //or this.opacity
+
             ctx.strokeStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
             ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
 
-
-
-            //arrowhead
+            //area
             ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x5, y5);
-            ctx.lineTo(x6, y6);
-            ctx.lineTo(x1, y1);
+            ctx.moveTo(screenpts[0][0], screenpts[0][1]);
+            console.log(screenpts[0][0], screenpts[0][1])
+
+            for (var i = 1; i < screenpts.length; i++) {
+                ctx.lineTo(screenpts[i][0], screenpts[i][1]);
+                console.log(screenpts[i][0], screenpts[i][1])
+            }
+
             ctx.fill();
 
-            // Cubic Bézier curve
-            ctx.beginPath();
-            //start line at arrow tip edge
-            var [strtx, strty] = this.midpoint(x5, y5, x6, y6);
-            ctx.moveTo(strtx, strty);
-            //                ctrl1    ctrl2   end
-            ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-            ctx.stroke();
-
-            if (doVals) {
-
-                ctx.font = "12px Arial";
-                ctx.textAlign = "center";
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 2;
-
-                ctx.strokeText(Math.round(this.value * 100) / 100, x2, y2);
-                ctx.fillStyle = this.color;
-                ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
-            }
+            console.log(ctx.fillStyle)
 
         }
 
-        //spreadsheet
-        if (leftPanel.spreadsheet) {
-            if (this.visible) {
-                ctxLeft.globalAlpha = 1.0;
-            } else {
-                ctxLeft.globalAlpha = .2;
-            }
-            ctxLeft.fillStyle = this.color;
-            ctxLeft.fillRect(this.t.i * cellWidth, this.m.i * cellHeight, cellWidth, cellHeight);
-            ctxLeft.globalAlpha = 1.0;
-        }
-    };
+    }
 
 }
 
