@@ -621,7 +621,7 @@ var btn6 = {
     adminMenu: function () {
         if (ctrl.style.display == 'block') {
             ctrl.style.display = 'none';
-            root.style.width = '100%';
+            root.style.width = '100%'
         } else {
             ctrl.style.display = 'block';
             root.style.width = '80%';

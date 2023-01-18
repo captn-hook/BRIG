@@ -1,5 +1,4 @@
-import * as THREE from 'three';
-import { Vector3 } from 'three';
+import { Vector3, SphereGeometry, MeshBasicMaterial, Color, Mesh } from 'three';
 
 class Point {
 
@@ -32,7 +31,7 @@ class Point2d extends Point {
 
     screenPt(camera, w, h) {
 
-            let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
+            let proj = new Vector3(this.pos.x, this.pos.z, this.pos.y);
 
             proj.project(camera);
 
@@ -129,11 +128,11 @@ class Point3d extends Point {
         
         this.radius = radius;
 
-        this.geometry = new THREE.SphereGeometry(radius);
-
-        this.material = new THREE.MeshBasicMaterial();
-        this.material.color = new THREE.Color(this.color);
-        this.sphere = new THREE.Mesh(this.geometry, this.material);
+        this.geometry = new SphereGeometry(radius);
+    
+        this.material = new MeshBasicMaterial();
+        this.material.color = new Color(this.color);
+        this.sphere = new Mesh(this.geometry, this.material);
 
         this.sphere.position.set(this.pos.x, this.pos.z, this.pos.y);
     }

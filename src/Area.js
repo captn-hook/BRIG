@@ -1,14 +1,15 @@
 import { Vector3, Vector2 } from 'three';
 //import Point2d from './Point';
 
-class Tracer {
+class Area {
 
-    constructor(m = 0, t = 0, value = 0, headroom = 40, lift = 20) {
-        this.m = m;
-        this.t = t;
+    constructor(p = [], value = 0, opacity = .5, thickness = 1) {
+        this.points = p;
         this.value = parseFloat(value);
-        this.headroom = headroom;
-        this.lift = lift;
+        this.opacity = opacity;
+        this.visible = true;
+        this.outline = false;
+        this.thickness = thickness;
 
         //console.log(this.rgb(this.value));  
         [this.r, this.g, this.b, this.a] = this.rgb(this.value);
@@ -237,41 +238,8 @@ class Tracer2d extends Tracer {
         }
     };
 
-    drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
-
-        if (this.visible) {
-
-            var size = parseInt(cellWidth / 2.3);
-
-            ctxLeft.font = size.toString() + "px Arial";
-            ctxLeft.textAlign = "center";
-            ctxLeft.strokeStyle = 'black';
-            ctxLeft.lineWidth = 2;
-            ctxLeft.strokeText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 1.5);
-            ctxLeft.fillStyle = "white";
-            ctxLeft.fillText(Math.round(this.value * 100) / 100, this.t.i * cellWidth + cellWidth / 2, this.m.i * cellHeight + cellHeight / 1.5);
-
-            /*
-            ctxLeft.font = "12px Arial";
-            ctxLeft.fillStyle = "black";
-            ctxLeft.textAlign = "center";
-            ctxLeft.fillText(this.value, cellWidth * cellWidth, cellHeight * cellHeight - 30);
-            */
-        }
-    };
-
-
-
-    monitor() {
-        return this.m;
-    }
-
-    tracer() {
-        return this.t;
-    }
-
 }
 
 export {
-    Tracer2d
+    Area
 };
