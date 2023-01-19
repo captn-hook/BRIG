@@ -46,7 +46,8 @@ import {
     getAuth,
     signInWithPopup,
     GoogleAuthProvider,
-    onAuthStateChanged
+    onAuthStateChanged,
+    FacebookAuthProvider
 } from 'firebase/auth';
 
 import {
@@ -815,8 +816,8 @@ function handleFiles(input) {
     }
 }
 
-function createArea(i) {
-    areas[i] = new Area([new Vector3(-10,-10,0), new Vector3(-5,5,0), new Vector3(10,0,10), new Vector3(5,0,-5)], 13)
+function createArea() {
+    areas.push(new Area([], areas.length * 2))
 }
 
 function updateCam() {
@@ -1184,6 +1185,11 @@ canvas2d.addEventListener('wheel', (event) => {
     passive: true
 });
 
+canvas2d.addEventListener('contextmenu', (e) => {
+    if (areas.length > 0) {
+        areas.pop();
+    }
+})
 canvas2d.addEventListener('click', (e) => {
         if (leftPanel.camFree) {
             leftPanel.looking = false;
@@ -1202,11 +1208,23 @@ canvas2d.addEventListener('click', (e) => {
 
             var intersects = raycaster.intersectObjects(sceneMeshes, true);
 
+            var doP = false;
+
             if (intersects.length > 0) {
-                if (leftPanel.firstClickX == 1) {
-                    ms[leftPanel.firstClickY - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
-                } else if (leftPanel.firstClickY == 1) {
-                    ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                if (doP) {
+                    if (leftPanel.firstClickX == 1) {
+                        ms[leftPanel.firstClickY - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    } else if (leftPanel.firstClickY == 1) {
+                        ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    }
+                } else {
+                    if (areas.length > 0 && areas[areas.length - 1].points.length < 4) {
+                        if (intersects.length > 0) {
+                            areas[areas.length - 1].points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
+                        }
+                    } else {
+                        createArea();
+                    }
                 }
             }
         }
@@ -1325,7 +1343,7 @@ if (window.location.hash == '' || window.location.hash[1] == '&') {
     loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
 }
 
-createArea(0);
+//createArea(0);
 
 const tick = () => {
 
@@ -1366,8 +1384,9 @@ const tick = () => {
     tracers.forEach(t => t.drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals));
 
     //Areas
-    areas.forEach(a => a.drawArea(ctx, camera, sizes));
-
+    if (areas.length > 0) { 
+        areas.forEach(a => a.drawArea(ctx, camera, sizes));
+    }
     //Points
     ms.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
     ts.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));

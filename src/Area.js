@@ -5,7 +5,7 @@ import {
 
 class Area {
 
-    constructor(p = [], value = 0, opacity = .5, thickness = 1) {
+    constructor(p = [], value = 0, opacity = .5, thickness = 2) {
         this.points = p;
         this.value = parseFloat(value);
         this.opacity = opacity;
@@ -110,7 +110,7 @@ class Area {
 
             var x = this.points[p].x;
             var y = this.points[p].y;
-            var z = this.points[p].z;
+            var z = this.points[p].z / 100;
 
             screenpts.push(this.screenPts(camera, sizes.width / 2, sizes.height / 2, x, y, z));
 
@@ -131,22 +131,23 @@ class Area {
             opac = this.opacity
             //or this.opacity
 
-            ctx.strokeStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
+            ctx.strokeStyle = "rgba(" + String(this.r / 5) + ", " + String(this.g / 5) + ", " + String(this.b / 5) + ", " + String(1) + ")";
             ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
-
+            ctx.lineWidth = this.thickness;
             //area
+            if (screenpts.length > 0) {
             ctx.beginPath();
             ctx.moveTo(screenpts[0][0], screenpts[0][1]);
-            console.log(screenpts[0][0], screenpts[0][1])
-
+      
             for (var i = 1; i < screenpts.length; i++) {
                 ctx.lineTo(screenpts[i][0], screenpts[i][1]);
-                console.log(screenpts[i][0], screenpts[i][1])
             }
 
-            ctx.fill();
+            ctx.closePath();
 
-            console.log(ctx.fillStyle)
+            ctx.fill();
+            ctx.stroke();
+        }
 
         }
 
