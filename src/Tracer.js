@@ -167,7 +167,7 @@ class Tracer2d extends Tracer {
     }
 
 
-    drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals) {
+    drawTracer(leftPanel, camera, sizes, alpha, doVals) {
 
         var ctxLeft = leftPanel.ctx;
         var cellHeight = leftPanel.cellHeight;
@@ -180,7 +180,7 @@ class Tracer2d extends Tracer {
         if (this.visible && Math.abs(z1) < 1 && Math.abs(z2) < 1) {
 
 
-            ctx.lineWidth = this.outline;
+            sizes.ctx.lineWidth = this.outline;
 
             if (alpha) {
                 var opac = this.a;
@@ -188,38 +188,38 @@ class Tracer2d extends Tracer {
                 var opac = 1;
             }
 
-            ctx.strokeStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
-            ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
+            sizes.ctx.strokeStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
+            sizes.ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
 
 
 
             //arrowhead
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x5, y5);
-            ctx.lineTo(x6, y6);
-            ctx.lineTo(x1, y1);
-            ctx.fill();
+            sizes.ctx.beginPath();
+            sizes.ctx.moveTo(x1, y1);
+            sizes.ctx.lineTo(x5, y5);
+            sizes.ctx.lineTo(x6, y6);
+            sizes.ctx.lineTo(x1, y1);
+            sizes.ctx.fill();
 
             // Cubic Bézier curve
-            ctx.beginPath();
+            sizes.ctx.beginPath();
             //start line at arrow tip edge
             var [strtx, strty] = this.midpoint(x5, y5, x6, y6);
-            ctx.moveTo(strtx, strty);
+            sizes.ctx.moveTo(strtx, strty);
             //                ctrl1    ctrl2   end
-            ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-            ctx.stroke();
+            sizes.ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+            sizes.ctx.stroke();
 
             if (doVals) {
 
-                ctx.font = "12px Arial";
-                ctx.textAlign = "center";
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 2;
+                sizes.ctx.font = "12px Arial";
+                sizes.ctx.textAlign = "center";
+                sizes.ctx.strokeStyle = 'black';
+                sizes.ctx.lineWidth = 2;
 
-                ctx.strokeText(Math.round(this.value * 100) / 100, x2, y2);
-                ctx.fillStyle = this.color;
-                ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
+                sizes.ctx.strokeText(Math.round(this.value * 100) / 100, x2, y2);
+                sizes.ctx.fillStyle = this.color;
+                sizes.ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
             }
 
         }
@@ -237,7 +237,7 @@ class Tracer2d extends Tracer {
         }
     };
 
-    drawValues(ctx, ctxLeft, camera, sizes, cellWidth, cellHeight) {
+    drawValues(ctxLeft, cellWidth, cellHeight) {
 
         if (this.visible) {
 

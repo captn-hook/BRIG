@@ -30,6 +30,10 @@ import {
 } from './Data';
 
 import {
+    ScreenSizes
+} from './ScreenSizes';
+
+import {
     Area
 } from './Area';
 /*
@@ -46,8 +50,7 @@ import {
     getAuth,
     signInWithPopup,
     GoogleAuthProvider,
-    onAuthStateChanged,
-    FacebookAuthProvider
+    onAuthStateChanged
 } from 'firebase/auth';
 
 import {
@@ -61,8 +64,7 @@ import {
 
 import {
     getFunctions,
-    httpsCallable,
-    //connectFunctionsEmulator
+    httpsCallable
 } from 'firebase/functions';
 
 import {
@@ -71,12 +73,6 @@ import {
     deleteDoc,
     doc
 } from "firebase/firestore";
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 import {
     config
@@ -108,12 +104,8 @@ const listUsers = httpsCallable(functions, 'listUsers');
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
-const div = document.getElementById('3d');
+const sizes = new ScreenSizes();
 
-const sizes = {
-    width: div.offsetWidth,
-    height: div.offsetHeight
-}
 
 const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
@@ -121,14 +113,12 @@ camera.position.set(5, 5, 5); // Set position like this
 camera.lookAt(new Vector3(0, 0, 0));
 
 // Controls
-const canvas2d = document.getElementById('2d');
-
 var controls;
 
 function getControls() {
     return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
 
-        const ctrl = new OB.OrbitControls(camera, canvas2d);
+        const ctrl = new OB.OrbitControls(camera, sizes.canvas2d);
 
         ctrl.enableDamping = true;
 
@@ -149,22 +139,12 @@ const scene = new Scene();
 scene.background = new Color(0x000000);
 scene.add(camera);
 
-//cam size
-canvas2d.width = sizes.width;
-canvas2d.height = sizes.height;
-
-//selet
+//select
 const dropd = document.getElementById('dropdown');
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
-const ctx = canvas2d.getContext('2d');
-
-ctx.lineJoin = 'round';
-//ctx.miterLimit = 1;
-
-const spreadsheetDiv = document.getElementById('spreadsheet');
 
 var leftPanel;
 
@@ -202,19 +182,15 @@ const sGroup = document.getElementById('saveGroup');
 const aGroup = document.getElementById('addGroup');
 const dGroup = document.getElementById('deleteGroup');
 
-//const ctxLeft = canvasleft.getContext('2d');
-
 const textbox = document.getElementById('textbox');
 
-
-//buttons
 
 //buttons
 
 var alpha = true;
 
 document.getElementById('login').addEventListener('click', (e) => {
-    updateSizes();
+    sizes.updateSizes(leftPanel);
     login();
 })
 
@@ -395,13 +371,13 @@ document.getElementById('groups').addEventListener('click', (e) => {
     if (leftPanel.spreadsheet) {
         bug1.style.display = 'block'
         bug2.style.display = 'none'
-        spreadsheetDiv.style.overflow = 'hidden';
+        sizes.spreadsheetDiv.style.overflow = 'hidden';
     } else {
         bug1.style.display = 'none'
         bug2.style.display = 'block'
-        spreadsheetDiv.style.overflow = 'auto';
+        sizes.spreadsheetDiv.style.overflow = 'auto';
     }
-    updateSizes();
+    sizes.updateSizes(leftPanel);
 })
 
 sGroup.addEventListener('click', plant1);
@@ -646,7 +622,7 @@ function validateEmail(email) {
 ctrlBtn.addEventListener('click', btn6.adminMenu);
 
 //set size
-updateSizes();
+sizes.updateSizes(leftPanel);
 
 // Lights
 const light = new AmbientLight(0x404040); // soft white light
@@ -710,40 +686,6 @@ function onErrorLog(err) {
 /*
 Misc
 */
-
-function updateSizes() {
-    sizes.width = div.offsetWidth;
-    sizes.height = div.offsetHeight;
-
-    ctx.canvas.innerWidth = sizes.width;
-    ctx.canvas.innerHeight = sizes.height;
-
-    canvas2d.width = sizes.width;
-    canvas2d.height = sizes.height;
-
-    if (leftPanel) {
-        leftPanel.ctx.canvas.innerWidth = spreadsheetDiv.offsetWidth;
-
-        leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
-
-        if (leftPanel.spreadsheet) {
-
-            leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
-
-            leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
-
-        } else {
-
-            leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
-
-            //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
-
-        }
-
-        leftPanel.cellSize(spreadsheetDiv.offsetHeight);
-    }
-}
-
 const dataInput = document.getElementById('datapicker');
 
 const modelInput = document.getElementById('modelpicker');
@@ -812,7 +754,7 @@ function handleFiles(input) {
 
         leftPanel.setTracers(ms, ts, tracers)
         //resize sheet
-        updateSizes();
+        sizes.updateSizes(leftPanel);
     }
 }
 
@@ -1024,7 +966,7 @@ function loadRefAndDoc(ref, doc) {
             stupid = null;
         }
 
-        updateSizes();
+        sizes.updateSizes(leftPanel);
 
     }).catch((err) => {
         //console.error(err);
@@ -1106,7 +1048,7 @@ function login() {
 */
 
 document.addEventListener('DOMContentLoaded', (e) => {
-    updateSizes();
+    sizes.updateSizes(leftPanel);
 })
 
 //load files from google storage by dropdown name
@@ -1171,13 +1113,13 @@ dropd.addEventListener('change', (event) => {
 
 
 //canvas
-canvas2d.addEventListener('mousedown', (e) => {
+sizes.canvas2d.addEventListener('mousedown', (e) => {
     if (leftPanel.camFree) {
         leftPanel.looking = false;
     }
 })
 
-canvas2d.addEventListener('wheel', (event) => {
+sizes.canvas2d.addEventListener('wheel', (event) => {
     if (leftPanel.camFree) {
         leftPanel.looking = false;
     }
@@ -1185,12 +1127,13 @@ canvas2d.addEventListener('wheel', (event) => {
     passive: true
 });
 
-canvas2d.addEventListener('contextmenu', (e) => {
+sizes.canvas2d.addEventListener('contextmenu', (e) => {
     if (areas.length > 0) {
         areas.pop();
     }
 })
-canvas2d.addEventListener('click', (e) => {
+
+sizes.canvas2d.addEventListener('click', (e) => {
         if (leftPanel.camFree) {
             leftPanel.looking = false;
         }
@@ -1279,7 +1222,7 @@ window.addEventListener('hashchange', (e) => {
                 stupid = params[1].substring(2);
             } else {
                 leftPanel.gi = params[1].substring(2);
-                updateSizes();
+                sizes.updateSizes(leftPanel);
             }
 
 
@@ -1325,7 +1268,7 @@ window.addEventListener('hashchange', (e) => {
 //resize
 window.addEventListener('resize', () => {
     // Update sizes
-    updateSizes();
+    sizes.updateSizes(leftPanel);
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -1376,20 +1319,21 @@ const tick = () => {
     renderer.render(scene, camera);
 
     //New Frame
-    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+    sizes.clearC2d();
+    
     if (leftPanel) {
         leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
     }
     //Tracers
-    tracers.forEach(t => t.drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals));
+    tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
 
     //Areas
     if (areas.length > 0) { 
-        areas.forEach(a => a.drawArea(ctx, camera, sizes));
+        areas.forEach(a => a.drawArea(camera, sizes));
     }
     //Points
-    ms.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
-    ts.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
+    ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
+    ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
     if (leftPanel) {
         if (bw) {
             leftPanel.ctx.fillStyle = 'black';
@@ -1401,7 +1345,7 @@ const tick = () => {
     }
     //values
     if (doVals && leftPanel.spreadsheet) {
-        tracers.forEach(t => t.drawValues(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight));
+        tracers.forEach(t => t.drawValues(leftPanel.ctx, leftPanel.cellWidth, leftPanel.cellHeight));
     }
 
     if (leftPanel && !leftPanel.spreadsheet && leftPanel.gi) {

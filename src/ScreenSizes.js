@@ -1,36 +1,61 @@
-export default class ScreenSizes {
+export class ScreenSizes {
 
     constructor() {
 
         this.div = document.getElementById('3d');
         this.spreadsheetDiv = document.getElementById('spreadsheet');
+        
+        this.canvas2d = document.getElementById('2d');
+        this.canvas2d.width = this.width;
+        this.canvas2d.height = this.height;
+
+
+        this.ctx = this.canvas2d.getContext('2d');
+        this.ctx.lineJoin = 'round';
+        //ctx.miterLimit = 1;
 
         this.width = this.div.offsetWidth;
         this.height = this.div.offsetHeight;
 
     }
 
+    clearC2d() {
+        this.ctx.clearRect(0, 0, this.canvas2d.width, this.canvas2d.height)
+    }
 
-    updateSizes(canvas2d, canvasleft) {
 
-        const ctx = canvas2d.getContext('2d');
-
-        const ctxLeft = canvasleft.getContext('2d');
+    updateSizes(leftPanel) {
 
         this.width = this.div.offsetWidth;
         this.height = this.div.offsetHeight;
 
-        ctx.canvas.innerWidth = this.width;
-        ctx.canvas.innerHeight = this.height;
+        this.ctx.canvas.innerWidth = this.width;
+        this.ctx.canvas.innerHeight = this.height;
 
-        canvas2d.width = this.width;
-        canvas2d.height = this.height;
+        this.canvas2d.width = this.width;
+        this.canvas2d.height = this.height;
 
-        ctxLeft.canvas.innerWidth = this.spreadsheetDiv.offsetWidth;
-        ctxLeft.canvas.innerHeight = this.spreadsheetDiv.offsetHeight;
+        if (leftPanel) {
+            leftPanel.ctx.canvas.innerWidth = this.spreadsheetDiv.offsetWidth;
 
-        canvasleft.width = this.spreadsheetDiv.offsetWidth;
-        canvasleft.height = this.spreadsheetDiv.offsetHeight;
+            leftPanel.canvas.width = this.spreadsheetDiv.offsetWidth;
+
+            if (leftPanel.spreadsheet) {
+
+                leftPanel.canvas.height = this.spreadsheetDiv.offsetHeight;
+
+                leftPanel.ctx.canvas.innerHeight = this.spreadsheetDiv.offsetHeight;
+
+            } else {
+
+                leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
+
+                //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
+
+            }
+
+            leftPanel.cellSize(this.spreadsheetDiv.offsetHeight);
+        }
     }
 
 }

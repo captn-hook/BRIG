@@ -42,7 +42,7 @@ class Point2d extends Point {
             return [x, y, proj.z]
     }
 
-    drawPt(ctx, leftPanel, camera, sizes, bw) {
+    drawPt(leftPanel, camera, sizes, bw) {
 
         var ctxLeft = leftPanel.ctx;
         var cellHeight = leftPanel.cellHeight;
@@ -54,22 +54,22 @@ class Point2d extends Point {
         if (Math.abs(z) < 1 && x != null && this.visible) {
     
     
-            ctx.beginPath();
-            ctx.arc(x, y, this.radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.lineWidth = this.border;
-            ctx.strokeStyle = this.color;
-            ctx.stroke();
+            sizes.ctx.beginPath();
+            sizes.ctx.arc(x, y, this.radius, 0, 2 * Math.PI, false);
+            sizes.ctx.fillStyle = this.color;
+            sizes.ctx.fill();
+            sizes.ctx.lineWidth = this.border;
+            sizes.ctx.strokeStyle = this.color;
+            sizes.ctx.stroke();
     
-            ctx.font = String(leftPanel.fontsize) + "px Arial";
-            ctx.textAlign = "center";
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 4;
-            ctx.lineJoin = "round";
-            ctx.strokeText(this.name, x, y + 4);
-            ctx.fillStyle = "white";
-            ctx.fillText(this.name, x, y + 4);
+            sizes.ctx.font = String(leftPanel.fontsize) + "px Arial";
+            sizes.ctx.textAlign = "center";
+            sizes.ctx.strokeStyle = 'black';
+            sizes.ctx.lineWidth = 4;
+            sizes.ctx.lineJoin = "round";
+            sizes.ctx.strokeText(this.name, x, y + 4);
+            sizes.ctx.fillStyle = "white";
+            sizes.ctx.fillText(this.name, x, y + 4);
     
         }
     

@@ -100,7 +100,7 @@ class Area {
 
     }
 
-    drawArea(ctx, camera, sizes, alpha = true) {
+    drawArea(camera, sizes, alpha = true) {
 
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
@@ -120,7 +120,7 @@ class Area {
         if (this.visible) {
 
 
-            ctx.lineWidth = this.outline;
+            sizes.ctx.lineWidth = this.outline;
 
             if (alpha) {
                 var opac = this.a;
@@ -131,22 +131,22 @@ class Area {
             opac = this.opacity
             //or this.opacity
 
-            ctx.strokeStyle = "rgba(" + String(this.r / 5) + ", " + String(this.g / 5) + ", " + String(this.b / 5) + ", " + String(1) + ")";
-            ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
-            ctx.lineWidth = this.thickness;
+            sizes.ctx.strokeStyle = "rgba(" + String(this.r / 5) + ", " + String(this.g / 5) + ", " + String(this.b / 5) + ", " + String(1) + ")";
+            sizes.ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
+            sizes.ctx.lineWidth = this.thickness;
             //area
             if (screenpts.length > 0) {
-            ctx.beginPath();
-            ctx.moveTo(screenpts[0][0], screenpts[0][1]);
+            sizes.ctx.beginPath();
+            sizes.ctx.moveTo(screenpts[0][0], screenpts[0][1]);
       
             for (var i = 1; i < screenpts.length; i++) {
-                ctx.lineTo(screenpts[i][0], screenpts[i][1]);
+                sizes.ctx.lineTo(screenpts[i][0], screenpts[i][1]);
             }
 
-            ctx.closePath();
+            sizes.ctx.closePath();
 
-            ctx.fill();
-            ctx.stroke();
+            sizes.ctx.fill();
+            sizes.ctx.stroke();
         }
 
         }
