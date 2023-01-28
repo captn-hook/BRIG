@@ -26,16 +26,14 @@ import {
     RemoteData,
     GetGroups,
     saveGroup,
+    saveArea,
+    GetAreas,
     userSites
 } from './Data';
 
 import {
     ScreenSizes
 } from './ScreenSizes';
-
-import {
-    Area
-} from './Area';
 
 import {
     OrbitControls
@@ -110,6 +108,12 @@ const listUsers = httpsCallable(functions, 'listUsers');
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
+const state = {
+    0: 'spreadsheet',
+    1: 'groups',
+    2: 'areas'
+}
+
 const sizes = new ScreenSizes();
 
 const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
@@ -165,6 +169,10 @@ getTable();
 const sGroup = document.getElementById('saveGroup');
 const aGroup = document.getElementById('addGroup');
 const dGroup = document.getElementById('deleteGroup');
+
+const sArea = document.getElementById('saveArea');
+const aArea = document.getElementById('addArea');
+const dArea = document.getElementById('deleteArea');
 
 const textbox = document.getElementById('textbox');
 
@@ -343,25 +351,38 @@ document.getElementById('toggleBtn').addEventListener('click', (e) => {
         })
     }
 })
-
+//bug is short for this button pannel is bugging me
 const bug1 = document.getElementById('bug1');
 const bug2 = document.getElementById('bug2');
+const bug3 = document.getElementById('bug3');
+
 
 document.getElementById('groups').addEventListener('click', (e) => {
-    leftPanel.spreadsheet = !leftPanel.spreadsheet;
+    
+    leftPanel.next();
 
-    if (leftPanel.spreadsheet) {
+    if (leftPanel.spreadsheet == state[0]) {
+        e.target.innerHTML = 'Groups';
         bug1.style.display = 'block'
         bug2.style.display = 'none'
+        bug3.style.display = 'none'
         sizes.spreadsheetDiv.style.overflow = 'hidden';
-    } else {
+    } else if (leftPanel.spreadsheet == state[1]) {
+        e.target.innerHTML = 'Areas';
         bug1.style.display = 'none'
         bug2.style.display = 'block'
+        bug3.style.display = 'none'
+        sizes.spreadsheetDiv.style.overflow = 'auto';
+    } else if (leftPanel.spreadsheet == state[2]) {
+        e.target.innerHTML = 'Tracers';
+        bug1.style.display = 'none'
+        bug2.style.display = 'none'
+        bug3.style.display = 'block'
         sizes.spreadsheetDiv.style.overflow = 'auto';
     }
     sizes.updateSizes(leftPanel);
 })
-
+//groups btns
 sGroup.addEventListener('click', plant1);
 
 async function plant1() {
@@ -386,6 +407,33 @@ async function plant2() {
 dGroup.addEventListener('click', (e) => {
     deleteDoc(doc(db, dropd.value, 'group' + leftPanel.gi));
     leftPanel.groups[leftPanel.gi] = undefined;
+})
+
+//areabtns
+sArea.addEventListener('click', tnalp3);
+
+async function tnalp3() {
+    if (leftPanel.ai != 0 && leftPanel.ai != -1) {
+        leftPanel.areas[leftPanel.ai] = await saveArea(db, dropd.value, leftPanel.ai, tracers, leftPanel.text)
+    }
+}
+
+aArea.addEventListener('click', tnalp4)
+
+async function tnalp4() {
+    var i = 0;
+    leftPanel.areas.forEach((e) => {
+        if (e != undefined) {
+            i++;
+        }
+    })
+    leftPanel.areas[i] = await saveArea(db, dropd.value, i, tracers, leftPanel.text)
+
+}
+
+dArea.addEventListener('click', (e) => {
+    deleteDoc(doc(db, dropd.value, 'area' + leftPanel.ai));
+    leftPanel.areas[leftPanel.ai] = undefined;
 })
 
 const ctrlBtn = document.getElementById('ctrlBtn');
@@ -740,15 +788,11 @@ function handleFiles(input) {
     }
 }
 
-function createArea() {
-    areas.push(new Area([], randFloat(0, 25)));
-}
-
 function updateCam() {
 
     //console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
 
-    if (leftPanel.camFree && leftPanel.spreadsheet) {
+    if (leftPanel.camFree && leftPanel.spreadsheet == state[0]) {
         try {
             //fail quietly if cannot set camera
             if (leftPanel.mt == 0) {
@@ -786,7 +830,7 @@ function updateCam() {
         } catch (e) {
             //console.log(e)
         }
-    } else if (!leftPanel.spreadsheet && leftPanel.camFree) {
+    } else if (leftPanel.spreadsheet == state[1] && leftPanel.camFree) {
 
         if (leftPanel.gi) {
             var i = leftPanel.gi;
@@ -800,6 +844,17 @@ function updateCam() {
 
         //console.log(cameraTargPos, cameraTargView)
 
+    } else if (leftPanel.spreadsheet == state[2] && leftPanel.camFree) {
+
+        if (leftPanel.ai) {
+            var i = leftPanel.ai;
+        } else {
+            var i = 0;
+        }
+        try {
+            cameraTargPos = new Vector3(leftPanel.areas[i].avgPos()[0] + 5, leftPanel.areas[i].avgPos()[2] + 10, leftPanel.areas[i].avgPos()[1] + 3);
+            cameraTargView = new Vector3(leftPanel.areas[i].avgPos()[0], leftPanel.areas[i].avgPos()[2], leftPanel.areas[i].avgPos()[1]);
+        } catch (e) {}
     }
 
 }
@@ -830,6 +885,11 @@ async function signedIn(user) {
         sGroup.style.display = 'inline-block';
         aGroup.style.display = 'inline-block';
         dGroup.style.display = 'inline-block';
+
+        sArea.style.display = 'inline-block';
+        aArea.style.display = 'inline-block';
+        dArea.style.display = 'inline-block';
+        
 
         listUsers().
         then((u) => {
@@ -1063,6 +1123,7 @@ dropd.addEventListener('change', (event) => {
 
         //loadRefs(modelRef, dataRef)
         leftPanel.groups = GetGroups(db, targ);
+        leftPanel.areas = GetAreas(db, targ);
         loadRefAndDoc(modelRef, targ);
 
         leftPanel.siteheader = targ;
@@ -1082,6 +1143,7 @@ dropd.addEventListener('change', (event) => {
         loadRefs(modelRef, dataRef)
 
         leftPanel.groups = GetGroups(db, targ);
+        leftPanel.areas = GetAreas(db, targ);
 
         /*
         Animate
@@ -1111,10 +1173,6 @@ sizes.canvas2d.addEventListener('wheel', (event) => {
 
 sizes.canvas2d.addEventListener('contextmenu', (e) => {
     stoplookin();
-
-    if (areas.length > 0) {
-        areas.pop();
-    }
 })
 
 sizes.canvas2d.addEventListener('click', (e) => {
@@ -1148,7 +1206,7 @@ sizes.canvas2d.addEventListener('click', (e) => {
                             areas[areas.length - 1].points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
                         }
                     } else {
-                        createArea();
+                        console.log('nope');
                     }
                 }
             }
@@ -1165,7 +1223,7 @@ sizes.canvas2d.addEventListener('click', (e) => {
 
 textbox.addEventListener('input', e => {
     if (textbox.readOnly == false) {
-        if (leftPanel.spreadsheet) {
+        if (leftPanel.spreadsheet == state[0]) {
             insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
         } else {
             leftPanel.text = encodeURI(textbox.value.replaceAll(/,/g, '~'))
@@ -1199,7 +1257,7 @@ window.addEventListener('hashchange', (e) => {
 
         if (params[1] && params[1][0] == 'G') {
             //setTimeout(giHack, 1500, params);
-            leftPanel.spreadsheet = false;
+            leftPanel.spreadsheet = state[1]
             if (params[0] != dropd.value) {
                 stupid = params[1].substring(2);
             } else {
@@ -1209,7 +1267,7 @@ window.addEventListener('hashchange', (e) => {
 
 
         } else if (params[1] && params[1][0] == 'X') {
-            leftPanel.spreadsheet = true;
+            leftPanel.spreadsheet = state[0]
             if (params[1].substring(2) != leftPanel.cellX || params[2].substring(2) != leftPanel.cellY) {
                 leftPanel.firstClickX = params[0].substring(2);
                 leftPanel.firstClickY = params[1].substring(2);
@@ -1262,6 +1320,7 @@ window.addEventListener('resize', () => {
 })
 
 var lastgi = -1;
+var lastai = -1;    
 
 //load defaullt if no hash
 if (window.location.hash == '' || window.location.hash[1] == '&') {
@@ -1273,7 +1332,7 @@ if (window.location.hash == '' || window.location.hash[1] == '&') {
 const tick = () => {
 
     if (leftPanel) {
-        if (leftPanel.looking || !leftPanel.spreadsheet) {
+        if (leftPanel.looking || leftPanel.spreadsheet == state[1]) {
             updateCam();
         }
 
@@ -1309,10 +1368,6 @@ const tick = () => {
     //Tracers
     tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
 
-    //Areas
-    if (areas.length > 0) {
-        areas.forEach(a => a.drawArea(camera, sizes));
-    }
     //Points
     ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
     ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
@@ -1326,11 +1381,11 @@ const tick = () => {
         leftPanel.frame(textbox);
     }
     //values
-    if (doVals && leftPanel.spreadsheet) {
+    if (doVals && leftPanel.spreadsheet == state[0]) {
         tracers.forEach(t => t.drawValues(leftPanel.ctx, leftPanel.cellWidth, leftPanel.cellHeight));
     }
 
-    if (leftPanel && !leftPanel.spreadsheet && leftPanel.gi) {
+    if (leftPanel && leftPanel.spreadsheet == state[1] && leftPanel.gi) {
         if (leftPanel.gi != lastgi) {
             lastgi = leftPanel.gi;
 
@@ -1354,7 +1409,16 @@ const tick = () => {
         }
     }
 
+    if (leftPanel && leftPanel.spreadsheet == state[2] && leftPanel.ai) {
+        if (leftPanel.ai != lastai) {
+            lastai = leftPanel.ai;
 
+            leftPanel.areas.forEach((a) => {
+                a.drawArea(camera, sizes);
+            })
+        }
+    }
+    
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);
 }

@@ -11,6 +11,10 @@ import {
 } from './Tracer';
 
 import {
+    Area
+} from './Area';
+
+import {
     setDoc,
     getDoc,
     getDocs,
@@ -21,6 +25,8 @@ import {
 import { Vector3 }from 'three';
 
 const MAX_GROUPS = 40;
+
+const MAX_AREAS = 40;
 
 export async function userSites(db, name) {
 
@@ -45,8 +51,66 @@ export async function userSites(db, name) {
         });
     });
 }
+//save area and get areas functions
+export function GetAreas(db, name) {
+    var areas = []
+    if (name != '') {
 
-//need save group and get groups functions
+        for (let i = 0; i < MAX_AREAS; i++) {
+
+            const area = doc(db, name, 'area' + i);
+
+            getDoc(area).then((a) => {
+
+                var points = [];
+                for (i in a.data()) {
+                    if (i.includes('point')) {
+                        var point = a.data()[i].split(',');
+                        points.push(new Vector3(point[0], point[1], point[2]));
+                    }
+                }
+
+                var area = new Area(points, area['value'], area['name'], area['text']);
+
+                areas.push(area);
+            })
+        }
+    }
+
+    return areas;
+}
+
+export async function saveArea(db, name, i, area, text) {
+    if (i) {
+        var areaDoc = {};
+
+        if (text == '') {
+            areaDoc['name'] = 'area' + i
+        } else {
+            //evertything up to the first newline
+            areaDoc['name'] = decodeURI(text).replaceAll(',', '~').split(/\r?\n/)[0];
+        }
+
+        areaDoc['text'] = decodeURI(text).replaceAll(',', '~');
+
+        for (let j = 0; j < area.points.length; j++) {
+            areaDoc['point' + j] = area.points[j].x + ',' + area.points[j].y + ',' + area.points[j].z;
+        }
+
+        areaDoc['pos'] = area.posAvg();
+        
+        areaDoc['value'] = area.value;
+        try {
+            await setDoc(doc(db, name, 'area' + i), areaDoc);
+            console.log("Document written");
+            return areaDoc;
+        } catch (e) {
+            console.error("Error adding document", e);
+        }
+    }
+}
+
+//save group and get groups functions
 export function GetGroups(db, name) {
 
     var groups = []
@@ -314,24 +378,6 @@ export function Data(data) {
         }
 
     }
-
-    //const sheet = new Spreadsheet(ms.length, ts.length, sizes.width / 4, sizes.height);
-
-    /*
-    function compare(a, b) {
-        if (a.last_nom < b.last_nom) {
-            return -1;
-        }
-        if (a.last_nom > b.last_nom) {
-            return 1;
-        }
-        return 0;
-    }
-
-    tracers.sort((a, b) => {
-        return a.value - b.value;
-    });
-    */
 
     return [ms, ts, tracers, insights, views]
 

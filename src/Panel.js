@@ -1,7 +1,15 @@
 class Panel {
     constructor(c) {
 
-        this.spreadsheet = true;
+        this.state = {
+            0: 'spreadsheet',
+            1: 'groups',
+            2: 'areas'
+        }
+
+        this.areas = [];
+
+        this.spreadsheet = this.state[0];
 
         this.groups = [];
 
@@ -89,6 +97,18 @@ class Panel {
         }
     }
 
+    next() {
+        if (this.spreadsheet == this.state[0]) {
+            this.spreadsheet = this.state[1];
+
+        } else if (this.spreadsheet == this.state[1]) {
+            this.spreadsheet = this.state[2];
+
+        } else if (this.spreadsheet == this.state[2]) {
+            this.spreadsheet = this.state[0];
+        }
+    }
+     
     setTracers(ms, ts, tracers) {
         this.tracers = tracers;
         this.ms = ms;
@@ -135,7 +155,7 @@ class Panel {
         if (this.ms != undefined && this.ts != undefined) {
             this.cellWidth = (this.canvas.width / (this.ts.length + 1));
 
-            if (this.spreadsheet) {
+            if (this.spreadsheet == this.state[0]) {
                 this.cellHeight = (this.canvas.height / (this.ms.length + 1));
             } else {
                 this.cellHeight = (h / (this.ms.length + 1));
@@ -145,7 +165,7 @@ class Panel {
     }
 
     clicks(e) {
-        if (this.spreadsheet) {
+        if (this.spreadsheet == this.state[0]) {
             if (this.firstClick) {
                 this.firstClick = false;
 
@@ -159,7 +179,7 @@ class Panel {
                 //this is for linking to a specific location
                 window.location.hash = (this.siteheader + '&X=' + this.cellX + '&Y=' + this.cellY);
             }
-        } else {
+        } else if (this.spreadsheet == this.state[1]) {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
 
@@ -168,7 +188,7 @@ class Panel {
                 } else {
                     this.text = ''
                 }
-      
+
                 if (this.camFree) {
                     this.looking = true;
                 }
@@ -177,12 +197,30 @@ class Panel {
             } else {
                 this.gi = -1;
             }
+        } else if (this.spreadsheet == this.state[2]) {
+            if (this.ai != this.cellY - 1) {
+                this.ai = this.cellY - 1
+
+                if (this.areas[this.ai] != undefined) {
+                    this.text = this.areas[this.ai].text
+                } else {
+                    this.text = ''
+                }
+
+                if (this.camFree) {
+                    this.looking = true;
+                }
+
+                window.location.hash = (this.siteheader + '&A=' + this.ai);
+            } else {
+                this.ai = -1;
+            }
         }
     }
 
     place(e) {
 
-        if (this.spreadsheet) {
+        if (this.spreadsheet == this.state[0]) {
             if (this.camFree) {
                 this.looking = true;
             }
@@ -291,14 +329,21 @@ class Panel {
     }
 
     frame(textbox) {
-        if (this.spreadsheet) {
+        //console.log(this.spreadsheet == this.state[2])
+        if (this.spreadsheet == this.state[0]) {
             this.spreadsheetFrame();
-        } else {
+        } else if (this.spreadsheet == this.state[1]) {
             this.groupFrame(textbox);
+        } else if (this.spreadsheet == this.state[2]) {
+            this.areaFrame();
         }
     }
 
     groupFrame(textbox) {
+        //console.log('this.groups', this.groups)
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
         for (var i in this.groups) { //plus scroll?
             if (this.groups[i] && i != 0) { //safety check, omit first group
 
@@ -337,7 +382,8 @@ class Panel {
 
     spreadsheetFrame() {
         //click 1
-        this.ctx.fillRect(0, 0, this.cellWidth, this.cellHeight);
+
+        //this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
         if (this.firstClick != null) {
 
@@ -381,6 +427,46 @@ class Panel {
                 this.ctx.rect(x, y, w, h);
                 this.ctx.stroke()
 
+            }
+        }
+    }
+
+    areaFrame() {
+        //console.log('this.areas', this.areas)
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+        for (var i in this.areas) { //plus scroll?
+            if (this.areas[i] && i != 0) { //safety check, omit first group
+
+                var h = Math.ceil(this.cellHeight)
+
+                i = parseInt(i)
+
+                if (i < this.cellY && this.cellY <= (i + 1)) {
+                    this.ctx.fillStyle = 'yellow'
+                } else if (i == this.gi) {
+                    this.ctx.fillStyle = 'lightgrey'
+                } else {
+                    this.ctx.fillStyle = 'grey'
+                }
+
+                this.ctx.fillRect(0, i * h, this.canvas.width, h);
+
+                this.ctx.lineJoin = "round";
+                this.ctx.font = String(this.fontsize) + "px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.strokeStyle = 'black';
+                this.ctx.lineWidth = 2;
+                this.ctx.fillStyle = 'white';
+
+                var text = this.areas[i].name;
+
+                this.ctx.strokeText(text, this.canvas.width / 2, i * h + h / 1.3);
+                this.ctx.fillStyle = this.color;
+                this.ctx.fillText(text, this.canvas.width / 2, i * h + h / 1.3);
+
+                textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
             }
         }
     }

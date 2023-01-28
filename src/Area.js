@@ -6,8 +6,10 @@ import { CanvasObject } from './CanvasObject';
 
 class Area extends CanvasObject{
 
-    constructor(p = [], value = 0, opacity = .5, thickness = 2) {
+    constructor(p = [], value, name, text = '', opacity = .5, thickness = 2) {
         super();
+        this.name = name;
+        this.text = text;
         this.points = p;
         this.value = parseFloat(value);
         this.opacity = opacity;
@@ -87,12 +89,37 @@ class Area extends CanvasObject{
 
             sizes.ctx.fill();
             sizes.ctx.stroke();
+
+
+            //label
+
+            var avg = this.posAvg();
+
+            var [x, y] = this.screenPts(camera, sizes.width / 2, sizes.height / 2, avg.x, avg.y, avg.z / 100);
+            
+            sizes.ctx.font = "12px Arial";
+            sizes.ctx.textAlign = "center";
+            sizes.ctx.strokeStyle = 'black';
+            sizes.ctx.lineWidth = 4;
+            sizes.ctx.lineJoin = "round";
+            sizes.ctx.strokeText(this.name, x, y + 4);
+            sizes.ctx.fillStyle = "white";
+            sizes.ctx.fillText(this.name, x, y + 4);
         }
 
         }
 
     }
 
+    posAvg() {
+        var avg = new Vector3(0, 0, 0);
+
+        this.points.forEach(p => {
+            avg.add(p);
+        });
+
+        return avg.divideScalar(this.points.length);
+    }
 }
 
 export {
