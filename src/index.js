@@ -36,6 +36,11 @@ import {
 import {
     Area
 } from './Area';
+
+import {
+    OrbitControls
+} from 'three/examples/jsm/controls/OrbitControls.js';
+
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
@@ -106,33 +111,20 @@ const listUsers = httpsCallable(functions, 'listUsers');
 
 const sizes = new ScreenSizes();
 
-
 const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
 camera.position.set(5, 5, 5); // Set position like this
 camera.lookAt(new Vector3(0, 0, 0));
 
 // Controls
-var controls;
+const controls = new OrbitControls(camera, sizes.canvas2d);
 
-function getControls() {
-    return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
+controls.enableDamping = true;
 
-        const ctrl = new OB.OrbitControls(camera, sizes.canvas2d);
-
-        ctrl.enableDamping = true;
-
-        ctrl.target.set(0, 0, 0);
-
-        controls = ctrl;
-
-    });
-}
-getControls()
+controls.target.set(0, 0, 0);
 
 var cameraTargPos = new Vector3(5, 5, 5);
 var cameraTargView = new Vector3(0, 0, 0);
-
 
 // Scene
 const scene = new Scene();
@@ -145,16 +137,12 @@ const dropd = document.getElementById('dropdown');
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
-
 var leftPanel;
 
 function getPanel() {
     return import('./Panel.js').then((P) => {
-
         const panel = new P.Panel(document.getElementById('left'));
-
         panel.setcam(false)
-
         leftPanel = panel;
     });
 }
@@ -165,16 +153,11 @@ var userTable;
 
 function getTable() {
     return import('./UserTable.js').then((U) => {
-
         const table = new U.UserTable(document.getElementById('table'), defaultDropd);
-
         userTable = table;
     });
 }
 getTable();
-
-
-
 
 //canvasleft.oncontextmenu = () => false;
 
@@ -184,9 +167,7 @@ const dGroup = document.getElementById('deleteGroup');
 
 const textbox = document.getElementById('textbox');
 
-
 //buttons
-
 var alpha = true;
 
 document.getElementById('login').addEventListener('click', (e) => {
@@ -1111,32 +1092,32 @@ dropd.addEventListener('change', (event) => {
 
 })
 
-
-//canvas
-sizes.canvas2d.addEventListener('mousedown', (e) => {
+function stoplookin() {
     if (leftPanel.camFree) {
         leftPanel.looking = false;
     }
+}
+//canvas
+sizes.canvas2d.addEventListener('mousedown', (e) => {
+    stoplookin();
 })
 
 sizes.canvas2d.addEventListener('wheel', (event) => {
-    if (leftPanel.camFree) {
-        leftPanel.looking = false;
-    }
+    stoplookin();
 }, {
     passive: true
 });
 
 sizes.canvas2d.addEventListener('contextmenu', (e) => {
+    stoplookin();
+
     if (areas.length > 0) {
         areas.pop();
     }
 })
 
 sizes.canvas2d.addEventListener('click', (e) => {
-        if (leftPanel.camFree) {
-            leftPanel.looking = false;
-        }
+        stoplookin();
 
 
         if (editPos) {
@@ -1320,7 +1301,7 @@ const tick = () => {
 
     //New Frame
     sizes.clearC2d();
-    
+
     if (leftPanel) {
         leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
     }
@@ -1328,7 +1309,7 @@ const tick = () => {
     tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
 
     //Areas
-    if (areas.length > 0) { 
+    if (areas.length > 0) {
         areas.forEach(a => a.drawArea(camera, sizes));
     }
     //Points

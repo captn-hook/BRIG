@@ -16,7 +16,8 @@ module.exports = {
         library: "Panal",
         library: "ScreenSizes",
         library: "UserTable",
-        library: "Area"
+        library: "Area",
+        library: "CanvasObject"
     },
     devtool: 'source-map',
     plugins: [
