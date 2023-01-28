@@ -98,9 +98,6 @@ class Tracer2d extends Tracer {
 
         this.rgbval = this.hexToRgb(this.color);
 
-        var white = this.rgbToHex(255, 255, 255)
-        var hex2 = this.rgbToHex(this.rgbval)
-
         this.outline = this.rescale(Math.min(value, 10), 0, 25, minwidth, maxwidth);
 
         //console.log(this.value, this.a)

@@ -22,7 +22,9 @@ import {
     doc
 } from "firebase/firestore";
 
-import { Vector3 }from 'three';
+import {
+    Vector3
+} from 'three';
 
 const MAX_GROUPS = 40;
 
@@ -56,23 +58,53 @@ export function GetAreas(db, name) {
     var areas = []
     if (name != '') {
 
+
         for (let i = 0; i < MAX_AREAS; i++) {
 
             const area = doc(db, name, 'area' + i);
 
             getDoc(area).then((a) => {
+                a = a.data();
 
-                var points = [];
-                for (i in a.data()) {
-                    if (i.includes('point')) {
-                        var point = a.data()[i].split(',');
+                if (a != undefined) {
+
+                    var points = [];
+
+                    var npoints = 0;
+
+                    for (var v in a) {
+                        if (v.startsWith('point')) {
+                            npoints++;
+                        }
+                    }
+
+                    for (let j = 0; j < npoints; j++) {
+                        var point = a['point' + j];
                         points.push(new Vector3(point[0], point[1], point[2]));
                     }
+
+                    console.log(points);
+
+                    var value = a['value'];
+                    var name = a['name'];
+                    var text = a['text'];
+
+                    if (text == undefined) {
+                        text = '';
+                    }
+
+                    if (value == undefined) {
+                        value = 0;
+                    }
+
+                    if (name == undefined) {
+                        name = 'area' + i;
+                    }
+
+                    var area = new Area(points, value, name, text);
+
+                    areas.push(area);
                 }
-
-                var area = new Area(points, area['value'], area['name'], area['text']);
-
-                areas.push(area);
             })
         }
     }
@@ -80,11 +112,16 @@ export function GetAreas(db, name) {
     return areas;
 }
 
-export async function saveArea(db, name, i, area, text) {
+export async function saveArea(db, name, i, area) {
+
+    var text = area.text;
+
     if (i) {
         var areaDoc = {};
 
-        if (text == '') {
+        if (area.name != undefined && area.name != '') {
+            areaDoc['name'] = area.name
+        } else if (text == '') {
             areaDoc['name'] = 'area' + i
         } else {
             //evertything up to the first newline
@@ -94,11 +131,12 @@ export async function saveArea(db, name, i, area, text) {
         areaDoc['text'] = decodeURI(text).replaceAll(',', '~');
 
         for (let j = 0; j < area.points.length; j++) {
-            areaDoc['point' + j] = area.points[j].x + ',' + area.points[j].y + ',' + area.points[j].z;
+            areaDoc['point' + j] = [area.points[j].x, area.points[j].y, area.points[j].z];
         }
 
-        areaDoc['pos'] = area.posAvg();
-        
+        var avg = area.posAvg();
+        areaDoc['pos'] = [avg.x, avg.y, avg.z];
+
         areaDoc['value'] = area.value;
         try {
             await setDoc(doc(db, name, 'area' + i), areaDoc);
@@ -114,7 +152,7 @@ export async function saveArea(db, name, i, area, text) {
 export function GetGroups(db, name) {
 
     var groups = []
-    if (name != '') {  
+    if (name != '') {
 
         for (let i = 0; i < MAX_GROUPS; i++) {
 

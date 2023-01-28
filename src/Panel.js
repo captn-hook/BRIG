@@ -66,6 +66,8 @@ class Panel {
 
         this.gi;
 
+        this.ai = 0;
+
         this.sh = this.canvas.height;
 
         this.fontsize = 12;
@@ -437,7 +439,7 @@ class Panel {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
         for (var i in this.areas) { //plus scroll?
-            if (this.areas[i] && i != 0) { //safety check, omit first group
+            if (this.areas[i]) { //safety check, omit first group
 
                 var h = Math.ceil(this.cellHeight)
 
@@ -445,7 +447,7 @@ class Panel {
 
                 if (i < this.cellY && this.cellY <= (i + 1)) {
                     this.ctx.fillStyle = 'yellow'
-                } else if (i == this.gi) {
+                } else if (i == this.ai) {
                     this.ctx.fillStyle = 'lightgrey'
                 } else {
                     this.ctx.fillStyle = 'grey'

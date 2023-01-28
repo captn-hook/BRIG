@@ -6,7 +6,7 @@ import { CanvasObject } from './CanvasObject';
 
 class Area extends CanvasObject{
 
-    constructor(p = [], value, name, text = '', opacity = .5, thickness = 2) {
+    constructor(p = [], value = undefined, name = '', text = '', opacity = .5, thickness = 2) {
         super();
         this.name = name;
         this.text = text;
@@ -17,14 +17,27 @@ class Area extends CanvasObject{
         this.outline = false;
         this.thickness = thickness;
 
-        //console.log(this.rgb(this.value));  
-        [this.r, this.g, this.b, this.a] = this.rgb(this.value);
+        //console.log(this.rgb(this.value));
 
+        if (this.value) {
+            [this.r, this.g, this.b, this.a] = this.rgb(this.value);
+        } else {
+            this.r = 255;
+            this.g = 255;
+            this.b = 255;
+            this.a = 100;
+        }
         this.color = this.rgbToHex(this.r, this.g, this.b);
         //console.log(this.color);
 
 
         this.visible = true;
+    }
+
+    setValue(value) {
+        this.value = parseFloat(value);
+        [this.r, this.g, this.b, this.a] = this.rgb(this.value);
+        this.color = this.rgbToHex(this.r, this.g, this.b);
     }
 
     screenPts(camera, w, h, x, y, z) {
@@ -43,6 +56,8 @@ class Area extends CanvasObject{
     }
 
     drawArea(camera, sizes, alpha = true) {
+        
+        if (this.visible) {
 
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
@@ -58,8 +73,6 @@ class Area extends CanvasObject{
 
         }
         //if z1 and z2 magnitude is less than 1, then draw the tracer
-
-        if (this.visible) {
 
 
             sizes.ctx.lineWidth = this.outline;

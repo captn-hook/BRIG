@@ -53,7 +53,8 @@ import {
     getAuth,
     signInWithPopup,
     GoogleAuthProvider,
-    onAuthStateChanged
+    onAuthStateChanged,
+    confirmPasswordReset
 } from 'firebase/auth';
 
 import {
@@ -80,7 +81,12 @@ import {
 import {
     config
 } from './key';
-import { randFloat } from 'three/src/math/MathUtils';
+import {
+    randFloat
+} from 'three/src/math/MathUtils';
+import {
+    Area
+} from './Area';
 
 
 const firebaseConfig = {
@@ -141,6 +147,8 @@ const dropd = document.getElementById('dropdown');
 
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
+
+var workingArea = new Area([])
 
 var leftPanel;
 
@@ -358,7 +366,7 @@ const bug3 = document.getElementById('bug3');
 
 
 document.getElementById('groups').addEventListener('click', (e) => {
-    
+
     leftPanel.next();
 
     if (leftPanel.spreadsheet == state[0]) {
@@ -414,21 +422,36 @@ sArea.addEventListener('click', tnalp3);
 
 async function tnalp3() {
     if (leftPanel.ai != 0 && leftPanel.ai != -1) {
-        leftPanel.areas[leftPanel.ai] = await saveArea(db, dropd.value, leftPanel.ai, tracers, leftPanel.text)
+        leftPanel.areas[leftPanel.ai].text = leftPanel.text;
+        console.log(leftPanel.areas[leftPanel.ai])
+        saveArea(db, dropd.value, leftPanel.ai, leftPanel.areas[leftPanel.ai])
     }
 }
 
 aArea.addEventListener('click', tnalp4)
 
 async function tnalp4() {
-    var i = 0;
-    leftPanel.areas.forEach((e) => {
-        if (e != undefined) {
-            i++;
-        }
-    })
-    leftPanel.areas[i] = await saveArea(db, dropd.value, i, tracers, leftPanel.text)
+    if (workingArea.points.length > 2) {
+        var i = 0;
+        workingArea.text = leftPanel.text;
+        leftPanel.areas.forEach((e) => {
+            if (e != undefined) {
+                i++;
+            }
+        })
 
+        var n = prompt("Enter Area Name");
+        workingArea.name = String(n);
+
+        var x = prompt("Enter Area Value");
+        workingArea.setValue(parseFloat(x));
+
+        var a = new Area(workingArea.points, workingArea.value, workingArea.name, workingArea.text)
+
+        leftPanel.areas.push(a);
+        saveArea(db, dropd.value, i, a)
+        workingArea = new Area([]);
+    }
 }
 
 dArea.addEventListener('click', (e) => {
@@ -680,8 +703,6 @@ var ts = []
 var tracers = []
 var insights = []
 var views = []
-
-var areas = [];
 //loadfunc =====================================================<
 //load3DModel(building);
 
@@ -889,7 +910,7 @@ async function signedIn(user) {
         sArea.style.display = 'inline-block';
         aArea.style.display = 'inline-block';
         dArea.style.display = 'inline-block';
-        
+
 
         listUsers().
         then((u) => {
@@ -1173,6 +1194,13 @@ sizes.canvas2d.addEventListener('wheel', (event) => {
 
 sizes.canvas2d.addEventListener('contextmenu', (e) => {
     stoplookin();
+
+    e.preventDefault();
+
+    if (editPos && leftPanel.spreadsheet == state[2]) {
+        workingArea.points.pop();
+    }
+
 })
 
 sizes.canvas2d.addEventListener('click', (e) => {
@@ -1191,7 +1219,7 @@ sizes.canvas2d.addEventListener('click', (e) => {
 
             var intersects = raycaster.intersectObjects(sceneMeshes, true);
 
-            var doP = false;
+            var doP = (leftPanel.spreadsheet == state[1]) ? true : false;
 
             if (intersects.length > 0) {
                 if (doP) {
@@ -1201,13 +1229,8 @@ sizes.canvas2d.addEventListener('click', (e) => {
                         ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
                     }
                 } else {
-                    if (areas.length > 0 && areas[areas.length - 1].points.length < 4) {
-                        if (intersects.length > 0) {
-                            areas[areas.length - 1].points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
-                        }
-                    } else {
-                        console.log('nope');
-                    }
+                    console.log(workingArea.points);
+                    workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
                 }
             }
         }
@@ -1320,7 +1343,7 @@ window.addEventListener('resize', () => {
 })
 
 var lastgi = -1;
-var lastai = -1;    
+var lastai = -1;
 
 //load defaullt if no hash
 if (window.location.hash == '' || window.location.hash[1] == '&') {
@@ -1409,16 +1432,21 @@ const tick = () => {
         }
     }
 
-    if (leftPanel && leftPanel.spreadsheet == state[2] && leftPanel.ai) {
-        if (leftPanel.ai != lastai) {
+    if (leftPanel && leftPanel.spreadsheet == state[2]) {
+
+        if (leftPanel.ai != lastai && leftPanel.areas[lastai]) {
             lastai = leftPanel.ai;
 
-            leftPanel.areas.forEach((a) => {
-                a.drawArea(camera, sizes);
-            })
+            leftPanel.areas[lastai].visible = !leftPanel.areas[lastai].visible;
         }
+
+        leftPanel.areas.forEach(a => {
+            if (a != undefined) {
+                a.drawArea(camera, sizes)
+            }
+        });
+        workingArea.drawArea(camera, sizes)
     }
-    
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);
 }
