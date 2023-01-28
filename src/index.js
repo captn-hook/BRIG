@@ -82,6 +82,7 @@ import {
 import {
     config
 } from './key';
+import { randFloat } from 'three/src/math/MathUtils';
 
 
 const firebaseConfig = {
@@ -740,7 +741,7 @@ function handleFiles(input) {
 }
 
 function createArea() {
-    areas.push(new Area([], areas.length * 2))
+    areas.push(new Area([], randFloat(0, 25)));
 }
 
 function updateCam() {
