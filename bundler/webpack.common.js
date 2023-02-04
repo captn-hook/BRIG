@@ -17,7 +17,8 @@ module.exports = {
         library: "ScreenSizes",
         library: "UserTable",
         library: "Area",
-        library: "CanvasObject"
+        library: "CanvasObject",
+        library: "FirebaseSetup",
     },
     devtool: 'source-map',
     plugins: [
