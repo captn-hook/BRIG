@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    font-family: 'Arial';
+    overflow: hidden;
+}
+
+label {
+    font-size: 100%;
+    margin-left: 8%;
+}
+
+select {
+    cursor: pointer;
+}
+
+canvas {
+    top: 0;
+    left: 0;
+    outline: none;
+    width: 100%;
+    user-select: none;
+    cursor: pointer;
+}
+
+div {
+    height: 100vh;
+    font-family: 'Arial';
+    font-size: 20px;
+}
+
+textarea {
+    margin: 2%;
+    width: 95%;
+    height: 95%;
+    overflow-y: scroll;
+    font-family: 'Arial';
+    font-size: 20px;
+}
+
+input {
+    margin: 2%;
+    width: 40%;
+    color: transparent;
+}
+
+button {
+
+    border-radius: 12px;
+    /* Green border */
+
+    cursor: pointer;
+    /* Pointer/hand icon */
+    width: 33%;
+    height: 50%;
+
+    vertical-align: middle;
+
+}
+
+.btDark {
+
+    background-color: gray;
+
+    border: 2px solid rgb(27, 27, 27);
+
+    color: white;
+
+}
+
+.btLight {
+
+    background-color: lightgray;
+
+    border: 2px solid rgb(230, 230, 230);
+    
+    color: black;
+
+}
+
+.cell {
+    width: 50%;
+}
+
+.tbDark {
+
+    border: 2px solid rgb(27, 27, 27);
+
+    color: white;
+}
+
+.tbLight {
+
+    border: 2px solid rgb(230, 230, 230);
+    
+    color: black;
+
+}
+
+.tbIn {
+    background-color: #5eae51;
+}
+
+.tbOut {
+    background-color: #e51e1e;
+}
+
+
+
+/* Add a background color on hover */
+.btn-group button:hover {
+    background-color: #3e8e41;
+}
+
+.btn-group button:active {
+    background-color: #5eae51;
+}
+
+th, td {
+    border: 1px solid white;
+    color: white;
+    font-size: 12px;
+    border-collapse: collapse;
+    padding: 5px;
+    width: 80%;
+}
+
+td:hover {
+    background-color: #c98416;
+}
