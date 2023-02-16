@@ -62,6 +62,10 @@ import {
     GroupManager,
     Group
 } from './objects/Group';
+
+import {
+    DropDManager
+} from './DropDManager';
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
@@ -90,6 +94,7 @@ const areaManager = new AreaManager();
 
 const dataButtons = new DataButtons(leftPanel, viewport.sizes, state);
 
+const dropd = new DropDManager();
 //const groupManager = new GroupManager();
 
 /*
@@ -152,7 +157,7 @@ function switchDisplay(state) {
 async function signedIn(user) {
     //change too refresh site
     //empty list 
-    siteList([]);
+    dropd.siteList([]);
 
     // The signed-in user info.
     const ext = user.email.split('@')
@@ -247,13 +252,13 @@ function login() {
 */
 
 document.addEventListener('DOMContentLoaded', (e) => {
-    viewport.sizes.updateSizes(leftPanel);
+    viewport.sizes.updateSizes(leftPanel, groups.length);
 });
 
 //resize
 window.addEventListener('resize', () => {
     // Update sizes
-    sizes.updateSizes(leftPanel);
+    sizes.updateSizes(leftPanel, groups.length);
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;

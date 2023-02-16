@@ -24,7 +24,7 @@ export class ScreenSizes {
     }
 
 
-    updateSizes(leftPanel,) {
+    updateSizes(leftPanel, groupslength) {
 
         this.width = this.div.offsetWidth;
         this.height = this.div.offsetHeight;
@@ -47,7 +47,7 @@ export class ScreenSizes {
 
             } else {
 
-                leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
+                leftPanel.canvas.height = groupslength * leftPanel.cellHeight
 
                 //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
 
