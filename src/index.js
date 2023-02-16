@@ -21,13 +21,6 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 // Import the functions you need from the SDKs you need
 
 import {
-    getAuth,
-    signInWithPopup,
-    GoogleAuthProvider,
-    onAuthStateChanged
-} from 'firebase/auth';
-
-import {
     ref,
     getBlob
 } from 'firebase/storage';
@@ -209,44 +202,7 @@ async function signedIn(user) {
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
-const provider = new GoogleAuthProvider();
 
-const auth = getAuth();
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in, see docs for a list of available properties
-        //login();
-        signedIn(user);
-    } else {
-        // User is signed out
-        // ...
-    }
-});
-
-function login() {
-
-    signInWithPopup(auth, provider)
-
-        .then((result) => {
-
-            signedIn(result.user);
-
-
-        }).catch((error) => {
-
-            // Handle Errors here.
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // The email of the user's account used.
-            const email = error.email;
-            // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error);
-
-            console.error(error, errorCode, errorMessage, email, credential);
-            // ...
-        });
-}
 /*
     EVENTS
 */

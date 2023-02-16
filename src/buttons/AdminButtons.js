@@ -1,139 +1,169 @@
+import {
+    ModelHandler
+} from '../ModelHandler.js';
+
+import {
+    saveFile,
+    sendFile
+} from '../fileHandler.js';
 
 //dev funcs
+//admin buttons are the admin ctrl button, and all the interface on the inside of that panel
+export class AdminButtons {
 
-var d0 = document.getElementById('log');
-var d1 = document.getElementById('selectPanel1')
-var d2 = document.getElementById('selectPanel2')
+    constructor() {
+        this.d0 = document.getElementById('log');
+        this.d1 = document.getElementById('selectPanel1')
+        this.d2 = document.getElementById('selectPanel2')
 
-function switchDisplay(state) {
-    if (state == 0) {
-        d0.style.display = 'block'
-        d1.style.display = 'none'
-        d2.style.display = 'none'
-    } else if (state == 1) {
-        d0.style.display = 'none'
-        d1.style.display = 'block'
-        d2.style.display = 'none'
-    } else if (state == 2) {
-        d0.style.display = 'none'
-        d1.style.display = 'none'
-        d2.style.display = 'block'
-    }
-}
+        this.ctrlBtn = document.getElementById('ctrlBtn');
 
-//file input
-dataInput.addEventListener('change', (e) => {
-    handleFiles(dataInput.files[0]);
-}, false);
+        // btn event listeners
+        this.ctrlBtn.addEventListener('click', this.adminMenu);
 
-modelInput.addEventListener('change', (e) => {
-    console.log('modelInput');
-    handleModels(modelInput.files[0]);
-}, false);
+        this.modelhandler = new ModelHandler();
 
-//states: login 0, select panel 1, upload panel 2
-document.getElementById('editFiles').addEventListener('click', (e) => {
-    if (d0.style.display == 'block') {
-        switchDisplay(1);
-    } else if (d1.style.display == 'block') {
-        switchDisplay(2);
-    } else {
-        switchDisplay(0);
-    }
-})
+        document.getElementById('editFiles').addEventListener('click', (e) => this.clicklistener());
 
-document.getElementById('saveFiles').addEventListener('click', (e) => {
-    saveFile(ms, ts, tracers, insights, views);
-})
-
-document.getElementById('sendFiles').addEventListener('click', (e) => {
-    if (dropd.value != defaultDropd)
-        sendFile(ms, ts, tracers, insights, views, db, dropd.value);
-})
-
-document.getElementById('saveCam').addEventListener('click', (e) => {
-    console.log('saveCam')
-    views[leftPanel.firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
-    console.log(views)
-})
-
-var editPos = false;
-
-document.getElementById('editPos').addEventListener('click', (e) => {
-    if (editPos) {
-        editPos = false;
-    } else {
-        editPos = true;
-    }
-})
-
-document.getElementById('perms').addEventListener('click', savePerms);
-
-async function savePerms() {
-
-    var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
-
-    //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
-
-    var inner = '';
-
-    let d = {}
-
-
-
-    userTable.inUsers.forEach((user) => {
-        inner += '"' + user[1] + '":"' + user[0] + '",';
-
-        d[user[1]] = user[0];
-
-        setDoc(doc(db, user[0], dropd.value), {
-            'access': true,
+        //need to have access to data tuple
+        document.getElementById('saveFiles').addEventListener('click', (e) => {
+            saveFile(ms, ts, tracers, insights, views);
         })
-    })
 
-    userTable.allUsers.forEach((user) => {
-        inner += '"' + user[1] + '":"false",';
-
-        d[user[1]] = 'false';
-
-        setDoc(doc(db, user[0], dropd.value), {
-            'access': false,
+        document.getElementById('sendFiles').addEventListener('click', (e) => {
+            if (dropd.value != defaultDropd)
+                sendFile(ms, ts, tracers, insights, views, db, dropd.value);
         })
-    })
 
-    inner = inner.slice(0, -1);
 
-    inner = '{"customMetadata":{' + inner + '}}';
+        document.getElementById('saveCam').addEventListener('click', (e) => {
+            console.log('saveCam')
+            views[leftPanel.firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
+            console.log(views)
+        })
 
-    const newMetadata = JSON.parse(inner);
+        this.editPos = false;
 
-    updateMetadata(itemRef, newMetadata).then((metadata) => {
+        document.getElementById('editPos').addEventListener('click', (e) => {
+            if (this.editPos) {
+                this.editPos = false;
+            } else {
+                this.editPos = true;
+            }
+        })
 
-        /* updates csvs
+        document.getElementById('perms').addEventListener('click', this.savePerms);
+
+    }
+
+
+    adminMenu() {
+        
+        const root = document.getElementById('root');
+        
+        if (this.ctrl.style.display == 'block') {
+            this.ctrl.style.display = 'none';
+            root.style.width = '100%'
+        } else {
+            this.ctrl.style.display = 'block';
+            root.style.width = '80%';
+        }
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    switchDisplay(state) {
+        if (state == 0) {
+            this.d0.style.display = 'block'
+            this.d1.style.display = 'none'
+            this.d2.style.display = 'none'
+        } else if (state == 1) {
+            this.d0.style.display = 'none'
+            this.d1.style.display = 'block'
+            this.d2.style.display = 'none'
+        } else if (state == 2) {
+            this.d0.style.display = 'none'
+            this.d1.style.display = 'none'
+            this.d2.style.display = 'block'
+        }
+    }
+
+    //states: login 0, select panel 1, upload panel 2
+    clicklistener() {
+        if (this.d0.style.display == 'block') {
+            this.switchDisplay(1);
+        } else if (this.d1.style.display == 'block') {
+            this.switchDisplay(2);
+        } else {
+            this.switchDisplay(0);
+        }
+    }
+
+    async savePerms() {
+
+        var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
+
+        //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
+
+        var inner = '';
+
+        let d = {}
+
+
+
+        userTable.inUsers.forEach((user) => {
+            inner += '"' + user[1] + '":"' + user[0] + '",';
+
+            d[user[1]] = user[0];
+
+            setDoc(doc(db, user[0], dropd.value), {
+                'access': true,
+            })
+        })
+
+        userTable.allUsers.forEach((user) => {
+            inner += '"' + user[1] + '":"false",';
+
+            d[user[1]] = 'false';
+
+            setDoc(doc(db, user[0], dropd.value), {
+                'access': false,
+            })
+        })
+
+        inner = inner.slice(0, -1);
+
+        inner = '{"customMetadata":{' + inner + '}}';
+
+        const newMetadata = JSON.parse(inner);
+
+        updateMetadata(itemRef, newMetadata).then((metadata) => {
+
+            /* updates csvs
         updateMetadata(dataRef, newMetadata).then((metadata) => {
 */
 
 
-        userTable.populateTable(storage, allUsersM, dropd.value, bw);
-        /*s
+            userTable.populateTable(storage, allUsersM, dropd.value, bw);
+            /*s
 
-                }).catch((error) => {
+                    }).catch((error) => {
 
-                    console.log(error)
+                        console.log(error)
 
-                });
+                    });
+            */
+        }).catch((error) => {
+
+            console.log(error)
+
+        });
+        /*
+            try {
+                const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
+                console.log("Document written");
+            } catch (e) {
+                console.error("Error adding document");
+            }
         */
-    }).catch((error) => {
-
-        console.log(error)
-
-    });
-    /*
-        try {
-            const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
-            console.log("Document written");
-        } catch (e) {
-            console.error("Error adding document");
-        }
-    */
-};
+    };
+}

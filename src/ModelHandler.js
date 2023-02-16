@@ -1,103 +1,114 @@
+export class ModelHandler {
+    constructor() {
+        this.globalObj;
+        this.sceneMeshes = [];
+
+        this.dataInput = document.getElementById('datapicker');
+
+        this.modelInput = document.getElementById('modelpicker');
 
 
-var globalObj;
-var sceneMeshes = [];
-
-// onLoad callback
-function onLoadLoad(obj) {
-
-    sceneMeshes = [];
-
-    sceneMeshes.push(obj.scene.children[0]);
-
-    obj.scene.children[0].children.forEach((e) => {
-        sceneMeshes.push(e);
-    })
-
-    scene.add(obj.scene);
-    globalObj = scene.children[scene.children.length - 1];
-}
-
-// onProgress callback
-function onProgressLog(xhr) {
-    console.log("LOADING: ", xhr.loaded / xhr.total * 100);
-}
-
-// onError callback
-function onErrorLog(err) {
-    console.error(err)
-}
-
-/*
-Misc
-*/
-const dataInput = document.getElementById('datapicker');
-
-const modelInput = document.getElementById('modelpicker');
+        //file input
+        this.dataInput.addEventListener('change', (e) => {
+            this.handleFiles(dataInput.files[0]);
+        }, false);
 
 
-//data funccs
+        this, modelInput.addEventListener('change', (e) => {
+            console.log('modelInput');
+            this.handleModels(modelInput.files[0]);
+        }, false);
 
-function getGLTFLoader() {
-    return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
-        return new GLTF.GLTFLoader;
-    });
-}
 
-function getDRACOLoader() {
-    return getGLTFLoader().then((GLTFLoader) => {
-        return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
-
-            const DRACOLoader = new DRACO.DRACOLoader();
-
-            DRACOLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-
-            GLTFLoader.setDRACOLoader(DRACOLoader);
-
-            return GLTFLoader;
-        });
-    })
-}
-
-function handleModels(input) {
-    //remove old stuff first
-
-    if (globalObj != null) {
-        scene.remove(globalObj);
     }
+    // onLoad callback
+    onLoadLoad(obj) {
 
-    var read = new FileReader();
+        sceneMeshes = [];
 
-    read.readAsArrayBuffer(input);
+        sceneMeshes.push(obj.scene.children[0]);
 
-    read.onloadend = function () {
-
-        getDRACOLoader().then((loader) => {
-
-            loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
-
+        obj.scene.children[0].children.forEach((e) => {
+            sceneMeshes.push(e);
         })
 
-        userTable.populateTable(storage, allUsersM, dropd.value, bw);
-
+        scene.add(obj.scene);
+        globalObj = scene.children[scene.children.length - 1];
     }
-}
 
-function handleFiles(input) {
+    // onProgress callback
+    onProgressLog(xhr) {
+        console.log("LOADING: ", xhr.loaded / xhr.total * 100);
+    }
 
-    //remove old stuff first
-    leftPanel.blankClicks();
+    // onError callback
+    onErrorLog(err) {
+        console.error(err)
+    }
 
-    var read = new FileReader();
+    //data funccs
 
-    read.readAsBinaryString(input);
+    getGLTFLoader() {
+        return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
+            return new GLTF.GLTFLoader;
+        });
+    }
 
-    read.onloadend = function () {
+    getDRACOLoader() {
+        return getGLTFLoader().then((GLTFLoader) => {
+            return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
 
-        [ms, ts, tracers, insights, views] = Data(read.result)
+                const DRACOLoader = new DRACO.DRACOLoader();
 
-        leftPanel.setTracers(ms, ts, tracers)
-        //resize sheet
-        sizes.updateSizes(leftPanel);
+                DRACOLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+
+                GLTFLoader.setDRACOLoader(DRACOLoader);
+
+                return GLTFLoader;
+            });
+        })
+    }
+
+    handleModels(input) {
+        //remove old stuff first
+
+        if (globalObj != null) {
+            scene.remove(globalObj);
+        }
+
+        var read = new FileReader();
+
+        read.readAsArrayBuffer(input);
+
+        read.onloadend = function () {
+
+            this.getDRACOLoader().then((loader) => {
+
+                loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
+
+            })
+
+            userTable.populateTable(storage, allUsersM, dropd.value, bw);
+
+        }
+    }
+
+    handleFiles(input) {
+
+        //remove old stuff first
+        leftPanel.blankClicks();
+
+        var read = new FileReader();
+
+        read.readAsBinaryString(input);
+
+        read.onloadend = function () {
+
+            [ms, ts, tracers, insights, views] = Data(read.result)
+
+            leftPanel.setTracers(ms, ts, tracers)
+            //resize sheet
+            sizes.updateSizes(leftPanel);
+        }
     }
 }
