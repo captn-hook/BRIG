@@ -1,11 +1,11 @@
 import {
     ModelHandler
-} from '../ModelHandler.js';
+} from '../ModelHandler';
 
 import {
     saveFile,
     sendFile
-} from '../fileHandler.js';
+} from '../Data';
 
 //dev funcs
 //admin buttons are the admin ctrl button, and all the interface on the inside of that panel

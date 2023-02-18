@@ -71,12 +71,29 @@ export class Viewport {
 
         //canvas
         this.sizes.canvas2d.addEventListener('mousedown', this.stoplookin())
+
+
+        //resize
+        window.addEventListener('resize', () => this.resize())
     }
+
+    resize() {
+
+        // Update camera
+        this.camera.aspect = this.sizes.width / this.sizes.height;
+        this.camera.updateProjectionMatrix();
+
+        // Update renderer
+        this.renderer.setSize(this.sizes.width, this.sizes.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+
+
 
     update() {
 
-        camera.position.set(this.cameraTargPos.x, this.cameraTargPos.y, this.cameraTargPos.z);
-        camera.lookAt(this.cameraTargView);
+        this.camera.position.set(this.cameraTargPos.x, this.cameraTargPos.y, this.cameraTargPos.z);
+        this.camera.lookAt(this.cameraTargView);
     }
 
     camPos(x, y) {
@@ -115,8 +132,8 @@ export class Viewport {
                 } else if (leftPanel.mt == 2) {
                     //if y (row) == 1, ts
 
-                    cameraTargPos = new Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
-                    cameraTargView = new Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
+                    this.cameraTargPos = new Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
+                    this.cameraTargView = new Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
 
                     //throws errors if it trys to select row before/after last
                 } else if (leftPanel.mt == 1) {
@@ -124,13 +141,13 @@ export class Viewport {
                     //special views
                     //console.log(views[leftPanel.n + 1])
                     if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
-                        cameraTargPos = new Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
+                        this.cameraTargPos = new Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
                     } else {
 
-                        cameraTargPos = new Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
+                        this.cameraTargPos = new Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
 
                     }
-                    cameraTargView = new Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
+                    this.cameraTargView = new Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
 
                     //insights
                     if (leftPanel.spreadsheet) {
@@ -167,8 +184,8 @@ export class Viewport {
                 var i = 0;
             }
             try {
-                cameraTargPos = new Vector3(leftPanel.areas[i].avgPos()[0] + 5, leftPanel.areas[i].avgPos()[2] + 10, leftPanel.areas[i].avgPos()[1] + 3);
-                cameraTargView = new Vector3(leftPanel.areas[i].avgPos()[0], leftPanel.areas[i].avgPos()[2], leftPanel.areas[i].avgPos()[1]);
+                this.cameraTargPos = new Vector3(leftPanel.areas[i].avgPos()[0] + 5, leftPanel.areas[i].avgPos()[2] + 10, leftPanel.areas[i].avgPos()[1] + 3);
+                this.cameraTargView = new Vector3(leftPanel.areas[i].avgPos()[0], leftPanel.areas[i].avgPos()[2], leftPanel.areas[i].avgPos()[1]);
             } catch (e) {}
         }
 
@@ -202,7 +219,7 @@ export class Viewport {
                 y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
             };
 
-            raycaster.setFromCamera(mouse, camera);
+            raycaster.setFromCamera(mouse, this.camera);
 
             var intersects = raycaster.intersectObjects(sceneMeshes, true);
 
@@ -223,7 +240,7 @@ export class Viewport {
         }
 
         //store pos in link
-        var pos = String('P=' + Math.round(camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
+        var pos = String('P=' + Math.round(this.camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
 
         if (pos[0] != null) {
             window.location.hash = leftPanel.siteheader + '&' + pos;

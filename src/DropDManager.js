@@ -1,7 +1,16 @@
+
+import {
+    ref,
+    getMetadata,
+    listAll
+} from 'firebase/storage';
+
 export class DropDManager {
 
-    constructor() {
+    constructor(storage) {
         this.dropd = document.getElementById('dropdown');
+
+        this.storage = storage;
 
         //dev funcs
 
@@ -20,7 +29,7 @@ export class DropDManager {
     }
 
     allSites() {
-        var folderRef = ref(storage, '/Sites')
+        var folderRef = ref(this.storage, '/Sites')
 
         listAll(folderRef).then((e) => {
 
@@ -32,7 +41,7 @@ export class DropDManager {
 
             for (var i = 0; i < this.availableSites.length; i++) {
 
-                var fileRef = ref(storage, '/Sites/' + this.availableSites[i] + '/' + this.availableSites[i] + '.glb');
+                var fileRef = ref(this.storage, '/Sites/' + this.availableSites[i] + '/' + this.availableSites[i] + '.glb');
 
                 promises.push(getMetadata(fileRef)
                     .then((data) => {
@@ -110,7 +119,7 @@ export class DropDManager {
 
     }
 
-    //load files from google storage by dropdown name
+    //load files from google this.storage by dropdown name
     loadFromName(event) {
 
         [ms, ts, tracers, insights, views] = [
@@ -131,12 +140,12 @@ export class DropDManager {
 
         if (targ != defaultDropd) {
 
-            var modelRef = ref(storage, '/Sites/' + targ + '/' + targ + '.glb');
+            var modelRef = ref(this.storage, '/Sites/' + targ + '/' + targ + '.glb');
 
 
             // .glb, load model
 
-            //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
+            //var dataRef = ref(this.storage, '/Sites/' + event.target.value + '/data.csv');
 
             //loadRefs(modelRef, dataRef)
             leftPanel.groups = GetGroups(db, targ);
@@ -151,9 +160,9 @@ export class DropDManager {
             /*
             load example
             */
-            var modelRef = ref(storage, '/Example/example.glb');
+            var modelRef = ref(this.storage, '/Example/example.glb');
 
-            var dataRef = ref(storage, '/Example/data.csv');
+            var dataRef = ref(this.storage, '/Example/data.csv');
 
             // .glb, load model
 

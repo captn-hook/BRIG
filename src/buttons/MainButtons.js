@@ -6,10 +6,19 @@ import {
 } from 'firebase/auth';
 
 //main buttons are login, logout, site selection is dropd manager
+//also links to some other stuff for login mngmt
 export class MainButtons {
 
-    constructor() {
+    constructor(dropd, dataButtons, adminButtons, listUsers) {
+        
+        //listusers is a wrapped function that returns a promise
+        this.listUsers = listUsers;
 
+        this.dropd = dropd;
+
+        this.dataButtons = dataButtons;
+
+        this.adminButtons = adminButtons;
 
         this.provider = new GoogleAuthProvider();
 
@@ -54,6 +63,56 @@ export class MainButtons {
         this.cells = document.getElementsByClassName('cell');
 
         document.getElementById('blackandwhite').addEventListener('click', (e) => this.bwswitch())
+    }
+
+    async signedIn(user) {
+        //change too refresh site
+        //empty list 
+        this.dropd.siteList([]);
+
+        // The signed-in user info.
+        const ext = user.email.split('@')
+
+        //uhhhh -> var allUsersM = []
+
+        if (ext[1] == 'poppy.com') {
+            //admin
+            this.dataButtons.switchAdmin();
+
+            this.listUsers().
+            then((u) => {
+                    u.data.users.forEach((user) => {
+                        if (user.email.split('@')[1] != 'poppy.com') {
+                            //not admin, create user table
+
+                            allUsersM.push([user.uid, user.email]);
+
+                        }
+                    });
+
+                })
+
+                .catch((error) => {
+                    //console.log('Error listing users:', error);
+                });
+
+            this.dropd.availableSites = [];
+
+            this.dropd.allSites();
+
+        } else {
+            this.dropd.availableSites = [];
+
+            userSites(db, user.uid).then((u) => {
+                this.drop.siteList(u);
+            })
+        }
+
+        this.adminButtons.switchDisplay(1);
+
+        window.dispatchEvent(new Event('hashchange'));
+        window.dispatchEvent(new Event('resize'));
+
     }
 
     //currently an admin button //shrug

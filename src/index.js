@@ -9,11 +9,6 @@ title.src = imageUrl1;
 var icon = document.getElementById('icon');
 icon.href = favi;
 
-import {
-    userSites
-} from './Data';
-
-
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
@@ -59,6 +54,10 @@ import {
 import {
     DropDManager
 } from './DropDManager';
+
+import { MainButtons } from './buttons/MainButtons';
+
+import { AdminButtons } from './buttons/AdminButtons';
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
@@ -77,17 +76,26 @@ const state = {
 
 var bw = false;
 
+//hard refrences to html elements on creation
 const viewport = new Viewport(document.getElementsByClassName('webgl')[0]);
 
 const leftPanel = new SpreadsheetPanel(document.getElementById('left'));
 
+//managers
 const userTable = new UserTable(document.getElementById('table'));
 
 const areaManager = new AreaManager();
 
+const dropd = new DropDManager(storage);
+
+//buttons
 const dataButtons = new DataButtons(leftPanel, viewport.sizes, state);
 
-const dropd = new DropDManager();
+const adminButtons = new AdminButtons();
+
+//does some auth and buttons
+const mainButtons = new MainButtons(dropd, dataButtons, adminButtons, listUsers);
+
 //const groupManager = new GroupManager();
 
 /*
@@ -110,7 +118,7 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref1)
         .then((blob) => {
-            handleModels(blob);
+            adminButtons.modelhandler.handleModels(blob);
         })
         .catch((err) => {
             console.error(err);
@@ -120,7 +128,10 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
-            handleFiles(blob);
+            var ms, ts, tracers, insights, views = adminButtons.modelhandler.handleFiles(blob);
+            leftPanel.blankClicks();
+            viewport.sizes.updateSizes(leftPanel, groups.length);
+
         })
         .catch((err) => {
             console.error('No Data', err);
@@ -147,55 +158,6 @@ function switchDisplay(state) {
     }
 }
 
-async function signedIn(user) {
-    //change too refresh site
-    //empty list 
-    dropd.siteList([]);
-
-    // The signed-in user info.
-    const ext = user.email.split('@')
-
-    //uhhhh -> var allUsersM = []
-
-    if (ext[1] == 'poppy.com') {
-        //admin
-        dataButtons.switchAdmin();
-
-        listUsers().
-        then((u) => {
-                u.data.users.forEach((user) => {
-                    if (user.email.split('@')[1] != 'poppy.com') {
-                        //not admin, create user table
-
-                        allUsersM.push([user.uid, user.email]);
-
-                    }
-                });
-
-            })
-
-            .catch((error) => {
-                //console.log('Error listing users:', error);
-            });
-
-        availableSites = [];
-
-        allSites();
-
-    } else {
-        availableSites = [];
-
-        userSites(db, user.uid).then((u) => {
-            siteList(u);
-        })
-    }
-
-    switchDisplay(1);
-
-    window.dispatchEvent(new Event('hashchange'));
-    window.dispatchEvent(new Event('resize'));
-
-}
 //live variables
 
 /*
@@ -211,19 +173,10 @@ document.addEventListener('DOMContentLoaded', (e) => {
     viewport.sizes.updateSizes(leftPanel, groups.length);
 });
 
-//resize
-window.addEventListener('resize', () => {
-    // Update sizes
-    sizes.updateSizes(leftPanel, groups.length);
-
-    // Update camera
-    camera.aspect = sizes.width / sizes.height;
-    camera.updateProjectionMatrix();
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-})
+window.addEventListener('resize', (e) => {
+    
+    viewport.sizes.updateSizes(leftPanel, groups.length);
+});
 
 //load defaullt if no hash
 if (window.location.hash == '' || window.location.hash[1] == '&') {

@@ -1,3 +1,5 @@
+import { data } from './Data';
+
 export class ModelHandler {
     constructor() {
         this.globalObj;
@@ -14,7 +16,7 @@ export class ModelHandler {
         }, false);
 
 
-        this, modelInput.addEventListener('change', (e) => {
+        this.modelInput.addEventListener('change', (e) => {
             console.log('modelInput');
             this.handleModels(modelInput.files[0]);
         }, false);
@@ -72,14 +74,15 @@ export class ModelHandler {
     handleModels(input) {
         //remove old stuff first
 
-        if (globalObj != null) {
-            scene.remove(globalObj);
+        if (this.globalObj != null) {
+            scene.remove(this.globalObj);
         }
 
         var read = new FileReader();
 
         read.readAsArrayBuffer(input);
 
+        //b
         read.onloadend = function () {
 
             this.getDRACOLoader().then((loader) => {
@@ -93,22 +96,22 @@ export class ModelHandler {
         }
     }
 
+    
+
     handleFiles(input) {
 
         //remove old stuff first
-        leftPanel.blankClicks();
-
+        
         var read = new FileReader();
 
         read.readAsBinaryString(input);
 
         read.onloadend = function () {
 
-            [ms, ts, tracers, insights, views] = Data(read.result)
+            return data(read.result)
 
-            leftPanel.setTracers(ms, ts, tracers)
-            //resize sheet
-            sizes.updateSizes(leftPanel);
         }
     }
+
+    
 }
