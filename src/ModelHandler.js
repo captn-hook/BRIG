@@ -1,9 +1,13 @@
-import { data } from './Data';
+import {
+    data
+} from './Data';
 
 export class ModelHandler {
-    constructor() {
+    constructor(s) {
         this.globalObj;
         this.sceneMeshes = [];
+
+        this.scene = s;
 
         this.dataInput = document.getElementById('datapicker');
 
@@ -26,16 +30,16 @@ export class ModelHandler {
     // onLoad callback
     onLoadLoad(obj) {
 
-        sceneMeshes = [];
+        this.sceneMeshes = [];
 
-        sceneMeshes.push(obj.scene.children[0]);
+        this.sceneMeshes.push(obj.scene.children[0]);
 
         obj.scene.children[0].children.forEach((e) => {
-            sceneMeshes.push(e);
+            this.sceneMeshes.push(e);
         })
 
-        scene.add(obj.scene);
-        globalObj = scene.children[scene.children.length - 1];
+        this.scene.add(obj.scene);
+        this.globalObj = this.scene.children[this.scene.children.length - 1];
     }
 
     // onProgress callback
@@ -82,29 +86,25 @@ export class ModelHandler {
 
         read.readAsArrayBuffer(input);
 
-        read.getDRACOLoader = this.getDRACOLoader;
-        read.getGLTFLoader = this.getGLTFLoader;
 
         //bind this th obj
-        read.onloadend = function () {
-
-            
+        read.onloadend = () => {
 
             this.getDRACOLoader().then((loader) => {
 
-                loader.parse(read.result, '', this.onLoadLoad, this.onErrorLog, this.onProgressLog);
+                loader.parse(read.result, '', this.onLoadLoad.bind(this), this.onProgressLog.bind(this), this.onErrorLog.bind(this));
 
             })
 
         }
     }
 
-    
+
 
     handleFiles(input) {
 
         //remove old stuff first
-        
+
         var read = new FileReader();
 
         read.readAsBinaryString(input);
@@ -116,5 +116,5 @@ export class ModelHandler {
         }
     }
 
-    
+
 }

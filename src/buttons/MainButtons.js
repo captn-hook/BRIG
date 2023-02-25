@@ -176,7 +176,7 @@ export class MainButtons {
 
     login() {
 
-        signInWithPopup(auth, provider)
+        signInWithPopup(this.auth, this.provider)
             .then((result) => {
                 signedIn(result.user);
 

@@ -58,7 +58,7 @@ export class DropDManager {
             }
 
             Promise.all(promises).then(() => {
-                siteList(this.accessibleSites);
+                this.siteList(this.accessibleSites);
             });
 
         })

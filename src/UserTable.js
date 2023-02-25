@@ -19,8 +19,9 @@ export class UserTable {
     populateTable(storage, allUsersM, dropdValue, bw = false) {
 
         if (dropdValue == undefined) {
-            dropdValue = 'example'
+            dropdValue = ''
         }
+
 
         if (dropdValue != 'Empty' && dropdValue != 'Select a site' && dropdValue != '') {
 

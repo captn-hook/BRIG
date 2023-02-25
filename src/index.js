@@ -77,10 +77,10 @@ const state = {
 var bw = false;
 
 //hard refrences to html elements on creation
-const viewport = new Viewport(document.getElementsByClassName('webgl')[0]);
 
 const leftPanel = new SpreadsheetPanel(document.getElementById('left'));
 
+const viewport = new Viewport(document.getElementsByClassName('webgl')[0], leftPanel, state);
 //managers
 const userTable = new UserTable(document.getElementById('table'));
 
@@ -91,7 +91,7 @@ const dropd = new DropDManager(storage);
 //buttons
 const dataButtons = new DataButtons(leftPanel, viewport.sizes, state);
 
-const adminButtons = new AdminButtons();
+const adminButtons = new AdminButtons(viewport.scene);
 
 //does some auth and buttons
 const mainButtons = new MainButtons(dropd, dataButtons, adminButtons, listUsers, userTable);

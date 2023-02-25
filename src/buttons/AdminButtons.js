@@ -11,7 +11,7 @@ import {
 //admin buttons are the admin ctrl button, and all the interface on the inside of that panel
 export class AdminButtons {
 
-    constructor() {
+    constructor(s) {
         this.d0 = document.getElementById('log');
         this.d1 = document.getElementById('selectPanel1')
         this.d2 = document.getElementById('selectPanel2')
@@ -21,7 +21,7 @@ export class AdminButtons {
         // btn event listeners
         this.ctrlBtn.addEventListener('click', this.adminMenu);
 
-        this.modelhandler = new ModelHandler();
+        this.modelhandler = new ModelHandler(s);
 
         document.getElementById('editFiles').addEventListener('click', (e) => this.clicklistener());
 
