@@ -94,7 +94,7 @@ const dataButtons = new DataButtons(leftPanel, viewport.sizes, state);
 const adminButtons = new AdminButtons();
 
 //does some auth and buttons
-const mainButtons = new MainButtons(dropd, dataButtons, adminButtons, listUsers);
+const mainButtons = new MainButtons(dropd, dataButtons, adminButtons, listUsers, userTable);
 
 //const groupManager = new GroupManager();
 
@@ -118,7 +118,7 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref1)
         .then((blob) => {
-            adminButtons.modelhandler.handleModels(blob);
+            mainButtons.giveBlob(blob, storage);
         })
         .catch((err) => {
             console.error(err);

@@ -9,10 +9,12 @@ import {
 //also links to some other stuff for login mngmt
 export class MainButtons {
 
-    constructor(dropd, dataButtons, adminButtons, listUsers) {
-        
+    constructor(dropd, dataButtons, adminButtons, listUsers, userTable) {
+
         //listusers is a wrapped function that returns a promise
         this.listUsers = listUsers;
+
+        this.userTable = userTable;
 
         this.dropd = dropd;
 
@@ -62,7 +64,14 @@ export class MainButtons {
 
         this.cells = document.getElementsByClassName('cell');
 
+        this.allUsersM = [];
+
         document.getElementById('blackandwhite').addEventListener('click', (e) => this.bwswitch())
+    }
+
+    giveBlob(blob, storage) {
+        this.adminButtons.modelhandler.handleModels(blob, this.userTable);
+        this.userTable.populateTable(storage, this.allUsersM, this.dropd.value, this.bw);
     }
 
     async signedIn(user) {
@@ -73,7 +82,7 @@ export class MainButtons {
         // The signed-in user info.
         const ext = user.email.split('@')
 
-        //uhhhh -> var allUsersM = []
+        this.allUsersM = []
 
         if (ext[1] == 'poppy.com') {
             //admin
@@ -85,7 +94,7 @@ export class MainButtons {
                         if (user.email.split('@')[1] != 'poppy.com') {
                             //not admin, create user table
 
-                            allUsersM.push([user.uid, user.email]);
+                            this.allUsersM.push([user.uid, user.email]);
 
                         }
                     });

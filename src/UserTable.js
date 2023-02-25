@@ -1,6 +1,6 @@
 import {
     ref,
-    getMetadata 
+    getMetadata
 } from 'firebase/storage';
 
 export class UserTable {
@@ -17,6 +17,10 @@ export class UserTable {
     //set group to selected
 
     populateTable(storage, allUsersM, dropdValue, bw = false) {
+
+        if (dropdValue == undefined) {
+            dropdValue = 'example'
+        }
 
         if (dropdValue != 'Empty' && dropdValue != 'Select a site' && dropdValue != '') {
 
@@ -67,7 +71,7 @@ export class UserTable {
         var big = iU0.length > aU0.length ? iU0.length : aU0.length;
 
         var style = bw ? 'tbDark' : 'tbLight';
-        
+
         var tbIn = 'tbIn';
 
         for (var i = 0; i < big; i++) {
@@ -120,7 +124,7 @@ export class UserTable {
 
         for (var i = 0; i < this.allUsers.length; i++) {
 
-            if (this.allUsers[i][1] == e.innerHTML) { 
+            if (this.allUsers[i][1] == e.innerHTML) {
 
                 this.iU.push([this.allUsers[i][0], this.allUsers[i][1], 'flag']);
 
@@ -146,7 +150,7 @@ export class UserTable {
             }
 
         }
-        
-        this.pTable2(this.aU, this.iU);       
+
+        this.pTable2(this.aU, this.iU);
     }
 }

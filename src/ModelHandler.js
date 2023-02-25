@@ -57,7 +57,7 @@ export class ModelHandler {
     }
 
     getDRACOLoader() {
-        return getGLTFLoader().then((GLTFLoader) => {
+        return this.getGLTFLoader().then((GLTFLoader) => {
             return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
 
                 const DRACOLoader = new DRACO.DRACOLoader();
@@ -71,7 +71,7 @@ export class ModelHandler {
         })
     }
 
-    handleModels(input) {
+    handleModels(input, userTable) {
         //remove old stuff first
 
         if (this.globalObj != null) {
@@ -82,16 +82,19 @@ export class ModelHandler {
 
         read.readAsArrayBuffer(input);
 
-        //b
+        read.getDRACOLoader = this.getDRACOLoader;
+        read.getGLTFLoader = this.getGLTFLoader;
+
+        //bind this th obj
         read.onloadend = function () {
+
+            
 
             this.getDRACOLoader().then((loader) => {
 
-                loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
+                loader.parse(read.result, '', this.onLoadLoad, this.onErrorLog, this.onProgressLog);
 
             })
-
-            userTable.populateTable(storage, allUsersM, dropd.value, bw);
 
         }
     }
