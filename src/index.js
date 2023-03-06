@@ -317,6 +317,7 @@ document.getElementById('resetBtn').addEventListener('click', (e) => {
 
 document.getElementById('readOnly').addEventListener('click', (e) => {
     textbox.readOnly = !textbox.readOnly;
+    e.target.innerHTML = (textbox.readOnly) ? 'Read Only' : 'Editable';
 })
 
 document.getElementById('toggleBtn').addEventListener('click', (e) => {
@@ -490,10 +491,13 @@ function switchDisplay(state) {
 document.getElementById('editFiles').addEventListener('click', (e) => {
     if (d0.style.display == 'block') {
         switchDisplay(1);
+        e.target.innerHTML = 'Edit Files';
     } else if (d1.style.display == 'block') {
         switchDisplay(2);
+        e.target.innerHTML = 'Login';
     } else {
         switchDisplay(0);
+        e.target.innerHTML = 'Dropdown';
     }
 })
 
@@ -517,8 +521,10 @@ var editPos = false;
 document.getElementById('editPos').addEventListener('click', (e) => {
     if (editPos) {
         editPos = false;
+        e.target.innerHTML = 'Edit Position';
     } else {
         editPos = true;
+        e.target.innerHTML = 'Stop Editing';
     }
 })
 
@@ -612,6 +618,7 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
     userTable.bw = bw;
 
     if (bw) {
+        e.target.innerHTML = 'Light Mode';
         scene.background = new Color(0x000000);
         back.style.background = 'rgb(27, 27, 27)';
         title.src = imageUrl1;
@@ -630,6 +637,7 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
             cells[i].classList.add('tbDark');
         }
     } else {
+        e.target.innerHTML = 'Dark Mode';
         scene.background = new Color(0xffffff);
         back.style.background = 'rgb(230, 230, 230)';
         title.src = imageUrl2;
@@ -1442,10 +1450,10 @@ const tick = () => {
 
         leftPanel.areas.forEach(a => {
             if (a != undefined) {
-                a.drawArea(camera, sizes)
+                a.drawArea(camera, sizes, doVals)
             }
         });
-        workingArea.drawArea(camera, sizes)
+        workingArea.drawArea(camera, sizes, doVals, true, 'last')
     }
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);

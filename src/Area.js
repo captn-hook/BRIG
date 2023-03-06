@@ -1,10 +1,12 @@
 import {
     Vector3,
 } from 'three';
-import { CanvasObject } from './CanvasObject';
+import {
+    CanvasObject
+} from './CanvasObject';
 //import Point2d from './Point';
 
-class Area extends CanvasObject{
+class Area extends CanvasObject {
 
     constructor(p = [], value = undefined, name = '', text = '', opacity = .5, thickness = 2) {
         super();
@@ -55,26 +57,39 @@ class Area extends CanvasObject{
 
     }
 
-    drawArea(camera, sizes, alpha = true) {
-        
+    drawCircle(ctx, x, y, r) {
+        ctx.fillStyle = "rgba(255, 255, 255, 1)";
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    drawArea(camera, sizes, doVals, alpha = true, displayp = 'none') {
+
         if (this.visible) {
+            //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
+            var screenpts = [];
 
+            for (var p in this.points) {
 
-        //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var screenpts = [];
+                var x = this.points[p].x;
+                var y = this.points[p].y;
+                var z = this.points[p].z / 100;
 
-        for (var p in this.points) {
+                screenpts.push(this.screenPts(camera, sizes.width / 2, sizes.height / 2, x, y, z));
 
-            var x = this.points[p].x;
-            var y = this.points[p].y;
-            var z = this.points[p].z / 100;
+            }
 
-            screenpts.push(this.screenPts(camera, sizes.width / 2, sizes.height / 2, x, y, z));
+            //display points
+            if (displayp == 'last' && screenpts.length > 0) {
+                this.drawCircle(sizes.ctx, screenpts[screenpts.length - 1][0], screenpts[screenpts.length - 1][1], 4);
+            } else if (displayp == 'all') {
+                for (var p in screenpts) {
+                    this.drawCircle(sizes.ctx, screenpts[p][0], screenpts[p][1], 2);
+                }
+            }
 
-        }
-        //if z1 and z2 magnitude is less than 1, then draw the tracer
-
-
+            //if z1 and z2 magnitude is less than 1, then draw the tracer
             sizes.ctx.lineWidth = this.outline;
 
             if (alpha) {
@@ -91,34 +106,42 @@ class Area extends CanvasObject{
             sizes.ctx.lineWidth = this.thickness;
             //area
             if (screenpts.length > 0) {
-            sizes.ctx.beginPath();
-            sizes.ctx.moveTo(screenpts[0][0], screenpts[0][1]);
-      
-            for (var i = 1; i < screenpts.length; i++) {
-                sizes.ctx.lineTo(screenpts[i][0], screenpts[i][1]);
+                sizes.ctx.beginPath();
+                sizes.ctx.moveTo(screenpts[0][0], screenpts[0][1]);
+
+                for (var i = 1; i < screenpts.length; i++) {
+                    sizes.ctx.lineTo(screenpts[i][0], screenpts[i][1]);
+                }
+
+                sizes.ctx.closePath();
+
+                sizes.ctx.fill();
+                sizes.ctx.stroke();
+
+
+                //label
+
+                var avg = this.posAvg();
+
+                var [x, y] = this.screenPts(camera, sizes.width / 2, sizes.height / 2, avg.x, avg.y, avg.z / 100);
+
+                sizes.ctx.font = "12px Arial";
+                sizes.ctx.textAlign = "center";
+                sizes.ctx.strokeStyle = 'black';
+                sizes.ctx.lineWidth = 4;
+                sizes.ctx.lineJoin = "round";
+                sizes.ctx.strokeText(this.name, x, y + 4);
+                sizes.ctx.fillStyle = "white";
+                sizes.ctx.fillText(this.name, x, y + 4);
+
+                if (doVals) {
+
+                    sizes.ctx.strokeText(Math.round(this.value * 10) / 10, x, y - 10);
+                    sizes.ctx.fillStyle = this.color;
+                    sizes.ctx.fillText(Math.round(this.value * 10) / 10, x, y - 10);
+
+                }
             }
-
-            sizes.ctx.closePath();
-
-            sizes.ctx.fill();
-            sizes.ctx.stroke();
-
-
-            //label
-
-            var avg = this.posAvg();
-
-            var [x, y] = this.screenPts(camera, sizes.width / 2, sizes.height / 2, avg.x, avg.y, avg.z / 100);
-            
-            sizes.ctx.font = "12px Arial";
-            sizes.ctx.textAlign = "center";
-            sizes.ctx.strokeStyle = 'black';
-            sizes.ctx.lineWidth = 4;
-            sizes.ctx.lineJoin = "round";
-            sizes.ctx.strokeText(this.name, x, y + 4);
-            sizes.ctx.fillStyle = "white";
-            sizes.ctx.fillText(this.name, x, y + 4);
-        }
 
         }
 
