@@ -19,8 +19,12 @@ import {
     Raycaster,
 } from 'three';
 
+import {
+    ModelHandler
+} from './ModelHandler';
+
 export class Viewport {
-    constructor(canvas3d, leftpanel) {
+    constructor(canvas3d, leftpanel, state) {
         
         this.leftpanel = leftpanel;
 
@@ -34,6 +38,7 @@ export class Viewport {
         // Controls
         this.controls = new OrbitControls(this.camera, this.sizes.canvas2d);
 
+        this.state = state;
 
         this.looking = true;
         this.camFree = false;
@@ -53,6 +58,7 @@ export class Viewport {
 
         this.scene.add(light);
 
+        this.modelhandler = new ModelHandler(this.scene);
 
         //Renderer
         this.renderer = new WebGLRenderer({
@@ -127,7 +133,7 @@ export class Viewport {
 
         //console.log(this.camFree, this.looking, this.leftpanel.spreadsheet, this.leftpanel.n, this.leftpanel.gi)
 
-        if (this.camFree && this.leftpanel.spreadsheet == state[0]) {
+        if (this.camFree && this.leftpanel.spreadsheet == this.state[0]) {
             try {
                 //fail quietly if cannot set camera
                 if (this.leftpanel.mt == 0) {
@@ -165,7 +171,7 @@ export class Viewport {
             } catch (e) {
                 //console.log(e)
             }
-        } else if (this.leftpanel.spreadsheet == state[1] && this.camFree) {
+        } else if (this.leftpanel.spreadsheet == this.state[1] && this.camFree) {
 
             if (this.leftpanel.gi) {
                 var i = this.leftpanel.gi;
@@ -179,7 +185,7 @@ export class Viewport {
 
             //console.log(cameraTargPos, cameraTargView)
 
-        } else if (this.leftpanel.spreadsheet == state[2] && this.camFree) {
+        } else if (this.leftpanel.spreadsheet == this.state[2] && this.camFree) {
 
             if (this.leftpanel.ai) {
                 var i = this.leftpanel.ai;
@@ -205,9 +211,9 @@ export class Viewport {
 
         e.preventDefault();
 
-        if (editPos && this.leftpanel.spreadsheet == this.state[2]) {
-            workingArea.points.pop();
-        }
+        //if (editPos && this.leftpanel.spreadsheet == this.state[2]) {
+        //    workingArea.points.pop();
+        //}
     }
 
     clicked(e) {
@@ -217,6 +223,7 @@ export class Viewport {
         if (editPos) {
 
             var raycaster = new Raycaster();
+
             var mouse = {
                 x: (e.clientX - this.leftpanel.canvas.innerWidth) / this.renderer.domElement.clientWidth * 2 - 1,
                 y: -(e.clientY / this.renderer.domElement.clientHeight) * 2 + 1
@@ -224,7 +231,7 @@ export class Viewport {
 
             raycaster.setFromCamera(mouse, this.camera);
 
-            var intersects = raycaster.intersectObjects(this.sceneMeshes, true);
+            var intersects = raycaster.intersectObjects(this.modelhandler.sceneMeshes, true);
 
             var doP = (this.leftpanel.spreadsheet == this.state[1]) ? true : false;
 
@@ -235,15 +242,15 @@ export class Viewport {
                     } else if (this.leftpanel.firstClickY == 1) {
                         ts[this.leftpanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
                     }
-                } else {
-                    console.log(workingArea.points);
-                    workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
-                }
+                }// else {
+                    //console.log(workingArea.points);
+                    //workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
+               // }
             }
         }
 
         //store pos in link
-        var pos = String('P=' + Math.round(this.camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
+        var pos = String('P=' + Math.round(this.camera.position.x * 100) / 100) + '/' + String(Math.round(this.camera.position.y * 100) / 100) + '/' + String(Math.round(this.camera.position.z * 100) / 100) + '/' + String(Math.round(this.camera.rotation.x * 100) / 100) + '/' + String(Math.round(this.camera.rotation.y * 100) / 100) + '/' + String(Math.round(this.camera.rotation.z * 100) / 100)
 
         if (pos[0] != null) {
             window.location.hash = this.leftpanel.siteheader + '&' + pos;

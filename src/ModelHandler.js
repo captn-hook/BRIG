@@ -75,7 +75,7 @@ export class ModelHandler {
         })
     }
 
-    handleModels(input, userTable) {
+    handleModels(input) {
         //remove old stuff first
 
         if (this.globalObj != null) {

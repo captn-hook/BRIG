@@ -10,6 +10,17 @@ class AreaManager {
         this.workingArea = new Area([])
     }
 
+    //click methods
+    // else {
+                    //console.log(workingArea.points);
+                    //workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
+               // }
+
+
+        //if (editPos && this.leftpanel.spreadsheet == this.state[2]) {
+        //    workingArea.points.pop();
+        //}
+
     clicks(e) {
         if (this.spreadsheet == this.state[2]) {
             if (this.ai != this.cellY - 1) {

@@ -52,8 +52,6 @@ export class MainButtons {
             grpButtons(e, leftPanel, sizes, state)
         })
 
-        this.ctrl = document.getElementById('ctrl');
-
         this.back = document.getElementById('bg')
 
         this.tx = document.getElementById('tx')
@@ -69,8 +67,7 @@ export class MainButtons {
         document.getElementById('blackandwhite').addEventListener('click', (e) => this.bwswitch())
     }
 
-    giveBlob(blob, storage) {
-        this.adminButtons.modelhandler.handleModels(blob, this.userTable);
+    giveStorage(storage) {
         this.userTable.populateTable(storage, this.allUsersM, this.dropd.value, this.bw);
     }
 

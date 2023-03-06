@@ -1,6 +1,4 @@
-import {
-    ModelHandler
-} from '../ModelHandler';
+
 
 import {
     saveFile,
@@ -18,10 +16,12 @@ export class AdminButtons {
 
         this.ctrlBtn = document.getElementById('ctrlBtn');
 
-        // btn event listeners
-        this.ctrlBtn.addEventListener('click', this.adminMenu);
+        this.ctrl = document.getElementById('ctrl');
 
-        this.modelhandler = new ModelHandler(s);
+        console.log(this.ctrl)
+
+        // btn event listeners
+        this.ctrlBtn.addEventListener('click', this.adminMenu.bind(this));
 
         document.getElementById('editFiles').addEventListener('click', (e) => this.clicklistener());
 
@@ -60,6 +60,8 @@ export class AdminButtons {
     adminMenu() {
         
         const root = document.getElementById('root');
+
+        console.log(this.ctrl)
         
         if (this.ctrl.style.display == 'block') {
             this.ctrl.style.display = 'none';

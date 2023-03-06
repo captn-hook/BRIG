@@ -7,10 +7,26 @@ import {
 
 export class DropDManager {
 
-    constructor(storage) {
+    constructor(storage, obj) {
         this.dropd = document.getElementById('dropdown');
 
         this.storage = storage;
+
+        this.ms = obj[0];
+
+        this.ts = obj[1];
+
+        this.tracers = obj[2];
+
+        this.insights = obj[3];
+
+        this.views = obj[4];
+
+        this.groups = obj[5];
+
+        this.areas = obj[6];
+
+        this.siteheader = 'Example';
 
         //dev funcs
 
@@ -101,7 +117,7 @@ export class DropDManager {
 
         RemoteData(db, doc).then((data) => {
 
-            [ms, ts, tracers, insights, views] = data;
+            [this.ms, this.ts, this.tracers, this.insights, this.views] = data;
 
             leftPanel.setTracers(ms, ts, tracers)
 
@@ -122,7 +138,7 @@ export class DropDManager {
     //load files from google this.storage by dropdown name
     loadFromName(event) {
 
-        [ms, ts, tracers, insights, views] = [
+        [this.ms, this.ts, this.tracers, this.insights, this.views] = [
             [],
             [],
             [],
@@ -133,12 +149,12 @@ export class DropDManager {
         //console.log(event.target.value);
 
         if (event.target.value == null || event.target.value == undefined || event.target.value == '') {
-            var targ = leftPanel.siteheader;
+            var targ = this.siteheader;
         } else {
             var targ = event.target.value;
         }
 
-        if (targ != defaultDropd) {
+        if (targ != this.defaultDropd) {
 
             var modelRef = ref(this.storage, '/Sites/' + targ + '/' + targ + '.glb');
 
@@ -148,11 +164,11 @@ export class DropDManager {
             //var dataRef = ref(this.storage, '/Sites/' + event.target.value + '/data.csv');
 
             //loadRefs(modelRef, dataRef)
-            leftPanel.groups = GetGroups(db, targ);
-            leftPanel.areas = GetAreas(db, targ);
+            this.groups = GetGroups(db, targ);
+            this.areas = GetAreas(db, targ);
             loadRefAndDoc(modelRef, targ);
 
-            leftPanel.siteheader = targ;
+            this.siteheader = targ;
 
         } else {
             //load default
@@ -168,16 +184,16 @@ export class DropDManager {
 
             loadRefs(modelRef, dataRef)
 
-            leftPanel.groups = GetGroups(db, targ);
-            leftPanel.areas = GetAreas(db, targ);
+            this.groups = GetGroups(db, targ);
+            this.areas = GetAreas(db, targ);
 
             /*
             Animate
             */
-            leftPanel.siteheader = 'Example';
+            this.siteheader = 'Example';
         }
 
-        //window.location.hash = leftPanel.siteheader + '&';
+        //window.location.hash = this.siteheader + '&';
 
     }
 }

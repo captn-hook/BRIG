@@ -76,6 +76,17 @@ const state = {
 
 var bw = false;
 
+//var [ms, ts, tracers, insights, views] = Data(data);
+var ms = []
+var ts = []
+var tracers = []
+var insights = []
+var views = []
+var groups = []
+var areas = []
+//refrence bundle
+var objects = { ms, ts, tracers, insights, views, groups, areas };
+
 //hard refrences to html elements on creation
 
 const leftPanel = new SpreadsheetPanel(document.getElementById('left'));
@@ -86,7 +97,7 @@ const userTable = new UserTable(document.getElementById('table'));
 
 const areaManager = new AreaManager();
 
-const dropd = new DropDManager(storage);
+const dropd = new DropDManager(storage, objects);
 
 //buttons
 const dataButtons = new DataButtons(leftPanel, viewport.sizes, state);
@@ -103,14 +114,7 @@ const mainButtons = new MainButtons(dropd, dataButtons, adminButtons, listUsers,
 */
 
 //load data from file
-//var [ms, ts, tracers, insights, views] = Data(data);
-var ms = []
-var ts = []
-var tracers = []
-var insights = []
-var views = []
-var groups = []
-var areas = []
+
 
 //loadfunc =====================================================<
 
@@ -118,7 +122,8 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref1)
         .then((blob) => {
-            mainButtons.giveBlob(blob, storage);
+            viewport.modelhandler.handleModels(blob);
+            mainButtons.giveStorage(storage);
         })
         .catch((err) => {
             console.error(err);
@@ -128,7 +133,7 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
-            var ms, ts, tracers, insights, views = adminButtons.modelhandler.handleFiles(blob);
+            var ms, ts, tracers, insights, views = viewport.modelhandler.handleFiles(blob);
             leftPanel.blankClicks();
             viewport.sizes.updateSizes(leftPanel, groups.length);
 
