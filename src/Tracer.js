@@ -1,10 +1,15 @@
-import { Vector3, Vector2 } from 'three';
+import {
+    Vector3,
+    Vector2
+} from 'three';
 //import Point2d from './Point';
-import { CanvasObject } from './CanvasObject';
+import {
+    CanvasObject
+} from './CanvasObject';
 
 class Tracer extends CanvasObject {
 
-    constructor(m = 0, t = 0, value = 0, headroom = 40, lift = 20) {
+    constructor(m = 0, t = 0, value = 0, headroom = 40, lift = 60) {
         super();
         this.m = m;
         this.t = t;
@@ -38,22 +43,33 @@ class Tracer extends CanvasObject {
         //headroom    ty                 
         var y4 = (-(proj2.y * h) + h);
 
+        //m
+        var x1 = ((proj1.x * w) + w);
+        var y1 = (-(proj1.y * h) + h);
+
         /*
         MOVE M POINT ALONG LINE TO T POMT BY HEADROOM
         */
 
-        //m
-        var x1 = ((proj1.x * w) + w);
-        var y1 = (-(proj1.y * h) + h);
+        var dist = Math.sqrt(Math.pow(x4 - x1, 2) + Math.pow(y4 - y1, 2));
+
+        var temphead = this.headroom;
+
+        var flag = false;
+
+        if (dist < this.headroom * 4 && this.visible) {
+            flag = true;
+            temphead = this.headroom * (dist / (this.headroom * 4));
+        }
 
         //m > T
         //get unit vector of ((x4 - x1), (y4 - y1))
         var u = new Vector2(x4 - x1, y4 - y1).normalize();
 
         //mx + (tx - mx) /  scalar(headroom)
-        x1 += u.x * this.headroom;
+        x1 += u.x * temphead
         //my + (ty - my) / scalar(headroom)
-        y1 += u.y * this.headroom;
+        y1 += u.y * temphead
 
         //mid + lift
         var [mx, my] = this.midpoint(x1, y1, x4, y4);
@@ -80,7 +96,7 @@ class Tracer extends CanvasObject {
         var x6 = x1 + headwidth * Math.cos(angle + Math.PI / arrowconst);
         var y6 = y1 + headwidth * Math.sin(angle + Math.PI / arrowconst);
 
-        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, proj1.z, proj2.z]
+        return [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, proj1.z, proj2.z, flag];
 
     }
 
@@ -111,11 +127,10 @@ class Tracer2d extends Tracer {
         var cellWidth = leftPanel.cellWidth;
 
         //start,     ctrl1,  ctrl2,    end   arw 1   arw 2
-        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, z1, z2] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
+        var [x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, z1, z2, flag] = this.screenPts(camera, sizes.width / 2, sizes.height / 2)
 
         //if z1 and z2 magnitude is less than 1, then draw the tracer
         if (this.visible && Math.abs(z1) < 1 && Math.abs(z2) < 1) {
-
 
             sizes.ctx.lineWidth = this.outline;
 
@@ -128,8 +143,6 @@ class Tracer2d extends Tracer {
             sizes.ctx.strokeStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
             sizes.ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
 
-
-
             //arrowhead
             sizes.ctx.beginPath();
             sizes.ctx.moveTo(x1, y1);
@@ -138,14 +151,29 @@ class Tracer2d extends Tracer {
             sizes.ctx.lineTo(x1, y1);
             sizes.ctx.fill();
 
-            // Cubic Bézier curve
             sizes.ctx.beginPath();
             //start line at arrow tip edge
             var [strtx, strty] = this.midpoint(x5, y5, x6, y6);
-            sizes.ctx.moveTo(strtx, strty);
-            //                ctrl1    ctrl2   end
-            sizes.ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-            sizes.ctx.stroke();
+
+            if (flag) {
+                //straight line
+                sizes.ctx.moveTo(strtx, strty);
+                sizes.ctx.lineTo(x4, y4);
+                sizes.ctx.stroke();
+
+            } else {
+                // Cubic Bézier curve
+                sizes.ctx.moveTo(strtx, strty);
+                //line away from head to tail a Tiny bit
+                var [buffx, buffy] = this.midpoint(x1, y1, x4, y4)
+                buffx = strtx + (buffx - strtx) / 100;
+                buffy = strty + (buffy - strty) / 100;
+                console.log(buffx, buffy, strtx, strty)
+                sizes.ctx.lineTo(buffx, buffy);
+                //                ctrl1    ctrl2   end
+                sizes.ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+                sizes.ctx.stroke();
+            }
 
             if (doVals) {
 
@@ -158,7 +186,6 @@ class Tracer2d extends Tracer {
                 sizes.ctx.fillStyle = this.color;
                 sizes.ctx.fillText(Math.round(this.value * 100) / 100, x2, y2);
             }
-
         }
 
         //spreadsheet
@@ -172,7 +199,8 @@ class Tracer2d extends Tracer {
             ctxLeft.fillRect(this.t.i * cellWidth, this.m.i * cellHeight, cellWidth, cellHeight);
             ctxLeft.globalAlpha = 1.0;
         }
-    };
+
+    }
 
     drawValues(ctxLeft, cellWidth, cellHeight) {
 
