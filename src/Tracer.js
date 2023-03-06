@@ -54,8 +54,14 @@ class Tracer extends CanvasObject {
         var dist = Math.sqrt(Math.pow(x4 - x1, 2) + Math.pow(y4 - y1, 2));
 
         var temphead = this.headroom;
-
+        this.headroom * 8
         var flag = false;
+
+        if (dist < this.headroom * 8 && this.visible) {
+            var templift = this.lift * ((dist - (this.headroom * 4)) / (this.headroom * 4));
+        } else {
+            var templift = this.lift;
+        }
 
         if (dist < this.headroom * 4 && this.visible) {
             flag = true;
@@ -73,7 +79,7 @@ class Tracer extends CanvasObject {
 
         //mid + lift
         var [mx, my] = this.midpoint(x1, y1, x4, y4);
-        my -= this.lift;
+        my -= templift;
 
         //ctrl1  mid(start, mid)
         var [x2, y2] = this.midpoint(x1, y1, mx, my);
@@ -168,7 +174,6 @@ class Tracer2d extends Tracer {
                 var [buffx, buffy] = this.midpoint(x1, y1, x4, y4)
                 buffx = strtx + (buffx - strtx) / 100;
                 buffy = strty + (buffy - strty) / 100;
-                console.log(buffx, buffy, strtx, strty)
                 sizes.ctx.lineTo(buffx, buffy);
                 //                ctrl1    ctrl2   end
                 sizes.ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
