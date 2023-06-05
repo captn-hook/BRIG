@@ -11,6 +11,10 @@ import {
 } from './Tracer';
 
 import {
+    Area
+} from './Area';
+
+import {
     setDoc,
     getDoc,
     getDocs,
@@ -18,9 +22,104 @@ import {
     doc
 } from "firebase/firestore";
 
-import * as THREE from 'three';
+import {
+    Vector3
+} from 'three';
 
 const MAX_GROUPS = 40;
+
+const MAX_AREAS = 40;
+export function GetAreas(db, name) {
+    var areas = []
+    if (name != '') {
+
+
+        for (let i = 0; i < MAX_AREAS; i++) {
+
+            const area = doc(db, name, 'area' + (i + 1));
+
+            getDoc(area).then((a) => {
+                a = a.data();
+
+                if (a != undefined) {
+
+                    var points = [];
+
+                    var npoints = 0;
+
+                    for (var v in a) {
+                        if (v.startsWith('point')) {
+                            npoints++;
+                        }
+                    }
+
+                    for (let j = 0; j < npoints; j++) {
+                        var point = a['point' + j];
+                        points.push(new Vector3(point[0], point[1], point[2]));
+                    }
+
+                    var value = a['value'];
+                    var name = a['name'];
+                    var text = a['text'];
+
+                    if (text == undefined) {
+                        text = '';
+                    }
+
+                    if (value == undefined) {
+                        value = 0;
+                    }
+
+                    if (name == undefined) {
+                        name = 'area' + (i + 1);
+                    }
+
+                    var area = new Area(points, value, name, text);
+
+                    areas.push(area);
+                }
+            })
+        }
+    }
+
+    return areas;
+}
+
+export async function saveArea(db, name, i, area) {
+
+    var text = area.text;
+
+    if (i) {
+        var areaDoc = {};
+
+        if (area.name != undefined && area.name != '') {
+            areaDoc['name'] = area.name
+        } else if (text == '') {
+            areaDoc['name'] = 'area' + i
+        } else {
+            //evertything up to the first newline
+            areaDoc['name'] = decodeURI(text).replaceAll(',', '~').split(/\r?\n/)[0];
+        }
+
+        areaDoc['text'] = decodeURI(text).replaceAll(',', '~');
+
+        for (let j = 0; j < area.points.length; j++) {
+            areaDoc['point' + j] = [area.points[j].x, area.points[j].y, area.points[j].z];
+        }
+
+        var avg = area.posAvg();
+        areaDoc['pos'] = [avg.x, avg.y, avg.z];
+
+        areaDoc['value'] = area.value;
+        try {
+            await setDoc(doc(db, name, 'area' + i), areaDoc);
+            console.log("Document written");
+            return areaDoc;
+        } catch (e) {
+            console.error("Error adding document", e);
+        }
+    }
+}
 
 export async function userSites(db, name) {
 
@@ -171,7 +270,7 @@ export async function RemoteData(db, name) {
             for (var i = 2; i < d[0].length; i++) {
 
                 var xyz = d[1][i].split('/');
-                var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+                var pos = new Vector3(xyz[0], xyz[1], xyz[2]);
 
                 ms.push(new Point2d("M", i - 1, 'red', pos, 7));
 
@@ -180,7 +279,7 @@ export async function RemoteData(db, name) {
             for (var i = 2; i < leng - IV; i++) {
 
                 var xyz = d[i][1].split('/');
-                var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+                var pos = new Vector3(xyz[0], xyz[1], xyz[2]);
 
                 ts.push(new Point2d("D", i - 1, 'blue', pos, 3.5));
 
@@ -252,7 +351,7 @@ export function Data(data) {
                 } else if (m == 1 && t > 1) {
 
                     var xyz = dataArray[t][m].split('/');
-                    var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+                    var pos = new Vector3(xyz[0], xyz[1], xyz[2]);
 
                     ts.push(new Point2d("D", t - 1, 'blue', pos, 5));
 
@@ -260,7 +359,7 @@ export function Data(data) {
                 } else if (t == 1 && m > 1) {
 
                     var xyz = dataArray[t][m].split('/');
-                    var pos = new THREE.Vector3(xyz[0], xyz[1], xyz[2]);
+                    var pos = new Vector3(xyz[0], xyz[1], xyz[2]);
 
                     ms.push(new Point2d("M", m - 1, 'red', pos, 10));
 
@@ -281,7 +380,7 @@ export function Data(data) {
 
         dataArray[0].forEach((e, i) => {
             if (e != '' && e != null) {
-                var pos = new THREE.Vector3(0, (i) * 3, 0);
+                var pos = new Vector3(0, (i) * 3, 0);
                 ms.push(new Point2d('M', i, 'red', pos, 10));
             }
         })
@@ -289,7 +388,7 @@ export function Data(data) {
 
         dataArray.forEach((e, i) => {
             if (i > 0 && e != '' && e != null) {
-                var pos = new THREE.Vector3((i) * 3, 0, 0);
+                var pos = new Vector3((i) * 3, 0, 0);
                 ts.push(new Point2d('D', i, 'blue', pos, 5));
             }
         })

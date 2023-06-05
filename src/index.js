@@ -9,7 +9,16 @@ title.src = imageUrl1;
 var icon = document.getElementById('icon');
 icon.href = favi;
 
-import * as THREE from 'three';
+import {
+    PerspectiveCamera,
+    Vector3,
+    Raycaster,
+    WebGLRenderer,
+    Color,
+    AmbientLight,
+    Scene,
+    Clock
+} from 'three';
 /*
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -27,8 +36,19 @@ import {
     RemoteData,
     GetGroups,
     saveGroup,
-    userSites
+    userSites,
+    saveArea,
+    GetAreas,
 } from './Data';
+
+import {
+    ScreenSizes
+} from './ScreenSizes';
+
+import {
+    OrbitControls
+} from 'three/examples/jsm/controls/OrbitControls.js';
+
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
@@ -43,7 +63,8 @@ import {
     getAuth,
     signInWithPopup,
     GoogleAuthProvider,
-    onAuthStateChanged
+    onAuthStateChanged,
+    confirmPasswordReset
 } from 'firebase/auth';
 
 import {
@@ -68,6 +89,18 @@ import {
     doc
 } from "firebase/firestore";
 
+import {
+    Area
+} from './Area';
+
+import {
+    Panel
+} from './Panel';
+
+import {
+    UserTable
+} from './UserTable';
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -75,11 +108,18 @@ import {
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 import {
-    firebaseConfig
+    config
 } from './key';
 
-
-const firebaseConfig = firebaseConfig
+const firebaseConfig = {
+    apiKey: config.apiKey,
+    authDomain: 'brig-b2ca3.firebaseapp.com',
+    projectId: 'brig-b2ca3',
+    storageBucket: 'brig-b2ca3.appspot.com',
+    messagingSenderId: '536591450814',
+    appId: '1:536591450814:web:40eb73d5b1bf09ce36d4ef',
+    measurementId: 'G-0D9RW0VMCQ'
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -96,56 +136,35 @@ const listUsers = httpsCallable(functions, 'listUsers');
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
-let Gxhr = 0;
 
-const div = document.getElementById('3d');
-
-const sizes = {
-    width: div.offsetWidth,
-    height: div.offsetHeight
+const state = {
+    0: 'spreadsheet',
+    1: 'groups',
+    2: 'areas'
 }
 
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+const sizes = new ScreenSizes();
+
+const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
 camera.position.set(5, 5, 5); // Set position like this
-camera.lookAt(new THREE.Vector3(0, 0, 0));
+camera.lookAt(new Vector3(0, 0, 0));
 
 // Controls
 const canvas2d = document.getElementById('2d');
 
-var controls;
+const controls = new OrbitControls(camera, canvas2d);
 
-function getControls() {
-    return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
+controls.enableDamping = true;
+controls.target.set(0, 0, 0);
 
-        const ctrl = new OB.OrbitControls(camera, canvas2d);
-
-        ctrl.enableDamping = true;
-
-        ctrl.target.set(0, 0, 0);
-
-        controls = ctrl;
-
-    });
-}
-getControls()
-
-var cameraTargPos = new THREE.Vector3(5, 5, 5);
-var cameraTargView = new THREE.Vector3(0, 0, 0);
+var cameraTargPos = new Vector3(5, 5, 5);
+var cameraTargView = new Vector3(0, 0, 0);
 
 // Scene
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+const scene = new Scene();
+scene.background = new Color(0x000000);
 scene.add(camera);
-
-//cam size
-
-function updateCamera() {
-    camera.updateProjectionMatrix();
-}
-
-canvas2d.width = sizes.width;
-canvas2d.height = sizes.height;
 
 //selet
 const dropd = document.getElementById('dropdown');
@@ -153,33 +172,23 @@ const dropd = document.getElementById('dropdown');
 // Canvas
 const canvas3d = document.querySelector('canvas.webgl');
 
-const ctx = canvas2d.getContext('2d');
 
-ctx.lineJoin = 'round';
-//ctx.miterLimit = 1;
+var workingArea = new Area([]);
 
-const spreadsheetDiv = document.getElementById('spreadsheet');
+const leftPanel = new Panel(document.getElementById('left'));
 
-var leftPanel;
+const userTable = new UserTable(document.getElementById('table'), defaultDropd);
 
-function getPanel() {
-    return import('./Panel.js').then((P) => {
-
-        const panel = new P.Panel(document.getElementById('left'));
-
-        leftPanel = panel;
-
-        leftPanel.setcam(false)
-
-    });
-}
-getPanel();
 
 //canvasleft.oncontextmenu = () => false;
 
 const sGroup = document.getElementById('saveGroup');
 const aGroup = document.getElementById('addGroup');
 const dGroup = document.getElementById('deleteGroup');
+
+const sArea = document.getElementById('saveArea');
+const aArea = document.getElementById('addArea');
+const dArea = document.getElementById('deleteArea');
 
 //const ctxLeft = canvasleft.getContext('2d');
 
@@ -193,7 +202,7 @@ const textbox = document.getElementById('textbox');
 var alpha = true;
 
 document.getElementById('login').addEventListener('click', (e) => {
-    updateSizes();
+    sizes.updateSizes(leftPanel);
     login();
 })
 
@@ -322,6 +331,7 @@ document.getElementById('resetBtn').addEventListener('click', (e) => {
 
 document.getElementById('readOnly').addEventListener('click', (e) => {
     textbox.readOnly = !textbox.readOnly;
+    e.target.innerHTML = (textbox.readOnly) ? 'Read Only' : 'Editable';
 })
 
 document.getElementById('toggleBtn').addEventListener('click', (e) => {
@@ -367,20 +377,31 @@ document.getElementById('toggleBtn').addEventListener('click', (e) => {
 
 const bug1 = document.getElementById('bug1');
 const bug2 = document.getElementById('bug2');
+const bug3 = document.getElementById('bug3');
 
 document.getElementById('groups').addEventListener('click', (e) => {
-    leftPanel.spreadsheet = !leftPanel.spreadsheet;
+    leftPanel.next();
 
-    if (leftPanel.spreadsheet) {
+    if (leftPanel.spreadsheet == state[0]) {
+        e.target.innerHTML = 'Groups';
         bug1.style.display = 'block'
         bug2.style.display = 'none'
-        spreadsheetDiv.style.overflow = 'hidden';
-    } else {
+        bug3.style.display = 'none'
+        sizes.spreadsheetDiv.style.overflow = 'hidden';
+    } else if (leftPanel.spreadsheet == state[1]) {
+        e.target.innerHTML = 'Areas';
         bug1.style.display = 'none'
         bug2.style.display = 'block'
-        spreadsheetDiv.style.overflow = 'auto';
+        bug3.style.display = 'none'
+        sizes.spreadsheetDiv.style.overflow = 'auto';
+    } else if (leftPanel.spreadsheet == state[2]) {
+        e.target.innerHTML = 'Tracers';
+        bug1.style.display = 'none'
+        bug2.style.display = 'none'
+        bug3.style.display = 'block'
+        sizes.spreadsheetDiv.style.overflow = 'auto';
     }
-    updateSizes();
+    sizes.updateSizes(leftPanel);
 })
 
 sGroup.addEventListener('click', plant1);
@@ -407,6 +428,51 @@ async function plant2() {
 dGroup.addEventListener('click', (e) => {
     deleteDoc(doc(db, dropd.value, 'group' + leftPanel.gi));
     leftPanel.groups[leftPanel.gi] = undefined;
+})
+
+//areabtns
+sArea.addEventListener('click', tnalp3);
+
+async function tnalp3() {
+    if (leftPanel.ai != 0 && leftPanel.ai != -1) {
+        leftPanel.areas[leftPanel.ai].text = leftPanel.text;
+        console.log("", leftPanel.ai)
+        saveArea(db, dropd.value, leftPanel.ai + 1, leftPanel.areas[leftPanel.ai])
+    }
+}
+
+aArea.addEventListener('click', tnalp4)
+
+async function tnalp4() {
+    if (workingArea.points.length > 2) {
+        var i = 0;
+        workingArea.text = leftPanel.text;
+        leftPanel.areas.forEach((e) => {
+            if (e != undefined) {
+                i++;
+            }
+        })
+
+        var n = prompt("Enter Area Name");
+        workingArea.name = String(n);
+
+        var x = prompt("Enter Area Value");
+        workingArea.setValue(parseFloat(x));
+
+        var a = new Area(workingArea.points, workingArea.value, workingArea.name, workingArea.text)
+
+        leftPanel.areas.push(a);
+        console.log("A", leftPanel.ai)
+        saveArea(db, dropd.value, i + 1, a)
+        workingArea = new Area([]);
+    }
+}
+
+dArea.addEventListener('click', (e) => {
+    console.log("D", leftPanel.ai)
+    console.log('deleting area', leftPanel.ai + 1)
+    deleteDoc(doc(db, dropd.value, 'area' + (leftPanel.ai + 1)));
+    leftPanel.areas[leftPanel.ai] = undefined;
 })
 
 const ctrlBtn = document.getElementById('ctrlBtn');
@@ -440,10 +506,13 @@ function switchDisplay(state) {
 document.getElementById('editFiles').addEventListener('click', (e) => {
     if (d0.style.display == 'block') {
         switchDisplay(1);
+        e.target.innerHTML = 'Edit Files';
     } else if (d1.style.display == 'block') {
         switchDisplay(2);
+        e.target.innerHTML = 'Login';
     } else {
         switchDisplay(0);
+        e.target.innerHTML = 'Dropdown';
     }
 })
 
@@ -467,8 +536,10 @@ var editPos = false;
 document.getElementById('editPos').addEventListener('click', (e) => {
     if (editPos) {
         editPos = false;
+        e.target.innerHTML = 'Edit Position';
     } else {
         editPos = true;
+        e.target.innerHTML = 'Stop Editing';
     }
 })
 
@@ -486,7 +557,7 @@ async function savePerms() {
 
 
 
-    inUsers.forEach((user) => {
+    userTable.inUsers.forEach((user) => {
         inner += '"' + user[1] + '":"' + user[0] + '",';
 
         d[user[1]] = user[0];
@@ -496,7 +567,7 @@ async function savePerms() {
         })
     })
 
-    allUsers.forEach((user) => {
+    userTable.allUsers.forEach((user) => {
         inner += '"' + user[1] + '":"false",';
 
         d[user[1]] = 'false';
@@ -517,7 +588,7 @@ async function savePerms() {
         /* updates csvs
         updateMetadata(dataRef, newMetadata).then((metadata) => {
 */
-        populateTable();
+        userTable.populateTable();
         /*s
 
                 }).catch((error) => {
@@ -557,8 +628,11 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
 
     leftPanel.setbw(bw)
 
+    userTable.bw = bw;
+
     if (bw) {
-        scene.background = new THREE.Color(0x000000);
+        e.target.innerHTML = 'Light Mode';
+        scene.background = new Color(0x000000);
         back.style.background = 'rgb(27, 27, 27)';
         title.src = imageUrl1;
         tx.style.color = 'lightgray';
@@ -576,7 +650,8 @@ document.getElementById('blackandwhite').addEventListener('click', (e) => {
             cells[i].classList.add('tbDark');
         }
     } else {
-        scene.background = new THREE.Color(0xffffff);
+        e.target.innerHTML = 'Dark Mode';
+        scene.background = new Color(0xffffff);
         back.style.background = 'rgb(230, 230, 230)';
         title.src = imageUrl2;
         tx.style.color = 'black';
@@ -615,33 +690,6 @@ function validateEmail(email) {
         /^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
-/*
-function getList() {
-
-    const https = require('https');
-
-    // Sample URL
-    const url = 'https://jsonplaceholder.typicode.com/todos/1';
-
-    const request = https.request(url, (response) => {
-        let data = '';
-        response.on('data', (chunk) => {
-            data = data + chunk.toString();
-        });
-
-        response.on('end', () => {
-            const body = JSON.parse(data);
-            console.log(body);
-        });
-    })
-
-    request.on('error', (error) => {
-        console.log('An error', error);
-    });
-
-    request.end()
-}
-*/
 
 //set group to selected
 const table = document.getElementById('table');
@@ -650,158 +698,22 @@ const table = document.getElementById('table');
 var inUsers = [];
 var allUsers = [];
 
-function populateTable() {
-
-    if (dropd.value != defaultDropd && dropd.value != 'Empty' && dropd.value != 'Select a site' && dropd.value != '') {
-
-        allUsers = allUsersM;
-        inUsers = [];
-
-
-        var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
-
-        getMetadata(itemRef).then((metadata) => {
-
-                if (metadata.customMetadata != null) {
-
-                    var names = Object.keys(metadata.customMetadata);
-                    var data = Object.values(metadata.customMetadata);
-
-                    names.forEach((user) => {
-
-                        if (data[names.indexOf(user)] != 'false') {
-
-                            inUsers.push([data[names.indexOf(user)], user]);
-
-                            for (var i = 0; i < allUsers.length; i++) {
-                                if (allUsers[i][1] == user) {
-                                    allUsers.splice(i, 1);
-                                }
-                            }
-                        }
-
-                    });
-
-                    pTable2(allUsers, inUsers);
-
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-
-        pTable2(allUsers, inUsers);
-    }
-}
-
-var aU = [];
-var iU = [];
-
-function pTable2(aU0, iU0) {
-
-    var nerHTML = '<tr>\n<th class="cell">No Access</th><th class="cell">Access</th>\n</tr>\n';
-
-    var big = iU0.length > aU0.length ? iU0.length : aU0.length;
-
-    var style = bw ? 'tbDark' : 'tbLight';
-
-    var tbIn = 'tbIn';
-
-    for (var i = 0; i < big; i++) {
-
-        nerHTML += '<tr>\n';
-
-        if (i < aU0.length) {
-
-            if (aU0[i].length > 2) {
-                tbIn = 'tbOut';
-            }
-
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell">' + aU0[i][1] + '</td>';
-
-            tbIn = 'tbIn';
-        } else {
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell"></td>';
-        }
-
-        if (i < iU0.length) {
-
-            if (iU0[i].length > 2) {
-                tbIn = 'tbOut';
-            }
-
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell">' + iU0[i][1] + '</td>';
-
-            tbIn = 'tbIn';
-        } else {
-            nerHTML += '<td class="' + style + ' ' + tbIn + ' cell"></td>';
-        }
-
-        nerHTML += '\n</tr>\n';
-
-    }
-
-    allUsers = aU0;
-    inUsers = iU0;
-
-    aU = []
-    iU = []
-
-    table.innerHTML = nerHTML;
-
-    document.querySelectorAll('#table td')
-        .forEach(e => e.addEventListener("click", cellListener));
-}
-
-function cellListener() {
-
-    for (var i = 0; i < allUsers.length; i++) {
-
-        if (allUsers[i][1] == this.innerHTML) {
-
-            iU.push([allUsers[i][0], allUsers[i][1], 'flag']);
-
-        } else {
-
-            aU.push(allUsers[i]);
-
-        }
-
-    }
-
-    for (var i = 0; i < inUsers.length; i++) {
-
-
-        if (inUsers[i][1] == this.innerHTML) {
-
-            aU.push([inUsers[i][0], inUsers[i][1], 'flag']);
-
-        } else {
-
-            iU.push(inUsers[i]);
-
-        }
-
-    }
-
-    pTable2(aU, iU);
-}
 
 // btn event listeners
 
 ctrlBtn.addEventListener('click', btn6.adminMenu);
 
 //set size
-updateSizes();
+sizes.updateSizes(leftPanel);
 
 // Lights
-const light = new THREE.AmbientLight(0x404040); // soft white light
+const light = new AmbientLight(0x404040); // soft white light
 light.intensity = 3;
 scene.add(light);
 
 
 //Renderer
-const renderer = new THREE.WebGLRenderer({
+const renderer = new WebGLRenderer({
     canvas: canvas3d
 });
 
@@ -843,7 +755,7 @@ function onLoadLoad(obj) {
 
 // onProgress callback
 function onProgressLog(xhr) {
-    Gxhr = (xhr.loaded / xhr.total * 100);
+    console.log("LOADING: ", xhr.loaded / xhr.total * 100);
 }
 
 // onError callback
@@ -855,40 +767,7 @@ function onErrorLog(err) {
 Misc
 */
 
-function updateSizes() {
-    sizes.width = div.offsetWidth;
-    sizes.height = div.offsetHeight;
-
-    ctx.canvas.innerWidth = sizes.width;
-    ctx.canvas.innerHeight = sizes.height;
-
-    canvas2d.width = sizes.width;
-    canvas2d.height = sizes.height;
-
-    if (leftPanel) {
-        leftPanel.ctx.canvas.innerWidth = spreadsheetDiv.offsetWidth;
-
-        leftPanel.canvas.width = spreadsheetDiv.offsetWidth;
-
-        if (leftPanel.spreadsheet) {
-
-            leftPanel.canvas.height = spreadsheetDiv.offsetHeight;
-
-            leftPanel.ctx.canvas.innerHeight = spreadsheetDiv.offsetHeight;
-
-        } else {
-
-            leftPanel.canvas.height = leftPanel.groups.length * leftPanel.cellHeight
-
-            //leftPanel.ctx.canvas.innerHeight = leftPanel.groups.length * leftPanel.cellHeight;
-
-        }
-
-        leftPanel.cellSize(spreadsheetDiv.offsetHeight);
-    }
-}
-
-const clock = new THREE.Clock();
+const clock = new Clock();
 
 const dataInput = document.getElementById('datapicker');
 
@@ -929,40 +808,17 @@ function handleModels(input) {
 
     read.readAsArrayBuffer(input);
 
-    read.addEventListener('progress', (e) => {
-        if ((e.loaded / e.total * 100) == 100) {
-            Gxhr += 25;
-        }
-    })
-
 
     read.onloadend = function () {
-        /*
-function getControls() {
-    return import('three/examples/jsm/controls/OrbitControls.js').then((OB) => {
 
-        const ctrl = new OB.OrbitControls(camera, canvas2d);
-
-        ctrl.enableDamping = true;
-
-        ctrl.target.set(0, 0, 0);
-
-        controls = ctrl;
-
-    });
-}
-getControls()
-*/
 
         getDRACOLoader().then((loader) => {
 
             loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
 
-            Gxhr = 0;
-
         })
 
-        populateTable();
+        userTable.populateTable(storage, allUsersM, dropd.value, bw);
 
     }
 }
@@ -974,11 +830,6 @@ function handleFiles(input) {
 
     var read = new FileReader();
 
-    read.addEventListener('progress', (e) => {
-        if ((e.loaded / e.total * 100) == 100) {
-            Gxhr += 25;
-        }
-    })
 
     read.readAsBinaryString(input);
 
@@ -988,7 +839,7 @@ function handleFiles(input) {
 
         leftPanel.setTracers(ms, ts, tracers)
         //resize sheet
-        updateSizes();
+        sizes.updateSizes(leftPanel);
     }
 }
 
@@ -996,7 +847,7 @@ function updateCam() {
 
     //console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
 
-    if (leftPanel.camFree && leftPanel.spreadsheet) {
+    if (leftPanel.camFree && leftPanel.spreadsheet == state[0] ) {
         try {
             //fail quietly if cannot set camera
             if (leftPanel.mt == 0) {
@@ -1004,8 +855,8 @@ function updateCam() {
             } else if (leftPanel.mt == 2) {
                 //if y (row) == 1, ts
 
-                cameraTargPos = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
-                cameraTargView = new THREE.Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
+                cameraTargPos = new Vector3(parseFloat(ts[leftPanel.n].pos.x) + 14, parseFloat(ts[leftPanel.n].pos.z) + 30, parseFloat(ts[leftPanel.n].pos.y) + 8);
+                cameraTargView = new Vector3(parseFloat(ts[leftPanel.n].pos.x), parseFloat(ts[leftPanel.n].pos.z), parseFloat(ts[leftPanel.n].pos.y));
 
                 //throws errors if it trys to select row before/after last
             } else if (leftPanel.mt == 1) {
@@ -1013,13 +864,13 @@ function updateCam() {
                 //special views
                 //console.log(views[leftPanel.n + 1])
                 if (views[leftPanel.n + 1] != null && views[leftPanel.n + 1][0] != '') {
-                    cameraTargPos = new THREE.Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
+                    cameraTargPos = new Vector3(parseFloat(views[leftPanel.n + 1][0]), parseFloat(views[leftPanel.n + 1][1]), parseFloat(views[leftPanel.n + 1][2]));
                 } else {
 
-                    cameraTargPos = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
+                    cameraTargPos = new Vector3(parseFloat(ms[leftPanel.n].pos.x) + 14, parseFloat(ms[leftPanel.n].pos.z) + 30, parseFloat(ms[leftPanel.n].pos.y) + 8);
 
                 }
-                cameraTargView = new THREE.Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
+                cameraTargView = new Vector3(parseFloat(ms[leftPanel.n].pos.x), parseFloat(ms[leftPanel.n].pos.z), parseFloat(ms[leftPanel.n].pos.y));
 
                 //insights
                 if (leftPanel.spreadsheet) {
@@ -1034,7 +885,7 @@ function updateCam() {
         } catch (e) {
             //console.log(e)
         }
-    } else if (!leftPanel.spreadsheet && leftPanel.camFree) {
+    } else if (leftPanel.spreadsheet == state[1] && leftPanel.camFree) {
 
         if (leftPanel.gi) {
             var i = leftPanel.gi;
@@ -1042,14 +893,24 @@ function updateCam() {
             var i = 0;
         }
         try {
-            cameraTargPos = new THREE.Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
-            cameraTargView = new THREE.Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
+            cameraTargPos = new Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
+            cameraTargView = new Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
         } catch (e) {}
 
         //console.log(cameraTargPos, cameraTargView)
 
-    }
+    } else if (leftPanel.spreadsheet == state[2] && leftPanel.camFree) {
 
+        if (leftPanel.ai) {
+            var i = leftPanel.ai;
+        } else {
+            var i = 0;
+        }
+        try {
+            cameraTargPos = new Vector3(leftPanel.areas[i].avgPos()[0] + 5, leftPanel.areas[i].avgPos()[2] + 10, leftPanel.areas[i].avgPos()[1] + 3);
+            cameraTargView = new Vector3(leftPanel.areas[i].avgPos()[0], leftPanel.areas[i].avgPos()[2], leftPanel.areas[i].avgPos()[1]);
+        } catch (e) {}
+    }
 }
 
 //sign in function
@@ -1062,6 +923,8 @@ var accessibleSites = [];
 
 var allUsersM = [];
 
+var me = '';
+
 async function signedIn(user) {
     //empty list 
     siteList([]);
@@ -1072,12 +935,17 @@ async function signedIn(user) {
 
     //var allUsersM = []
 
-    if (ext[1] == 'poppy.com') {
+    if (ext[1] == 'poppy.com' || user.email == 'tristanskyhook@gmail.com') {
 
         ctrlBtn.style.display = 'block';
         sGroup.style.display = 'inline-block';
         aGroup.style.display = 'inline-block';
         dGroup.style.display = 'inline-block';
+
+        sArea.style.display = 'inline-block';
+        aArea.style.display = 'inline-block';
+        dArea.style.display = 'inline-block';
+
 
         listUsers().
         then((u) => {
@@ -1179,7 +1047,6 @@ function loadRefAndDoc(ref, doc) {
 
     getBlob(ref)
         .then((blob) => {
-            Gxhr += 25;
             handleModels(blob);
         })
         .catch((err) => {
@@ -1197,7 +1064,7 @@ function loadRefAndDoc(ref, doc) {
             stupid = null;
         }
 
-        updateSizes();
+        sizes.updateSizes(leftPanel);
 
     }).catch((err) => {
         //console.error(err);
@@ -1210,7 +1077,6 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref1)
         .then((blob) => {
-            Gxhr += 25;
             handleModels(blob);
         })
         .catch((err) => {
@@ -1221,7 +1087,6 @@ function loadRefs(ref1, ref2) {
 
     getBlob(ref2)
         .then((blob) => {
-            Gxhr += 25;
             handleFiles(blob);
         })
         .catch((err) => {
@@ -1281,12 +1146,11 @@ function login() {
 */
 
 document.addEventListener('DOMContentLoaded', (e) => {
-    updateSizes();
+    sizes.updateSizes(leftPanel);
 })
 
 //load files from google storage by dropdown name
 dropd.addEventListener('change', (event) => {
-    Gxhr = 0;
 
     [ms, ts, tracers, insights, views] = [
         [],
@@ -1315,6 +1179,7 @@ dropd.addEventListener('change', (event) => {
 
         //loadRefs(modelRef, dataRef)
         leftPanel.groups = GetGroups(db, targ);
+        leftPanel.areas = GetAreas(db, targ);
         loadRefAndDoc(modelRef, targ);
 
         leftPanel.siteheader = targ;
@@ -1333,6 +1198,9 @@ dropd.addEventListener('change', (event) => {
 
         loadRefs(modelRef, dataRef)
 
+        leftPanel.groups = GetGroups(db, targ);
+        leftPanel.areas = GetAreas(db, targ);
+
         /*
         Animate
         */
@@ -1345,29 +1213,40 @@ dropd.addEventListener('change', (event) => {
 
 
 //canvas
-canvas2d.addEventListener('mousedown', (e) => {
+
+function stoplookin() {
     if (leftPanel.camFree) {
         leftPanel.looking = false;
     }
+}
+
+sizes.canvas2d.addEventListener('mousedown', (e) => {
+    stoplookin();
 })
 
-canvas2d.addEventListener('wheel', (event) => {
-    if (leftPanel.camFree) {
-        leftPanel.looking = false;
-    }
+sizes.canvas2d.addEventListener('wheel', (event) => {
+    stoplookin();
 }, {
     passive: true
 });
 
-canvas2d.addEventListener('click', (e) => {
-        if (leftPanel.camFree) {
-            leftPanel.looking = false;
-        }
+sizes.canvas2d.addEventListener('contextmenu', (e) => {
+    stoplookin();
 
+    e.preventDefault();
+
+    if (editPos && leftPanel.spreadsheet == state[2]) {
+        workingArea.points.pop();
+    }
+
+})
+
+sizes.canvas2d.addEventListener('click', (e) => {
+        stoplookin();
 
         if (editPos) {
 
-            var raycaster = new THREE.Raycaster();
+            var raycaster = new Raycaster();
             var mouse = {
                 x: (e.clientX - leftPanel.canvas.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
                 y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
@@ -1377,11 +1256,21 @@ canvas2d.addEventListener('click', (e) => {
 
             var intersects = raycaster.intersectObjects(sceneMeshes, true);
 
+            var doP = (leftPanel.spreadsheet == state[0]) ? true : false;
+
+            
+            console.log(intersects, doP);
+
             if (intersects.length > 0) {
-                if (leftPanel.firstClickX == 1) {
-                    ms[leftPanel.firstClickY - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
-                } else if (leftPanel.firstClickY == 1) {
-                    ts[leftPanel.firstClickX - 2].pos = new THREE.Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                if (doP) {
+                    if (leftPanel.firstClickX == 1) {
+                        ms[leftPanel.firstClickY - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    } else if (leftPanel.firstClickY == 1) {
+                        ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    }
+                } else {
+                    console.log(workingArea.points);
+                    workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
                 }
             }
         }
@@ -1397,7 +1286,7 @@ canvas2d.addEventListener('click', (e) => {
 
 textbox.addEventListener('input', e => {
     if (textbox.readOnly == false) {
-        if (leftPanel.spreadsheet) {
+        if (leftPanel.spreadsheet == state[0]) {
             insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
         } else {
             leftPanel.text = encodeURI(textbox.value.replaceAll(/,/g, '~'))
@@ -1431,17 +1320,17 @@ window.addEventListener('hashchange', (e) => {
 
         if (params[1] && params[1][0] == 'G') {
             //setTimeout(giHack, 1500, params);
-            leftPanel.spreadsheet = false;
+            leftPanel.spreadsheet = state[1];
             if (params[0] != dropd.value) {
                 stupid = params[1].substring(2);
             } else {
                 leftPanel.gi = params[1].substring(2);
-                updateSizes();
+                sizes.updateSizes(leftPanel);
             }
 
 
         } else if (params[1] && params[1][0] == 'X') {
-            leftPanel.spreadsheet = true;
+            leftPanel.spreadsheet = state[0];
             if (params[1].substring(2) != leftPanel.cellX || params[2].substring(2) != leftPanel.cellY) {
                 leftPanel.firstClickX = params[0].substring(2);
                 leftPanel.firstClickY = params[1].substring(2);
@@ -1453,7 +1342,7 @@ window.addEventListener('hashchange', (e) => {
 
             var coords = params[1].substring(2).split('/')
 
-            var pos = new THREE.Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
+            var pos = new Vector3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]))
             //var rot = new Vector3(parseFloat(coords[3]), parseFloat(coords[4]), parseFloat(coords[5]))
 
             //                                   min dist
@@ -1482,7 +1371,7 @@ window.addEventListener('hashchange', (e) => {
 //resize
 window.addEventListener('resize', () => {
     // Update sizes
-    updateSizes();
+    sizes.updateSizes(leftPanel);
 
     // Update camera
     camera.aspect = sizes.width / sizes.height;
@@ -1494,6 +1383,7 @@ window.addEventListener('resize', () => {
 })
 
 var lastgi = -1;
+var lastai = -1;
 
 //load defaullt if no hash
 if (window.location.hash == '' || window.location.hash[1] == '&') {
@@ -1504,7 +1394,7 @@ const tick = () => {
 
     const elapsedTime = clock.getElapsedTime();
     if (leftPanel) {
-        if (leftPanel.looking || !leftPanel.spreadsheet) {
+        if (leftPanel.looking || leftPanel.state == state[1]) {
             updateCam();
         }
 
@@ -1532,16 +1422,16 @@ const tick = () => {
     renderer.render(scene, camera);
 
     //New Frame
-    ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+    sizes.clearC2d();
     if (leftPanel) {
         leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
     }
     //Tracers
-    tracers.forEach(t => t.drawTracer(ctx, leftPanel, camera, sizes, alpha, doVals));
+    tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
 
     //Points
-    ms.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
-    ts.forEach(pt => pt.drawPt(ctx, leftPanel, camera, sizes, bw));
+    ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
+    ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
     if (leftPanel) {
         if (bw) {
             leftPanel.ctx.fillStyle = 'black';
@@ -1552,20 +1442,12 @@ const tick = () => {
         leftPanel.frame(textbox);
     }
     //values
-    if (doVals && leftPanel.spreadsheet) {
-        tracers.forEach(t => t.drawValues(ctx, leftPanel.ctx, camera, sizes, leftPanel.cellWidth, leftPanel.cellHeight));
+    if (doVals && leftPanel.spreadsheet == state[0]) {
+        tracers.forEach(t => t.drawValues(leftPanel.ctx, leftPanel.cellWidth, leftPanel.cellHeight));
     }
 
-    //loading bar
 
-    if (0 < Gxhr && Gxhr < 100) {
-        ctx.beginPath();
-        ctx.arc(sizes.width / 2, sizes.height / 2, Math.sin(elapsedTime) * 10 + 10, 0, 2 * Math.PI);
-        ctx.fillStyle = 'rgb(100, 100, ' + Math.sin(elapsedTime) * 255 + ')';
-        ctx.fill();
-    }
-
-    if (leftPanel && !leftPanel.spreadsheet && leftPanel.gi) {
+    if (leftPanel && leftPanel.spreadsheet == state[1] && leftPanel.gi) {
         if (leftPanel.gi != lastgi) {
             lastgi = leftPanel.gi;
 
@@ -1589,6 +1471,21 @@ const tick = () => {
         }
     }
 
+    if (leftPanel && leftPanel.spreadsheet == state[2]) {
+
+        if (leftPanel.ai != lastai && leftPanel.areas[lastai]) {
+            lastai = leftPanel.ai;
+
+            leftPanel.areas[lastai].visible = !leftPanel.areas[lastai].visible;
+        }
+
+        leftPanel.areas.forEach(a => {
+            if (a != undefined) {
+                a.drawArea(camera, sizes, doVals)
+            }
+        });
+        workingArea.drawArea(camera, sizes, doVals, true, 'last')
+    }
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);

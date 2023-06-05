@@ -1,10 +1,18 @@
 class Panel {
     constructor(c) {
 
-        this.spreadsheet = true;
+        this.state = {
+            0: 'spreadsheet',
+            1: 'groups',
+            2: 'areas'
+        }
+
+        this.areas = [];
+
+        this.spreadsheet = this.state[0];
 
         this.groups = [];
-
+        
         this.firstClick = false;
 
         this.secondClickX = null;
@@ -58,6 +66,8 @@ class Panel {
 
         this.gi;
 
+        this.ai = 0;
+
         this.sh = this.canvas.height;
 
         this.fontsize = 12;
@@ -86,6 +96,18 @@ class Panel {
                 this.mt = 1;
                 this.n = y - 2;
             }
+        }
+    }
+
+    next() {
+        if (this.spreadsheet == this.state[0]) {
+            this.spreadsheet = this.state[1];
+
+        } else if (this.spreadsheet == this.state[1]) {
+            this.spreadsheet = this.state[2];
+
+        } else if (this.spreadsheet == this.state[2]) {
+            this.spreadsheet = this.state[0];
         }
     }
 
@@ -135,7 +157,7 @@ class Panel {
         if (this.ms != undefined && this.ts != undefined) {
             this.cellWidth = (this.canvas.width / (this.ts.length + 1));
 
-            if (this.spreadsheet) {
+            if (this.spreadsheet == this.state[0]) {
                 this.cellHeight = (this.canvas.height / (this.ms.length + 1));
             } else {
                 this.cellHeight = (h / (this.ms.length + 1));
@@ -145,7 +167,7 @@ class Panel {
     }
 
     clicks(e) {
-        if (this.spreadsheet) {
+        if (this.spreadsheet == this.state[0]) {
             if (this.firstClick) {
                 this.firstClick = false;
 
@@ -159,10 +181,16 @@ class Panel {
                 //this is for linking to a specific location
                 window.location.hash = (this.siteheader + '&X=' + this.cellX + '&Y=' + this.cellY);
             }
-        } else {
+        } else if (this.spreadsheet == this.state[1]) {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
                 this.text = this.groups[this.gi]['text']
+
+                if (this.groups[this.gi] != undefined) {
+                    this.text = this.groups[this.gi]['text']
+                } else {
+                    this.text = ''
+                }
 
                 if (this.camFree) {
                     this.looking = true;
@@ -172,12 +200,30 @@ class Panel {
             } else {
                 this.gi = -1;
             }
+        } else if (this.spreadsheet == this.state[2]) {
+            if (this.ai != this.cellY - 1) {
+                this.ai = this.cellY - 1
+
+                if (this.areas[this.ai] != undefined) {
+                    this.text = this.areas[this.ai].text
+                } else {
+                    this.text = ''
+                }
+
+                if (this.camFree) {
+                    this.looking = true;
+                }
+
+                window.location.hash = (this.siteheader + '&A=' + this.ai);
+            } else {
+                this.ai = -1;
+            }
         }
     }
 
     place(e) {
 
-        if (this.spreadsheet) {
+        if (this.spreadsheet == this.state[0]) {
             if (this.camFree) {
                 this.looking = true;
             }
@@ -281,19 +327,24 @@ class Panel {
 
         var w = (Math.abs(x1 - x2) + 1) * this.cellWidth
         var h = (Math.abs(y1 - y2) + 1) * this.cellHeight
-0
+
         return [x, y, w, h]
     }
 
     frame(textbox) {
-        if (this.spreadsheet) {
+        if (this.spreadsheet == this.state[0]) {
             this.spreadsheetFrame();
-        } else {
+        } else if (this.spreadsheet == this.state[1]) {
             this.groupFrame(textbox);
+        } else if (this.spreadsheet == this.state[2]) {
+            this.areaFrame(textbox);
         }
     }
 
     groupFrame(textbox) {
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
         for (var i in this.groups) { //plus scroll?
             if (this.groups[i] && i != 0) { //safety check, omit first group
 
@@ -332,7 +383,7 @@ class Panel {
 
     spreadsheetFrame() {
         //click 1
-        this.ctx.fillRect(0, 0, this.cellWidth, this.cellHeight);
+        //this.ctx.fillRect(0, 0, this.cellWidth, this.cellHeight);
 
         if (this.firstClick != null) {
 
@@ -376,6 +427,45 @@ class Panel {
                 this.ctx.rect(x, y, w, h);
                 this.ctx.stroke()
 
+            }
+        }
+    }
+
+    areaFrame() {
+        //console.log('this.areas', this.areas)
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+        for (var i in this.areas) { //plus scroll?
+            if (this.areas[i]) { //safety check, omit first group
+
+                var h = Math.ceil(this.cellHeight)
+
+                i = parseInt(i)
+                if (i < this.cellY && this.cellY <= (i + 1)) {
+                    this.ctx.fillStyle = 'yellow'
+                } else if (i == this.ai) {
+                    this.ctx.fillStyle = 'lightgrey'
+                } else {
+                    this.ctx.fillStyle = 'grey'
+                }
+
+                this.ctx.fillRect(0, i * h, this.canvas.width, h);
+
+                this.ctx.lineJoin = "round";
+                this.ctx.font = String(this.fontsize) + "px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.strokeStyle = 'black';
+                this.ctx.lineWidth = 2;
+                this.ctx.fillStyle = 'white';
+
+                var text = this.areas[i].name;
+
+                this.ctx.strokeText(text, this.canvas.width / 2, i * h + h / 1.3);
+                this.ctx.fillStyle = this.color;
+                this.ctx.fillText(text, this.canvas.width / 2, i * h + h / 1.3);
+
+                textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
             }
         }
     }

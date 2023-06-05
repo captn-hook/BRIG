@@ -13,8 +13,9 @@ module.exports = {
         library: "Point",
         library: "Tracer",
         library: "Data",
-        library: "Panal",
-        library: "ScreenSizes"
+        library: "Panel",
+        library: "ScreenSizes",
+        library: "UserTable"
     },
     devtool: 'source-map',
     plugins: [

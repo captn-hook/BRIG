@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { Vector3 } from 'three';
+
+import { Vector3, SphereGeometry, MeshBasicMaterial, Color, Mesh } from 'three';
 
 class Point {
 
@@ -32,7 +32,7 @@ class Point2d extends Point {
 
     screenPt(camera, w, h) {
 
-            let proj = new THREE.Vector3(this.pos.x, this.pos.z, this.pos.y);
+            let proj = new Vector3(this.pos.x, this.pos.z, this.pos.y);
 
             proj.project(camera);
 
@@ -43,7 +43,7 @@ class Point2d extends Point {
             return [x, y, proj.z]
     }
 
-    drawPt(ctx, leftPanel, camera, sizes, bw) {
+    drawPt(leftPanel, camera, sizes, bw) {
 
         var ctxLeft = leftPanel.ctx;
         var cellHeight = leftPanel.cellHeight;
@@ -55,22 +55,22 @@ class Point2d extends Point {
         if (Math.abs(z) < 1 && x != null && this.visible) {
     
     
-            ctx.beginPath();
-            ctx.arc(x, y, this.radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.lineWidth = this.border;
-            ctx.strokeStyle = this.color;
-            ctx.stroke();
+            sizes.ctx.beginPath();
+            sizes.ctx.arc(x, y, this.radius, 0, 2 * Math.PI, false);
+            sizes.ctx.fillStyle = this.color;
+            sizes.ctx.fill();
+            sizes.ctx.lineWidth = this.border;
+            sizes.ctx.strokeStyle = this.color;
+            sizes.ctx.stroke();
     
-            ctx.font = String(leftPanel.fontsize) + "px Arial";
-            ctx.textAlign = "center";
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 4;
-            ctx.lineJoin = "round";
-            ctx.strokeText(this.name, x, y + 4);
-            ctx.fillStyle = "white";
-            ctx.fillText(this.name, x, y + 4);
+            sizes.ctx.font = String(leftPanel.fontsize) + "px Arial";
+            sizes.ctx.textAlign = "center";
+            sizes.ctx.strokeStyle = 'black';
+            sizes.ctx.lineWidth = 4;
+            sizes.ctx.lineJoin = "round";
+            sizes.ctx.strokeText(this.name, x, y + 4);
+            sizes.ctx.fillStyle = "white";
+            sizes.ctx.fillText(this.name, x, y + 4);
     
         }
     
@@ -129,11 +129,11 @@ class Point3d extends Point {
         
         this.radius = radius;
 
-        this.geometry = new THREE.SphereGeometry(radius);
+        this.geometry = new SphereGeometry(radius);
 
-        this.material = new THREE.MeshBasicMaterial();
-        this.material.color = new THREE.Color(this.color);
-        this.sphere = new THREE.Mesh(this.geometry, this.material);
+        this.material = new MeshBasicMaterial();
+        this.material.color = new Color(this.color);
+        this.sphere = new Mesh(this.geometry, this.material);
 
         this.sphere.position.set(this.pos.x, this.pos.z, this.pos.y);
     }
