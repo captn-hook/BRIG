@@ -12,7 +12,7 @@ exports.listUsers = functions.https.onCall((data, context) => {
     code: 401,
     message: 'Not signed in'
   }
-  if (context.auth.token.email.split('@')[1] == 'poppy.com') {
+  if (context.auth.token.email.split('@')[1] == 'poppy.com' || context.auth.token.email.split('@')[0] == 'tristanskyhook') {
     return new Promise((resolve, reject) => {
       // find a user by data.uid and return the result
       resolve(auth.listUsers());

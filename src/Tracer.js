@@ -88,7 +88,7 @@ class Tracer extends CanvasObject {
         //ctrl2  mid(end, mid)
         var [x3, y3] = this.midpoint(x4, y4, mx, my);
 
-        var headwidth = Math.max(this.outline * 2, 2); // length of head in 
+        var headwidth = Math.max(this.outline * 1.5, 3);
 
         var dx = x4 - x1;
         var dy = y4 - y1;
@@ -115,9 +115,9 @@ class Tracer2d extends Tracer {
 
         super(m, t, value, headroom, lift);
 
-        const maxwidth = 50;
+        const maxwidth = 40;
 
-        const minwidth = 1;
+        const minwidth = 4.5;
 
         this.rgbval = this.hexToRgb(this.color);
 
@@ -141,7 +141,7 @@ class Tracer2d extends Tracer {
             sizes.ctx.lineWidth = this.outline;
 
             if (alpha) {
-                var opac = this.a;
+                var opac = this.a + 0.2;
             } else {
                 var opac = 1;
             }

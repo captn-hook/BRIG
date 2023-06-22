@@ -64,7 +64,10 @@ import {
     signInWithPopup,
     GoogleAuthProvider,
     onAuthStateChanged,
-    confirmPasswordReset
+    confirmPasswordReset,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
 } from 'firebase/auth';
 
 import {
@@ -200,10 +203,15 @@ const textbox = document.getElementById('textbox');
 //buttons
 
 var alpha = true;
-
+//need different buttons for google auth and email auth
 document.getElementById('login').addEventListener('click', (e) => {
     sizes.updateSizes(leftPanel);
     login();
+})
+
+document.getElementById('elogin').addEventListener('click', (e) => {
+    sizes.updateSizes(leftPanel);
+    elogin();
 })
 
 document.getElementById('logout').addEventListener('click', (e) => {
@@ -212,9 +220,20 @@ document.getElementById('logout').addEventListener('click', (e) => {
     accessibleSites = [];
     switchDisplay(0);
     auth.signOut();
+    signOut(auth).then(() => {
+      //console.log('signed out');
+    }
+    ).catch((error) => {
+      //console.log(error);
+    }
+    );
 })
 
-document.getElementById('valueBtn').addEventListener('click', (e) => {
+document.getElementById('valueBtnS').addEventListener('click', valueButton);
+document.getElementById('valueBtnG').addEventListener('click', valueButton);
+document.getElementById('valueBtnA').addEventListener('click', valueButton);
+
+function valueButton(e) {
     if (e.target.innerHTML == 'Show values') {
         e.target.innerHTML = 'Hide values';
         //show values
@@ -224,9 +243,13 @@ document.getElementById('valueBtn').addEventListener('click', (e) => {
         //hide values
         doVals = false;
     }
-})
+}
 
-document.getElementById('opacityBtn').addEventListener('click', (e) => {
+document.getElementById('opacityBtnS').addEventListener('click', opacityButton);
+document.getElementById('opacityBtnG').addEventListener('click', opacityButton);
+document.getElementById('opacityBtnA').addEventListener('click', opacityButton);
+
+function opacityButton(e) {
     if (!alpha) {
         e.target.innerHTML = 'Transparent';
         alpha = true;
@@ -236,7 +259,7 @@ document.getElementById('opacityBtn').addEventListener('click', (e) => {
         alpha = false;
         //hide values
     }
-})
+}
 
 document.getElementById('flipBtn').addEventListener('click', (e) => {
 
@@ -383,19 +406,23 @@ document.getElementById('groups').addEventListener('click', (e) => {
     leftPanel.next();
 
     if (leftPanel.spreadsheet == state[0]) {
-        e.target.innerHTML = 'Groups';
+        //if saved tracers exist, turn them on 
+        //display tracers
+        e.target.innerHTML = 'Groups'; //button indicates next state
         bug1.style.display = 'block'
         bug2.style.display = 'none'
         bug3.style.display = 'none'
         sizes.spreadsheetDiv.style.overflow = 'hidden';
     } else if (leftPanel.spreadsheet == state[1]) {
-        e.target.innerHTML = 'Areas';
+        //display groups
+        e.target.innerHTML = 'Areas'; //button indicates next state
         bug1.style.display = 'none'
         bug2.style.display = 'block'
         bug3.style.display = 'none'
         sizes.spreadsheetDiv.style.overflow = 'auto';
     } else if (leftPanel.spreadsheet == state[2]) {
-        e.target.innerHTML = 'Tracers';
+        //display areas
+        e.target.innerHTML = 'Tracers'; //button indicates next state
         bug1.style.display = 'none'
         bug2.style.display = 'none'
         bug3.style.display = 'block'
@@ -436,7 +463,7 @@ sArea.addEventListener('click', tnalp3);
 async function tnalp3() {
     if (leftPanel.ai != 0 && leftPanel.ai != -1) {
         leftPanel.areas[leftPanel.ai].text = leftPanel.text;
-        console.log("", leftPanel.ai)
+        //console.log("", leftPanel.ai)
         saveArea(db, dropd.value, leftPanel.ai + 1, leftPanel.areas[leftPanel.ai])
     }
 }
@@ -462,15 +489,15 @@ async function tnalp4() {
         var a = new Area(workingArea.points, workingArea.value, workingArea.name, workingArea.text)
 
         leftPanel.areas.push(a);
-        console.log("A", leftPanel.ai)
+        //console.log("A", leftPanel.ai)
         saveArea(db, dropd.value, i + 1, a)
         workingArea = new Area([]);
     }
 }
 
 dArea.addEventListener('click', (e) => {
-    console.log("D", leftPanel.ai)
-    console.log('deleting area', leftPanel.ai + 1)
+    //console.log("D", leftPanel.ai)
+    //console.log('deleting area', leftPanel.ai + 1)
     deleteDoc(doc(db, dropd.value, 'area' + (leftPanel.ai + 1)));
     leftPanel.areas[leftPanel.ai] = undefined;
 })
@@ -526,9 +553,9 @@ document.getElementById('sendFiles').addEventListener('click', (e) => {
 })
 
 document.getElementById('saveCam').addEventListener('click', (e) => {
-    console.log('saveCam')
+    //console.log('saveCam')
     views[leftPanel.firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
-    console.log(views)
+    //console.log(views)
 })
 
 var editPos = false;
@@ -593,19 +620,19 @@ async function savePerms() {
 
                 }).catch((error) => {
 
-                    console.log(error)
+                    /console.log(error)
 
                 });
         */
     }).catch((error) => {
 
-        console.log(error)
+        //console.log(error)
 
     });
     /*
         try {
             const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
-            console.log("Document written");
+            /onsole.log("Document written");
         } catch (e) {
             console.error("Error adding document");
         }
@@ -949,6 +976,7 @@ async function signedIn(user) {
 
         listUsers().
         then((u) => {
+            //console.log(u)
                 u.data.users.forEach((user) => {
 
                     if (user.email.split('@')[1] != 'poppy.com') {
@@ -1118,6 +1146,44 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+function signInWithMyPopup() {
+    return new Promise((resolve, reject) => {
+        //just a prompt
+        var email = prompt('Email');
+        var password = prompt('Password');
+
+        resolve({
+            user: email,
+            password: password
+        });
+    });
+}
+
+
+function elogin() {
+    //no popup
+    signInWithMyPopup().then((result) => {
+        //result.user and result.password
+        signInWithEmailAndPassword(auth, result.user, result.password)
+            .then((userCredential) => {
+                // Signed in
+                const user = userCredential.user;
+                signedIn(user);
+                // ...
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorCode, errorMessage);
+            });
+    }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error(errorCode, errorMessage);
+    });
+}
+
 function login() {
 
     signInWithPopup(auth, provider)
@@ -1259,7 +1325,7 @@ sizes.canvas2d.addEventListener('click', (e) => {
             var doP = (leftPanel.spreadsheet == state[0]) ? true : false;
 
             
-            console.log(intersects, doP);
+            //console.log(intersects, doP);
 
             if (intersects.length > 0) {
                 if (doP) {
@@ -1269,7 +1335,7 @@ sizes.canvas2d.addEventListener('click', (e) => {
                         ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
                     }
                 } else {
-                    console.log(workingArea.points);
+                    //console.log(workingArea.points);
                     workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
                 }
             }
@@ -1290,7 +1356,7 @@ textbox.addEventListener('input', e => {
             insights[leftPanel.firstClickY] = encodeURI(textbox.value.replaceAll(/,/g, '~'));
         } else {
             leftPanel.text = encodeURI(textbox.value.replaceAll(/,/g, '~'))
-            console.log(leftPanel.text);
+            //console.log(leftPanel.text);
         }
     }
 })
@@ -1301,7 +1367,7 @@ dataInput.addEventListener('change', (e) => {
 }, false);
 
 modelInput.addEventListener('change', (e) => {
-    console.log('modelInput');
+    //console.log('modelInput');
     handleModels(modelInput.files[0]);
 }, false);
 
@@ -1427,11 +1493,14 @@ const tick = () => {
         leftPanel.ctx.clearRect(0, 0, leftPanel.canvas.width, leftPanel.canvas.height);
     }
     //Tracers
-    tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
-
-    //Points
-    ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
-    ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
+    if (leftPanel.spreadsheet != state[2]) {
+        tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
+   
+        //Points
+        ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
+        ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
+    }
+    
     if (leftPanel) {
         if (bw) {
             leftPanel.ctx.fillStyle = 'black';
@@ -1481,10 +1550,10 @@ const tick = () => {
 
         leftPanel.areas.forEach(a => {
             if (a != undefined) {
-                a.drawArea(camera, sizes, doVals)
+                a.drawArea(camera, sizes, doVals, alpha);
             }
         });
-        workingArea.drawArea(camera, sizes, doVals, true, 'last')
+        workingArea.drawArea(camera, sizes, doVals, true, 'last');
     }
 
     // Call tick again on the next frame

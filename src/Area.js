@@ -93,12 +93,12 @@ class Area extends CanvasObject {
             sizes.ctx.lineWidth = this.outline;
 
             if (alpha) {
-                var opac = this.a;
+                var opac = this.opacity
             } else {
                 var opac = 1;
             }
 
-            opac = this.opacity
+            
             //or this.opacity
 
             sizes.ctx.strokeStyle = "rgba(" + String(this.r / 5) + ", " + String(this.g / 5) + ", " + String(this.b / 5) + ", " + String(1) + ")";
@@ -136,9 +136,9 @@ class Area extends CanvasObject {
 
                 if (doVals) {
 
-                    sizes.ctx.strokeText(Math.round(this.value * 10) / 10, x, y - 10);
+                    sizes.ctx.strokeText((Math.round(this.value * 10) / 10) + ' eACH', x, y - 10);
                     sizes.ctx.fillStyle = this.color;
-                    sizes.ctx.fillText(Math.round(this.value * 10) / 10, x, y - 10);
+                    sizes.ctx.fillText(Math.round(this.value * 10) / 10 + ' eACH', x, y - 10);
 
                 }
             }
