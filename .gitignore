@@ -3,3 +3,6 @@ models/
 data/
 dist/
 key.js
+.firebase/
+.github/
+.vs/
