@@ -102,7 +102,8 @@ class Area extends CanvasObject {
             //or this.opacity
 
             sizes.ctx.strokeStyle = "rgba(" + String(this.r / 5) + ", " + String(this.g / 5) + ", " + String(this.b / 5) + ", " + String(1) + ")";
-            sizes.ctx.fillStyle = "rgba(" + String(this.r) + ", " + String(this.g) + ", " + String(this.b) + ", " + String(opac) + ")";
+            //fill white but with opacity
+            sizes.ctx.fillStyle =  "rgba( 255, 255, 255, " + String(opac) + ")";
             sizes.ctx.lineWidth = this.thickness;
             //area
             if (screenpts.length > 0) {
@@ -124,11 +125,12 @@ class Area extends CanvasObject {
                 var avg = this.posAvg();
 
                 var [x, y] = this.screenPts(camera, sizes.width / 2, sizes.height / 2, avg.x, avg.y, avg.z / 100);
-
+                
                 sizes.ctx.font = "12px Arial";
                 sizes.ctx.textAlign = "center";
-                sizes.ctx.strokeStyle = 'black';
-                sizes.ctx.lineWidth = 4;
+                //dark grey outline
+                sizes.ctx.strokeStyle = 'rgba(100, 100, 100, 1)';
+                sizes.ctx.lineWidth = 2;
                 sizes.ctx.lineJoin = "round";
                 sizes.ctx.strokeText(this.name, x, y + 4);
                 sizes.ctx.fillStyle = "white";
@@ -145,6 +147,45 @@ class Area extends CanvasObject {
 
         }
 
+    }
+    
+    rgb(value) {
+
+        //         i    0                       1                     2                    3                    4                   5   6
+        const max = 13;
+        const groups = [0, 0.23076923076923078, 0.3538461538461538, 0.4076923076923077, 0.5307692307692308, 0.7615384615384616, 1];
+        const colors = ["#ff0000","#ff8a00","#fbfd00","#4aff01","#02fbff","#00a0ff","#0000ff"];
+        const opacity = [0, .1, .2, .4, .6, .8, 1]
+
+        for (let i = 0; i < groups.length; i++) {
+
+            if (groups[i] * max <= value && value <= groups[i + 1] * max) {
+
+
+                //console.log( this.hexToRgb(colors[i]))
+
+                var c1 = this.hexToRgb(colors[i]);
+                var c2 = this.hexToRgb(colors[i + 1]);
+
+                var r = this.rescale(value, groups[i] * max, groups[i + 1] * max, c1.r, c2.r);
+                var g = this.rescale(value, groups[i] * max, groups[i + 1] * max, c1.g, c2.g);
+                var b = this.rescale(value, groups[i] * max, groups[i + 1] * max, c1.b, c2.b);
+
+                //alpha
+                var a = this.rescale(value, groups[i] * max, groups[i + 1] * max, opacity[i], opacity[i + 1]);
+
+                //console.log(a)
+
+                return [r, g, b, a];
+
+            } else if (value > groups[groups.length - 1] * max) {
+                var c = this.hexToRgb(colors[colors.length - 1])
+                var a = 1;
+
+                return [c.r, c.g, c.b, a];
+
+            }
+        }
     }
 
     posAvg() {
