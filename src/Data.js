@@ -584,6 +584,15 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
 
 export function saveFile(ms, ts, tracers, insights, views) {
 
+    
+    for (var i = 0; i < ms.length + 1; i++) {
+        if (i == 0) {
+            views[i] = 'VIEWS';
+        } else if (views[i] == null) {
+            views[i] = [parseFloat(ms[i - 1].pos.x) + 14, parseFloat(ms[i - 1].pos.z) + 30, parseFloat(ms[i - 1].pos.y) + 8];
+        }
+    }
+
     let dataArray = assemble(ms, ts, tracers, insights, views);
 
 
