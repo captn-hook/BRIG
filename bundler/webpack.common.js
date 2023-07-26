@@ -4,10 +4,23 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 
 module.exports = {
-    entry: path.resolve(__dirname, '../src/index.js'),
+    entry: {
+        viewer: {
+            import: path.resolve(__dirname, '../src/index.js'),
+        },
+        editor: {
+            dependOn: 'viewer',
+            import: path.resolve(__dirname, '../src/editor.js'),
+        },
+        account: {
+            publicPath: '/account/',
+            import: path.resolve(__dirname, '../src/account.js'),
+        },
+    },
     output: {
         filename: 'bundle.[contenthash].js',
         path: path.resolve(__dirname, '../dist'),
+        publicPath: '/',
         libraryTarget: "var",
         library: "FileExt",
         library: "Point",
