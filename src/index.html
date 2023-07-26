@@ -11,26 +11,36 @@
 <body>
 
     <!--Control Div-->
-    <div id="ctrl" class="btn-group" style="display: none; float: right; margin-left: auto; margin-right: 0%; margin-top: 0%; width: 20%; background: rgb(27, 27, 27)">
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="editFiles" title="Changes Display">Change Display</button>
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="saveFiles" title="Download spreadsheet data">Download data</button>
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="sendFiles" title="Send spreadsheet data">Save data</button>
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="saveCam" title="Save camera position to data file">Save Camera position</button>
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="editPos" title="Edit point position">Edit positions</button>
-        
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="blackandwhite" title="Change visual style">B&W / Color</button>
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="readOnly" title="Edit text box">Edit text</button>
+    <div id="ctrl" class="btn-group"
+        style="display: none; float: right; margin-left: auto; margin-right: 0%; margin-top: 0%; width: 20%; background: rgb(27, 27, 27)">
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="editFiles" title="Changes Display">Change
+            Display</button>
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="saveFiles"
+            title="Download spreadsheet data">Download data</button>
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="sendFiles" title="Send spreadsheet data">Save
+            data</button>
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="saveCam"
+            title="Save camera position to data file">Save Camera position</button>
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="editPos" title="Edit point position">Edit
+            positions</button>
 
-        <button class="Btn btDark" style="height: 10%; width: 49%;" id="perms" title="Permissions Manager">Add users</button>
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="blackandwhite" title="Change visual style">B&W /
+            Color</button>
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="readOnly" title="Edit text box">Edit
+            text</button>
+
+        <button class="Btn btDark" style="height: 10%; width: 49%;" id="perms" title="Permissions Manager">Add
+            users</button>
 
         <table id="table">
             <tr>
-              <th class="cell">No Access</th><th class="cell">Access</th>
+                <th class="cell">No Access</th>
+                <th class="cell">Access</th>
             </tr>
             <tr>
             </tr>
-          </table>
-        
+        </table>
+
     </div>
 
     <div id="root" style="width: 100%;">
@@ -47,15 +57,20 @@
             <!-- Vertical Div 1.0 login -->
             <div id="log" class="btn-group" style="display: block; height: 13%;" title="Login Screen">
                 <label style="color:lightgrey;">Login:</label>
-                <button class="Btn btDark" id="login" style="width: 12%; margin: 3%;" title="Login">Google</button><button class="Btn btDark" id="elogin" style="width: 11%; margin: 3%;" title="Login">Email</button>
+                <button class="Btn btDark" id="login" style="width: 12%; margin: 3%;"
+                    title="Login">Google</button><button class="Btn btDark" id="elogin" style="width: 11%; margin: 3%;"
+                    title="Login">Email</button>
             </div>
             <!-- Vertical Div 1.1, switch display, for logged in users -->
-            <div id="selectPanel1" class="btn-group" style="display: none; height: 13%; overflow: hidden;" title="Site Dropdown">
+            <div id="selectPanel1" class="btn-group" style="display: none; height: 13%; overflow: hidden;"
+                title="Site Dropdown">
                 <label id="tx" for="sites" style="color:lightgrey;">Choose a site:</label>
                 <select name="sites" id="dropdown" title="Dropdown">
                     <option value="Empty">Example</option>
                 </select>
-                <br><button class="Btn btDark" id="logout" style="width: 25%; height: 40%; margin: 3%" title="Logout">Logout</button> <button class="Btn btDark" id="groups" style="width: 25%; height: 40%; margin: 3%;" title="Groups Menu">Groups</button>
+                <br><button class="Btn btDark" id="logout" style="width: 25%; height: 40%; margin: 3%"
+                    title="Logout">Logout</button> <button class="Btn btDark" id="groups"
+                    style="width: 25%; height: 40%; margin: 3%;" title="Groups Menu">Groups</button>
             </div>
             <!-- Vertical Div 1.2, dev -->
             <div id="selectPanel2" style="display: none; height: 13%; overflow: hidden;" title="Data Input">
@@ -68,19 +83,34 @@
 
             <!-- Vertical Div 2.0 Spreadsheet control-->
             <div style="display: block; height: 8%;  position: relative;" class="btn-group" id="bug1">
-                <button class="Btn btDark" id="valueBtnS" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnS" class="opacityBtn" title="Toggle Transparency">Transparent</button><button class="Btn btDark" id="flipBtn" title="Flip selection visibility">Flip selection ◐</button>
-                <button class="Btn btDark" id="camBtn" title="Change camera control mode">Free 📹</button><button class="Btn btDark" id="resetBtn" title="Toggle all visibility">Toggle all ❎</button><button class="Btn btDark" id="toggleBtn" title="Toggle selection visibility">Toggle selection ◧</button>
+                <button class="Btn btDark" id="valueBtnS" class="valueBtn" title="Show values">Show
+                    values</button><button class="Btn btDark" id="opacityBtnS" class="opacityBtn"
+                    title="Toggle Transparency">Transparent</button><button class="Btn btDark" id="flipBtn"
+                    title="Flip selection visibility">Flip selection ◐</button>
+                <button class="Btn btDark" id="camBtn" title="Change camera control mode">Free 📹</button><button
+                    class="Btn btDark" id="resetBtn" title="Toggle all visibility">Toggle all ❎</button><button
+                    class="Btn btDark" id="toggleBtn" title="Toggle selection visibility">Toggle selection ◧</button>
             </div>
 
             <!-- Vertical Div 2.1 Groups -->
             <div style="display: none; height: 8%;  position: relative;" class="btn-group" id="bug2">
-                <button style="display: none" class="Btn btDark" id="saveGroup" title="Save current display as group">Save Group</button><button style="display: none" class="Btn btDark" id="addGroup" title="Save as new group">Save New Group</button><button style="display: none" class="Btn btDark" id="deleteGroup" title="Delete Group">Delete Group</button>
-                <button class="Btn btDark" id="valueBtnG" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnG" class="opacityBtn" title="Toggle Transparency">Transparent</button>
+                <button style="display: none" class="Btn btDark" id="saveGroup"
+                    title="Save current display as group">Save Group</button><button style="display: none"
+                    class="Btn btDark" id="addGroup" title="Save as new group">Save New Group</button><button
+                    style="display: none" class="Btn btDark" id="deleteGroup" title="Delete Group">Delete Group</button>
+                <button class="Btn btDark" id="valueBtnG" class="valueBtn" title="Show values">Show
+                    values</button><button class="Btn btDark" id="opacityBtnG" class="opacityBtn"
+                    title="Toggle Transparency">Transparent</button>
             </div>
             <!-- Vertical Div 2.3 Areas -->
             <div style="display: none; height: 8%;  position: relative;" class="btn-group" id="bug3">
-                <button style="display: none" class="Btn btDark" id="saveArea" title="Save current display as area">Save Area</button><button style="display: none" class="Btn btDark" id="addArea" title="Save as new area">Save New Area</button><button style="display: none" class="Btn btDark" id="deleteArea" title="Delete Area">Delete Area</button>
-                <button class="Btn btDark" id="valueBtnA" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnA" class="opacityBtn" title="Toggle Transparency">Transparent</button>
+                <button style="display: none" class="Btn btDark" id="saveArea" title="Save current display as area">Save
+                    Area</button><button style="display: none" class="Btn btDark" id="addArea"
+                    title="Save as new area">Save New Area</button><button style="display: none" class="Btn btDark"
+                    id="deleteArea" title="Delete Area">Delete Area</button>
+                <button class="Btn btDark" id="valueBtnA" class="valueBtn" title="Show values">Show
+                    values</button><button class="Btn btDark" id="opacityBtnA" class="opacityBtn"
+                    title="Toggle Transparency">Transparent</button>
             </div>
             <!-- Vertical Div 3 -->
             <div style="height: 55%;  position: relative;" id="spreadsheet">
@@ -99,14 +129,14 @@
             <canvas style="height: 100%;" class="webgl"></canvas>
             <canvas style="height: 100%; position: absolute" id="2d"></canvas>
 
-            <button id="ctrlBtn" class="Btn btDark" title="Admin Menu" style="display: none; transform:rotate(-90deg); bottom: 12%; right: -4%; position: absolute; width: 10%; height: 3%;">Admin Menu</button>
+            <button id="ctrlBtn" class="Btn btDark" title="Admin Menu"
+                style="display: none; transform:rotate(-90deg); bottom: 12%; right: -4%; position: absolute; width: 10%; height: 3%;">Admin
+                Menu</button>
 
         </div>
 
 
     </div>
-
-
 
 </body>
 

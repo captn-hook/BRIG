@@ -17,6 +17,7 @@ module.exports = {
         library: "ScreenSizes",
         library: "UserTable"
     },
+    target: 'web',
     devtool: 'source-map',
     plugins: [
         new CopyWebpackPlugin({
