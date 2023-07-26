@@ -8,13 +8,13 @@ module.exports = merge(
         mode: 'development',
         devServer: {
           static: {
-            directory: path.join(__dirname, 'src'),
+            directory: path.join(__dirname, '../src'),
           },
           liveReload: true,
           hot: true,
           compress: true,
           port: 9000,
-          historyApiFallback: true,
+          historyApiFallback: false,
         },
       }
 )

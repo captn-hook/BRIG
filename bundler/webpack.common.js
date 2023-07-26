@@ -3,22 +3,19 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 
+const pages = [
+    'index',
+    'editor',
+    'account',
+]
+
 module.exports = {
-    entry: {
-        viewer: {
-            import: path.resolve(__dirname, '../src/index.js'),
-        },
-        editor: {
-            dependOn: 'viewer',
-            import: path.resolve(__dirname, '../src/editor.js'),
-        },
-        account: {
-            publicPath: '/account/',
-            import: path.resolve(__dirname, '../src/account.js'),
-        },
-    },
+    entry: pages.reduce((config, page) => {
+        config[page] = path.resolve(__dirname, `../src/${page}.js`)
+        return config
+    }, {}),
     output: {
-        filename: 'bundle.[contenthash].js',
+        filename: 'bundle.[name].js',
         path: path.resolve(__dirname, '../dist'),
         publicPath: '/',
         libraryTarget: "var",
@@ -38,12 +35,14 @@ module.exports = {
                 from: path.resolve(__dirname, '../static')
             }]
         }),
-        new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, '../src/index.html'),
-            minify: true
-        }),
         new MiniCSSExtractPlugin()
-    ],
+    ].concat(
+        pages.map(page => new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, `../src/${page}.html`),
+            filename: `${page}.html`,
+            chunks: [page]
+        }))
+    ),
     module: {
         rules: [
             // HTML
