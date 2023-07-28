@@ -4,14 +4,14 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 
 const pages = [
-    'index',
+    'viewer',
     'editor',
     'account',
 ]
 
 module.exports = {
     entry: pages.reduce((config, page) => {
-        config[page] = path.resolve(__dirname, `../src/${page}.js`)
+        config[page] = path.resolve(__dirname, `../src/${page}/page.js`)
         return config
     }, {}),
     output: {
@@ -38,7 +38,7 @@ module.exports = {
         new MiniCSSExtractPlugin()
     ].concat(
         pages.map(page => new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, `../src/${page}.html`),
+            template: path.resolve(__dirname, `../src/${page}/${page}.html`),
             filename: `${page}.html`,
             chunks: [page]
         }))

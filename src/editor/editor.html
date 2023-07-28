@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link id="icon" rel="icon" type="image/x-icon" href="images/favi32.ico" />
+    <link id="icon" rel="icon" type="image/x-icon" href="../images/favi32.ico" />
+    <link rel="stylesheet" href="../style.css">
     <title>Poppy Editor</title>
 </head>
 
@@ -42,13 +43,9 @@
 
             <!-- Vertical Div 0, title -->
             <div style="height: 9%; overflow: hidden;">
-                <img id="title" style="height: 40%; margin: 5%;" src="images/logo.png" alt="Poppy Logo">
+                <img id="title" style="height: 40%; margin: 5%;" src="../images/logo.png" alt="Poppy Logo">
             </div>
-            <!-- Vertical Div 1.0 login -->
-            <div id="log" class="btn-group" style="display: block; height: 13%;" title="Login Screen">
-                <label style="color:lightgrey;">Login:</label>
-                <button class="Btn btDark" id="login" style="width: 12%; margin: 3%;" title="Login">Google</button><button class="Btn btDark" id="elogin" style="width: 11%; margin: 3%;" title="Login">Email</button>
-            </div>
+
             <!-- Vertical Div 1.1, switch display, for logged in users -->
             <div id="selectPanel1" class="btn-group" style="display: none; height: 13%; overflow: hidden;" title="Site Dropdown">
                 <label id="tx" for="sites" style="color:lightgrey;">Choose a site:</label>
