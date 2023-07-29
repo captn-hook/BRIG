@@ -35,7 +35,7 @@ const auth = getAuth();
 // Router state
 let currentPage;
 let currentAction;
-let currentParams = {darkTheme: true, firebaseEnv: {app: app, auth: auth, provider: provider }}
+let currentParams;
 
 // The application shell
 // Here it's only a color, but it could be your title bar with logo.
@@ -61,12 +61,11 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log('user signed in', user);
         //signedIn(user);
-		window.location.href = 'viewer.html';
+		if (window.location.pathname != '/viewer.html' || window.location.pathname != '/editor.html' || window.location.pathname != '/account.html') {
+			window.location.href = 'viewer.html';
+		}
     } else {
         console.log('user signed out');
-		if (window.location.pathname != '/account.html') {
-			window.location.href = 'account.html';
-		}
     }
 });
 
