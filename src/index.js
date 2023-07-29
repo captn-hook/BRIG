@@ -32,15 +32,6 @@ const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log('user signed in', user);
-        //signedIn(user);
-    } else {
-        console.log('user signed out');
-    }
-});
-
 // Router state
 let currentPage;
 let currentAction;
@@ -55,6 +46,30 @@ if (title) {
 var icon = document.getElementById('icon');
 icon.href = favi;
 
+bootstrapAsync(getCurrentPage());
+
+export function bootstrapAsync(pageName) {
+	currentAction = Promise.resolve();
+	openPage({
+		page: pageName,
+		params: currentParams
+	})
+	registerRouter();
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log('user signed in', user);
+        //signedIn(user);
+		window.location.href = 'viewer.html';
+    } else {
+        console.log('user signed out');
+		if (window.location.pathname != '/account.html') {
+			window.location.href = 'account.html';
+		}
+    }
+});
+
 // Bind router to events (modern browsers only)
 function registerRouter() {
 	window.addEventListener("popstate", event => {
@@ -68,43 +83,47 @@ function registerRouter() {
 // get current page from URL
 export function getCurrentPage() {
 	var m = /([^\/]+)\.html/.exec(location.pathname);
-	return m ? m[1] : "unknown";
+	return m ? m[1] : 'account';
 }
 
 // Start loading loading page
 //const loadingPage = import("./loading/page");
 // Router logic for loading and opening a page.
 function openPage(state) {
-	console.log('opening page', state);
 	const pageName = state.page;
 	currentAction = currentAction
 		// Close the current page
 		.then(() => currentPage && currentPage.close())
 		// Start loading the next page
-		.then(() => import(`./${pageName}/page`))
+		.then(() => import(`./${pageName}/${pageName}`))
 		// Open the next page
 		.then(newPage => {
 			currentPage = newPage;
 			return currentPage.open(state);
 		})
-		// Display error page
-		.catch(err => {
-			return import("./error/page")
-				.then(newPage => {
-					currentPage = newPage;
-					return currentPage.open(state);
-				});
-		});
 	return currentAction;
 }
 
 // Router logic, Called by pages
 // Starts navigating to another page
 export function navigate(pageName, params = null) {
+	console.log('navigating to', pageName, params);
 	if (params === null) {
 		params = currentParams;
 	}
 	const state = { page: pageName, params: params };
-	window.history.pushState(state, pageName, `${pageName}`);
+	const hist = { page: pageName};
+	window.history.pushState(hist, pageName, `${pageName}`);
+	console.log('navigating to', state);
 	openPage(state);
+}
+
+export function open(state) {
+	console.log('home page open');
+	return Promise.resolve();
+}
+
+export function close() {
+	console.log('home page close');
+	return Promise.resolve();
 }

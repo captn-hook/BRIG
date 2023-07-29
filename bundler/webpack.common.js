@@ -10,10 +10,12 @@ const pages = [
 ]
 
 module.exports = {
-    entry: pages.reduce((config, page) => {
-        config[page] = path.resolve(__dirname, `../src/${page}/page.js`)
-        return config
-    }, {}),
+    entry: {
+        index: path.resolve(__dirname, '../src/index.js'),
+        viewer: path.resolve(__dirname, '../src/viewer/viewer.js'),
+        editor: path.resolve(__dirname, '../src/editor/editor.js'),
+        account: path.resolve(__dirname, '../src/account/account.js'),
+    },
     output: {
         filename: 'bundle.[name].js',
         path: path.resolve(__dirname, '../dist'),
@@ -35,14 +37,28 @@ module.exports = {
                 from: path.resolve(__dirname, '../static')
             }]
         }),
-        new MiniCSSExtractPlugin()
-    ].concat(
-        pages.map(page => new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, `../src/${page}/${page}.html`),
-            filename: `${page}.html`,
-            chunks: [page]
-        }))
-    ),
+        new MiniCSSExtractPlugin(),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/index.html'),
+            filename: 'index.html',
+            chunks: ['index']
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/viewer/viewer.html'),
+            filename: 'viewer.html',
+            chunks: ['viewer']
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/editor/editor.html'),
+            filename: 'editor.html',
+            chunks: ['viewer', 'editor']
+        }),
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/account/account.html'),
+            filename: 'account.html',
+            chunks: ['account']
+        }),
+    ],
     module: {
         rules: [
             // HTML

@@ -1,6 +1,30 @@
 import {
     navigate
 } from '../index.js';
+import {
+    signInWithPopup,
+    signInWithEmailAndPassword,
+    signOut
+} from "firebase/auth"
+
+let currentParams;
+
+export function open(state) {
+    currentParams = state.params;
+
+    let log = document.getElementById('login')
+    if (log) { addEventListener('click', function() { login(state.params.firebaseEnv.auth, state.params.firebaseEnv.provider) }); }
+    let elog = document.getElementById('elogin')
+    if (elog) { log.addEventListener('click', function() { elogin(state.params.firebaseEnv.auth) }); }
+    let out = document.getElementById('logout')
+    if (out) { out.addEventListener('click', function() { logout(state.params.firebaseEnv.auth) }); }
+
+    return Promise.resolve();
+}
+
+export function close() {
+    return Promise.resolve();
+}
 
 function signInWithMyPopup() {
     return new Promise((resolve, reject) => {
@@ -13,7 +37,6 @@ function signInWithMyPopup() {
         });
     });
 }
-
 
 function elogin(auth) {
     console.log('elogin');
@@ -47,11 +70,11 @@ async function signedIn(user) {
 		//empty all sites
 		//list all sites
 		//just go to editor page
-		navigate('editor');
+		navigate('editor', currentParams);
     } else {
 		//empty site list
 		//get users sites
-		navigate('viewer');
+		navigate('viewer', currentParams);
     }
     window.dispatchEvent(new Event('hashchange'));
     window.dispatchEvent(new Event('resize'));
@@ -62,10 +85,4 @@ function logout(auth) {
     console.log('logout');
     signOut(auth)
     //also clear all sites and user list
-}
-
-export function open(state) {
-    document.getElementById('login').addEventListener('click', function() { login(state.firebaseEnv.auth, state.firebaseEnv.provider) });
-    document.getElementById('elogin').addEventListener('click', function() { elogin(state.firebaseEnv.auth) });
-    document.getElementById('logout').addEventListener('click', function() { logout(state.firebaseEnv.auth) });
 }
