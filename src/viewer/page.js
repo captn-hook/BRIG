@@ -56,43 +56,6 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 // Import the functions you need from the SDKs you need
 
 import {
-    initializeApp
-} from 'firebase/app';
-
-import {
-    getAuth,
-    signInWithPopup,
-    GoogleAuthProvider,
-    onAuthStateChanged,
-    confirmPasswordReset,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-} from 'firebase/auth';
-
-import {
-    getStorage,
-    ref,
-    listAll,
-    getBlob,
-    updateMetadata,
-    getMetadata,
-} from 'firebase/storage';
-
-import {
-    getFunctions,
-    httpsCallable,
-    //connectFunctionsEmulator
-} from 'firebase/functions';
-
-import {
-    getFirestore,
-    setDoc,
-    deleteDoc,
-    doc
-} from "firebase/firestore";
-
-import {
     Area
 } from '../shared/Area';
 
@@ -109,31 +72,6 @@ import {
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
-import {
-    config
-} from '../key';
-
-const firebaseConfig = {
-    apiKey: config.apiKey,
-    authDomain: 'brig-b2ca3.firebaseapp.com',
-    projectId: 'brig-b2ca3',
-    storageBucket: 'brig-b2ca3.appspot.com',
-    messagingSenderId: '536591450814',
-    appId: '1:536591450814:web:40eb73d5b1bf09ce36d4ef',
-    measurementId: 'G-0D9RW0VMCQ'
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-const storage = getStorage(app);
-const db = getFirestore(app);
-
-const functions = getFunctions(app);
-//connectFunctionsEmulator(functions, 'localhost', 5001);
-
-const listUsers = httpsCallable(functions, 'listUsers');
 
 /*
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
@@ -203,31 +141,7 @@ const textbox = document.getElementById('textbox');
 //buttons
 
 var alpha = true;
-//need different buttons for google auth and email auth
-document.getElementById('login').addEventListener('click', (e) => {
-    sizes.updateSizes(leftPanel);
-    login();
-})
 
-document.getElementById('elogin').addEventListener('click', (e) => {
-    sizes.updateSizes(leftPanel);
-    elogin();
-})
-
-document.getElementById('logout').addEventListener('click', (e) => {
-    siteList([]);
-    availableSites = [];
-    accessibleSites = [];
-    switchDisplay(0);
-    auth.signOut();
-    signOut(auth).then(() => {
-      //console.log('signed out');
-    }
-    ).catch((error) => {
-      //console.log(error);
-    }
-    );
-})
 
 document.getElementById('valueBtnS').addEventListener('click', valueButton);
 document.getElementById('valueBtnG').addEventListener('click', valueButton);
@@ -350,11 +264,6 @@ document.getElementById('resetBtn').addEventListener('click', (e) => {
         })
 
     }
-})
-
-document.getElementById('readOnly').addEventListener('click', (e) => {
-    textbox.readOnly = !textbox.readOnly;
-    e.target.innerHTML = (textbox.readOnly) ? 'Read Only' : 'Editable';
 })
 
 document.getElementById('toggleBtn').addEventListener('click', (e) => {
@@ -529,48 +438,8 @@ function switchDisplay(state) {
         d2.style.display = 'block'
     }
 }
-//states: login 0, select panel 1, upload panel 2
-document.getElementById('editFiles').addEventListener('click', (e) => {
-    if (d0.style.display == 'block') {
-        switchDisplay(1);
-        e.target.innerHTML = 'Edit Files';
-    } else if (d1.style.display == 'block') {
-        switchDisplay(2);
-        e.target.innerHTML = 'Login';
-    } else {
-        switchDisplay(0);
-        e.target.innerHTML = 'Dropdown';
-    }
-})
-
-document.getElementById('saveFiles').addEventListener('click', (e) => {
-    saveFile(ms, ts, tracers, insights, views);
-})
-
-document.getElementById('sendFiles').addEventListener('click', (e) => {
-    if (dropd.value != defaultDropd)
-        sendFile(ms, ts, tracers, insights, views, db, dropd.value);
-})
-
-document.getElementById('saveCam').addEventListener('click', (e) => {
-    //console.log('saveCam')
-    views[leftPanel.firstClickY - 1] = [String(camera.position.x), String(camera.position.y), String(camera.position.z)];
-    //console.log(views)
-})
 
 var editPos = false;
-
-document.getElementById('editPos').addEventListener('click', (e) => {
-    if (editPos) {
-        editPos = false;
-        e.target.innerHTML = 'Edit Position';
-    } else {
-        editPos = true;
-        e.target.innerHTML = 'Stop Editing';
-    }
-})
-
-document.getElementById('perms').addEventListener('click', savePerms);
 
 async function savePerms() {
 
@@ -952,65 +821,6 @@ var allUsersM = [];
 
 var me = '';
 
-async function signedIn(user) {
-    //empty list 
-    siteList([]);
-
-    // The signed-in user info.
-    // ...
-    const ext = user.email.split('@')
-
-    //var allUsersM = []
-
-    if (ext[1] == 'poppy.com' || user.email == 'tristanskyhook@gmail.com') {
-
-        ctrlBtn.style.display = 'block';
-        sGroup.style.display = 'inline-block';
-        aGroup.style.display = 'inline-block';
-        dGroup.style.display = 'inline-block';
-
-        sArea.style.display = 'inline-block';
-        aArea.style.display = 'inline-block';
-        dArea.style.display = 'inline-block';
-
-
-        listUsers().
-        then((u) => {
-            //console.log(u)
-                u.data.users.forEach((user) => {
-
-                    if (user.email.split('@')[1] != 'poppy.com') {
-
-                        allUsersM.push([user.uid, user.email]);
-
-                    }
-                });
-
-            })
-
-            .catch((error) => {
-                //console.log('Error listing users:', error);
-            });
-
-        availableSites = [];
-
-        allSites();
-
-    } else {
-        availableSites = [];
-
-        userSites(db, user.uid).then((u) => {
-            siteList(u);
-        })
-    }
-
-    switchDisplay(1);
-
-    window.dispatchEvent(new Event('hashchange'));
-    window.dispatchEvent(new Event('resize'));
-
-}
-
 function allSites() {
     listAll(folderRef).then((e) => {
 
@@ -1131,82 +941,7 @@ var doVals = false;
     LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
 */
-const provider = new GoogleAuthProvider();
 
-const auth = getAuth();
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in, see docs for a list of available properties
-        //login();
-        signedIn(user);
-    } else {
-        // User is signed out
-        // ...
-    }
-});
-
-function signInWithMyPopup() {
-    return new Promise((resolve, reject) => {
-        //just a prompt
-        var email = prompt('Email');
-        var password = prompt('Password');
-
-        resolve({
-            user: email,
-            password: password
-        });
-    });
-}
-
-
-function elogin() {
-    //no popup
-    signInWithMyPopup().then((result) => {
-        //result.user and result.password
-        signInWithEmailAndPassword(auth, result.user, result.password)
-            .then((userCredential) => {
-                // Signed in
-                const user = userCredential.user;
-                signedIn(user);
-                // ...
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.error(errorCode, errorMessage);
-            });
-    }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(errorCode, errorMessage);
-    });
-}
-
-function login() {
-
-    signInWithPopup(auth, provider)
-
-        .then((result) => {
-
-            signedIn(result.user);
-
-
-        }).catch((error) => {
-
-            // Handle Errors here.
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // The email of the user's account used.
-            const email = error.email;
-            // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error);
-
-            console.error(error, errorCode, errorMessage, email, credential);
-            // ...
-        });
-}
 /*
     EVENTS
 */
@@ -1362,15 +1097,6 @@ textbox.addEventListener('input', e => {
 })
 
 //file input
-dataInput.addEventListener('change', (e) => {
-    handleFiles(dataInput.files[0]);
-}, false);
-
-modelInput.addEventListener('change', (e) => {
-    //console.log('modelInput');
-    handleModels(modelInput.files[0]);
-}, false);
-
 window.addEventListener('hashchange', (e) => {
 
     var hash = window.location.hash.substring(1)
