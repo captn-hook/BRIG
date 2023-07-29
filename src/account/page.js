@@ -1,8 +1,6 @@
 import {
-    signInWithPopup,
-    signOut,
-    getAuth,
-} from 'firebase/auth';
+    navigate
+} from '../index.js';
 
 function signInWithMyPopup() {
     return new Promise((resolve, reject) => {
@@ -17,7 +15,8 @@ function signInWithMyPopup() {
 }
 
 
-function elogin() {
+function elogin(auth) {
+    console.log('elogin');
     signInWithMyPopup().then((result) => {
         signInWithEmailAndPassword(auth, result.user, result.password)
             .then((userCredential) => {
@@ -28,7 +27,8 @@ function elogin() {
     })
 }
 
-function login() {
+function login(auth, provider) {
+    console.log('login');
     signInWithPopup(auth, provider)
         .then((result) => {
             signedIn(result.user);
@@ -46,8 +46,6 @@ async function signedIn(user) {
 		//list users
 		//empty all sites
 		//list all sites
-		
-
 		//just go to editor page
 		navigate('editor');
     } else {
@@ -55,25 +53,19 @@ async function signedIn(user) {
 		//get users sites
 		navigate('viewer');
     }
-
-    //switchDisplay(1);
-
     window.dispatchEvent(new Event('hashchange'));
     window.dispatchEvent(new Event('resize'));
 
 }
 
-function logout() {
+function logout(auth) {
+    console.log('logout');
     signOut(auth)
     //also clear all sites and user list
 }
 
 export function open(state) {
-    console.log('account page opened', state.auth);
-        // Use the auth parameter here
-        
-    document.getElementById('login').addEventListener('click', login);
-    document.getElementById('elogin').addEventListener('click', elogin);
-    document.getElementById('logout').addEventListener('click', logout);
+    document.getElementById('login').addEventListener('click', function() { login(state.firebaseEnv.auth, state.firebaseEnv.provider) });
+    document.getElementById('elogin').addEventListener('click', function() { elogin(state.firebaseEnv.auth) });
+    document.getElementById('logout').addEventListener('click', function() { logout(state.firebaseEnv.auth) });
 }
-
