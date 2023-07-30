@@ -4,6 +4,7 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 
 const pages = [
+    'index',
     'viewer',
     'editor',
     'account',
@@ -11,7 +12,7 @@ const pages = [
 
 module.exports = {
     entry: {
-        index: path.resolve(__dirname, '../src/index.js'),
+        index: path.resolve(__dirname, '../src/index/index.js'),
         viewer: path.resolve(__dirname, '../src/viewer/viewer.js'),
         editor: path.resolve(__dirname, '../src/editor/editor.js'),
         account: path.resolve(__dirname, '../src/account/account.js'),
@@ -39,24 +40,24 @@ module.exports = {
         }),
         new MiniCSSExtractPlugin(),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, '../src/index.html'),
+            template: path.resolve(__dirname, '../src/index/index.html'),
             filename: 'index.html',
             chunks: ['index']
         }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/viewer/viewer.html'),
             filename: 'viewer.html',
-            chunks: ['viewer']
+            chunks: ['index', 'viewer']
         }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/editor/editor.html'),
             filename: 'editor.html',
-            chunks: ['viewer', 'editor']
+            chunks: ['index', 'viewer', 'editor']
         }),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/account/account.html'),
             filename: 'account.html',
-            chunks: ['account']
+            chunks: ['index', 'account']
         }),
     ],
     module: {

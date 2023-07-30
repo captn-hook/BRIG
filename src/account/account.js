@@ -1,6 +1,6 @@
 import {
     navigate
-} from '../index.js';
+} from '../index/index.js';
 import {
     signInWithPopup,
     signInWithEmailAndPassword,
@@ -11,6 +11,7 @@ let currentParams;
 
 export function open(state) {
     currentParams = state.params;
+    console.log('account open', state.params)
 
     let log = document.getElementById('login')
     if (log) { addEventListener('click', function() { login(state.params.firebaseEnv.auth, state.params.firebaseEnv.provider) }); }

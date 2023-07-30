@@ -1,7 +1,7 @@
-import './style.css';
-import imageUrl1 from './images/logo.png';
-import imageUrl2 from './images/logoblack.png';
-import favi from './images/favi16.ico';
+import '../style.css';
+import imageUrl1 from '../images/logo.png';
+import imageUrl2 from '../images/logoblack.png';
+import favi from '../images/favi16.ico';
 
 import {
     initializeApp
@@ -15,7 +15,7 @@ import {
 
 import {
     config
-} from './key';
+} from '../key';
 
 const firebaseConfig = {
     apiKey: config.apiKey,
@@ -37,12 +37,11 @@ let currentPage;
 let currentAction;
 let currentParams;
 
-// The application shell
-// Here it's only a color, but it could be your title bar with logo.
+// The application shell with shared visual components
+var darkTheme = true;
 var title = document.getElementById('title');
-if (title) {
-	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
-}
+title.src = darkTheme ? imageUrl1 : imageUrl2;
+
 var icon = document.getElementById('icon');
 icon.href = favi;
 
@@ -65,6 +64,9 @@ onAuthStateChanged(auth, (user) => {
 			window.location.href = 'viewer.html';
 		}
     } else {
+		if (window.location.pathname == '/viewer.html' || window.location.pathname == '/editor.html') {
+			window.location.href = 'index.html';
+		}
         console.log('user signed out');
     }
 });
