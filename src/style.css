@@ -64,6 +64,15 @@ button {
 
 }
 
+a {
+    text-decoration: gray;
+    border: 2px solid gray;
+    border-radius: 12px;
+    color: white;
+    padding: 5px;
+    margin: 5px;
+}
+
 .btDark {
 
     background-color: gray;

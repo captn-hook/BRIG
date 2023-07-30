@@ -84,7 +84,7 @@ function registerRouter() {
 // get current page from URL
 export function getCurrentPage() {
 	var m = /([^\/]+)\.html/.exec(location.pathname);
-	return m ? m[1] : 'account';
+	return m ? m[1] : 'index';
 }
 
 // Start loading loading page
