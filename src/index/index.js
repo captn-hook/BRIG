@@ -1,6 +1,6 @@
 import '../style.css';
-import imageUrl1 from '../images/logo.png';
-import imageUrl2 from '../images/logoblack.png';
+import imageUrl1 from '../images/logoDark.png';
+import imageUrl2 from '../images/logoLight.png';
 import favi from '../images/favi16.ico';
 
 import {
