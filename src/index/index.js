@@ -38,27 +38,21 @@ let currentAction;
 let currentParams;
 
 // The application shell with shared visual components
-var darkTheme = true;
+currentParams = { darkTheme: true };
 var title = document.getElementById('title');
-title.src = darkTheme ? imageUrl1 : imageUrl2;
+title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
+title.addEventListener('click', () => {
+	currentParams.darkTheme = !currentParams.darkTheme;
+	switchTheme(currentParams.darkTheme);
+});
 
 var icon = document.getElementById('icon');
 icon.href = favi;
 
 bootstrapAsync(getCurrentPage());
 
-export function bootstrapAsync(pageName) {
-	currentAction = Promise.resolve();
-	openPage({
-		page: pageName,
-		params: currentParams
-	})
-	registerRouter();
-}
-
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log('user signed in', user);
         //signedIn(user);
 		if (window.location.pathname != '/viewer.html' || window.location.pathname != '/editor.html' || window.location.pathname != '/account.html') {
 			window.location.href = 'viewer.html';
@@ -67,9 +61,20 @@ onAuthStateChanged(auth, (user) => {
 		if (window.location.pathname == '/viewer.html' || window.location.pathname == '/editor.html') {
 			window.location.href = 'index.html';
 		}
-        console.log('user signed out');
     }
 });
+
+function switchTheme(darkTheme) {
+	//change the logo url
+	title.src = darkTheme ? imageUrl1 : imageUrl2;
+	var mode = [darkTheme ? 'Light' : 'Dark', darkTheme ? 'Dark' : 'Light'];
+	var elements = document.querySelectorAll('[class*=' + mode[0] + ']');
+	for (var i = 0; i < elements.length; i++) {
+		elements[i].className = elements[i].className.replace(mode[0], mode[1]);
+	}
+}
+
+
 
 // Bind router to events (modern browsers only)
 function registerRouter() {
@@ -81,8 +86,23 @@ function registerRouter() {
 	});
 }
 
+export function bootstrapAsync(pageName) {
+	currentAction = Promise.resolve();
+	openPage({
+		page: pageName,
+		params: currentParams
+	})
+	registerRouter();
+}
+
 // get current page from URL
 export function getCurrentPage() {
+
+	//if location.pathname isnt in the list of pages, redirect 
+	if (location.pathname != '/viewer.html' && location.pathname != '/editor.html' && location.pathname != '/account.html' && location.pathname != '/index.html') {
+		location.pathname = '/index.html';
+	}
+	
 	var m = /([^\/]+)\.html/.exec(location.pathname);
 	return m ? m[1] : 'index';
 }
@@ -96,35 +116,45 @@ function openPage(state) {
 		// Close the current page
 		.then(() => currentPage && currentPage.close())
 		// Start loading the next page
-		.then(() => import(`./${pageName}/${pageName}`))
+		.then(() => import(`../${pageName}/${pageName}`))
+		// Display the loading page while loading the next page
+		/*.then(() => loadingPage
+			.then(loading => loading.open(pageName)
+				.then(() => import(`./${pageName}/page`))
+				.then(page => loading.close().then(() => page))
+		))*/
 		// Open the next page
 		.then(newPage => {
 			currentPage = newPage;
-			return currentPage.open(state);
+			return currentPage.open();
 		})
+		// Display error page
+		.catch(err => {
+			return import("../index/index")
+				.then(newPage => {
+					currentPage = newPage;
+					return currentPage.open(err);
+				});
+		});
 	return currentAction;
 }
 
 // Router logic, Called by pages
 // Starts navigating to another page
 export function navigate(pageName, params = null) {
-	console.log('navigating to', pageName, params);
 	if (params === null) {
 		params = currentParams;
 	}
 	const state = { page: pageName, params: params };
 	const hist = { page: pageName};
 	window.history.pushState(hist, pageName, `${pageName}`);
-	console.log('navigating to', state);
 	openPage(state);
 }
 
 export function open(state) {
-	console.log('home page open');
 	return Promise.resolve();
 }
 
 export function close() {
-	console.log('home page close');
 	return Promise.resolve();
 }
