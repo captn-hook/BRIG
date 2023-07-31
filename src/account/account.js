@@ -1,6 +1,6 @@
 import {
     navigate, 
-    defaulltPage
+    defaultPage
 } from '../index/index.js';
 import {
     signInWithPopup,
@@ -17,7 +17,7 @@ let currentParams;
 export function open(state) {
     
 	document.body.innerHTML = html;
-    defaulltPage();
+    defaultPage();
 
     currentParams = state.params;
 

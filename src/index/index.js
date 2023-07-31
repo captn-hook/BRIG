@@ -39,7 +39,7 @@ const auth = getAuth();
 // Router state
 let currentPage;
 let currentAction;
-let currentParams;
+let currentParams = { firebaseEnv: { app: app, provider: provider, auth: auth, }, darkTheme: true };
 
 
 if (currentParams) {
@@ -50,7 +50,7 @@ if (currentParams) {
 }
 
 // The application shell with shared visual components
-export function defaulltPage(nav = true) {
+export function defaultPage(nav = true) {
 
 	var title = document.getElementById('title');
 	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
@@ -59,6 +59,8 @@ export function defaulltPage(nav = true) {
 		currentParams.darkTheme = !currentParams.darkTheme;
 		switchTheme(currentParams.darkTheme);
 	});
+
+	switchTheme(currentParams.darkTheme);
 
 	var icon = document.getElementById('icon');
 	icon.href = favi;
@@ -79,14 +81,15 @@ bootstrapAsync(getCurrentPage());
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        //signedIn(user);
-		// if (window.location.pathname != '/viewer.html' || window.location.pathname != '/editor.html' || window.location.pathname != '/account.html') {
-		// 	window.location.href = 'viewer.html';
-		// }
+		//remove restricted classes for logged in users
+		var elements = document.querySelectorAll('[class*="restricted"]');
+		for (var i = 0; i < elements.length; i++) {
+			elements[i].className = elements[i].className.replace('restricted', '');
+		}
     } else {
-		// if (window.location.pathname == '/viewer.html' || window.location.pathname == '/editor.html') {
-		// 	window.location.href = 'index.html';
-		// }
+		if (window.location.pathname == '/viewer' || window.location.pathname == '/editor') {
+			window.location.href = '/';
+		}
     }
 });
 
@@ -125,7 +128,6 @@ export function bootstrapAsync(pageName) {
 export function getCurrentPage() {
 	//we only want to allow one directory deep and only editor, viewer, and account
 	//otherwise we will redirect to website root
-	console.log(location.pathname);
 	if (location.pathname == '/viewer' || location.pathname == '/editor' || location.pathname == '/account') {
 		return location.pathname.substring(1);
 	} else if (location.pathname == '/') {
@@ -148,7 +150,6 @@ function openPage(state) {
 		.then(() => import(`../${pageName}/${pageName}`))
 		// Open the next page
 		.then(newPage => {
-			console.log('opening page: ' + pageName);
 			currentPage = newPage;
 			return currentPage.open(state);
 		})
@@ -175,7 +176,7 @@ export function navigate(pageName, params) {
 
 export function open(state) {
 	document.body.innerHTML = html;
-	defaulltPage();
+	defaultPage();
 	return Promise.resolve();
 }
 
