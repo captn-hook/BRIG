@@ -1,5 +1,6 @@
 import {
-    navigate
+    navigate, 
+    defaulltPage
 } from '../index/index.js';
 import {
     signInWithPopup,
@@ -7,11 +8,18 @@ import {
     signOut
 } from "firebase/auth"
 
+import {
+    default as html
+} from "./account.html";
+
 let currentParams;
 
 export function open(state) {
+    
+	document.body.innerHTML = html;
+    defaulltPage();
+
     currentParams = state.params;
-    console.log('account open', state.params)
 
     let log = document.getElementById('login')
     if (log) { addEventListener('click', function() { login(state.params.firebaseEnv.auth, state.params.firebaseEnv.provider) }); }

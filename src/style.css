@@ -86,6 +86,10 @@ button {
     min-width: 90px;
 }
 
+.Btn {
+    border: 2px solid gray;
+}
+
 a {
     text-decoration: gray;
     border: 2px solid gray;
@@ -145,23 +149,13 @@ a:hover {
 }
 
 .btDark {
-
     background-color: gray;
-
-    border: 2px solid rgb(27, 27, 27);
-
     color: white;
-
 }
 
 .btLight {
-
     background-color: lightgray;
-
-    border: 2px solid rgb(230, 230, 230);
-    
     color: black;
-
 }
 
 .cell {
@@ -169,18 +163,13 @@ a:hover {
 }
 
 .tbDark {
-
     border: 2px solid rgb(27, 27, 27);
-
     color: white;
 }
 
 .tbLight {
-
     border: 2px solid rgb(230, 230, 230);
-    
     color: black;
-
 }
 
 .tbIn {
@@ -190,8 +179,6 @@ a:hover {
 .tbOut {
     background-color: #e51e1e;
 }
-
-
 
 /* Add a background color on hover */
 .btn-group button:hover {

@@ -17,6 +17,10 @@ import {
     config
 } from '../key';
 
+import {
+	default as html
+} from "./index.html";
+
 const firebaseConfig = {
     apiKey: config.apiKey,
     authDomain: 'brig-b2ca3.firebaseapp.com',
@@ -37,30 +41,52 @@ let currentPage;
 let currentAction;
 let currentParams;
 
-// The application shell with shared visual components
-currentParams = { darkTheme: true };
-var title = document.getElementById('title');
-title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
-title.addEventListener('click', () => {
-	currentParams.darkTheme = !currentParams.darkTheme;
-	switchTheme(currentParams.darkTheme);
-});
 
-var icon = document.getElementById('icon');
-icon.href = favi;
+if (currentParams) {
+	//defined
+} else {
+	//not defined
+	currentParams = { darkTheme: true };
+}
+
+// The application shell with shared visual components
+export function defaulltPage(nav = true) {
+
+	var title = document.getElementById('title');
+	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
+
+	title.addEventListener('click', () => {
+		currentParams.darkTheme = !currentParams.darkTheme;
+		switchTheme(currentParams.darkTheme);
+	});
+
+	var icon = document.getElementById('icon');
+	icon.href = favi;
+
+	//there should be a nav on every page, grab it and add navigate(element.title + '.html', currentParams) to each element
+	if (nav && document.getElementById('nav')) {
+		var nav = document.getElementById('nav');
+		var navElements = nav.getElementsByClassName('Btn');
+		for (var i = 0; i < navElements.length; i++) {
+			navElements[i].addEventListener('click', function() {
+				navigate(this.id, currentParams);
+			});
+		}
+	}
+}
 
 bootstrapAsync(getCurrentPage());
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
         //signedIn(user);
-		if (window.location.pathname != '/viewer.html' || window.location.pathname != '/editor.html' || window.location.pathname != '/account.html') {
-			window.location.href = 'viewer.html';
-		}
+		// if (window.location.pathname != '/viewer.html' || window.location.pathname != '/editor.html' || window.location.pathname != '/account.html') {
+		// 	window.location.href = 'viewer.html';
+		// }
     } else {
-		if (window.location.pathname == '/viewer.html' || window.location.pathname == '/editor.html') {
-			window.location.href = 'index.html';
-		}
+		// if (window.location.pathname == '/viewer.html' || window.location.pathname == '/editor.html') {
+		// 	window.location.href = 'index.html';
+		// }
     }
 });
 
@@ -97,39 +123,38 @@ export function bootstrapAsync(pageName) {
 
 // get current page from URL
 export function getCurrentPage() {
-
-	//if location.pathname isnt in the list of pages, redirect 
-	if (location.pathname != '/viewer.html' && location.pathname != '/editor.html' && location.pathname != '/account.html' && location.pathname != '/index.html') {
-		location.pathname = '/index.html';
+	//we only want to allow one directory deep and only editor, viewer, and account
+	//otherwise we will redirect to website root
+	console.log(location.pathname);
+	if (location.pathname == '/viewer' || location.pathname == '/editor' || location.pathname == '/account') {
+		return location.pathname.substring(1);
+	} else if (location.pathname == '/') {
+		return 'index';
+	} else {
+		window.location.href = '/';
 	}
-	
-	var m = /([^\/]+)\.html/.exec(location.pathname);
-	return m ? m[1] : 'index';
 }
 
 // Start loading loading page
 //const loadingPage = import("./loading/page");
 // Router logic for loading and opening a page.
 function openPage(state) {
+	//switchTheme(state.params.darkTheme);
 	const pageName = state.page;
 	currentAction = currentAction
 		// Close the current page
 		.then(() => currentPage && currentPage.close())
 		// Start loading the next page
 		.then(() => import(`../${pageName}/${pageName}`))
-		// Display the loading page while loading the next page
-		/*.then(() => loadingPage
-			.then(loading => loading.open(pageName)
-				.then(() => import(`./${pageName}/page`))
-				.then(page => loading.close().then(() => page))
-		))*/
 		// Open the next page
 		.then(newPage => {
+			console.log('opening page: ' + pageName);
 			currentPage = newPage;
-			return currentPage.open();
+			return currentPage.open(state);
 		})
 		// Display error page
 		.catch(err => {
+			console.error(err);
 			return import("../index/index")
 				.then(newPage => {
 					currentPage = newPage;
@@ -141,10 +166,7 @@ function openPage(state) {
 
 // Router logic, Called by pages
 // Starts navigating to another page
-export function navigate(pageName, params = null) {
-	if (params === null) {
-		params = currentParams;
-	}
+export function navigate(pageName, params) {
 	const state = { page: pageName, params: params };
 	const hist = { page: pageName};
 	window.history.pushState(hist, pageName, `${pageName}`);
@@ -152,6 +174,8 @@ export function navigate(pageName, params = null) {
 }
 
 export function open(state) {
+	document.body.innerHTML = html;
+	defaulltPage();
 	return Promise.resolve();
 }
 
