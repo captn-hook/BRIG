@@ -30,44 +30,29 @@ export function elogin(currentParams) {
                 signedIn(user, currentParams);
             })
     })
+    return Promise.resolve(currentParams);
 }
 
 export function login(currentParams) {
     console.log('login');
     signInWithPopup(currentParams.firebaseEnv.auth, currentParams.firebaseEnv.provider)
         .then((result) => {
-            signedIn(result.user, currentParams);
+            //just puts in currentParams.user
+            currentParams = signedIn(result.user, currentParams);
         })
+    return Promise.resolve(currentParams);
 }
 
 async function signedIn(user, currentParams) {
     //empty list site list, and user list?
     // The signed-in user info.
-    const ext = user.email.split('@')
-	//fix this =======================================================---------------------------------------<><<<<<<<<<<<<<<<<<
-    if (ext[1] == 'poppy.com' || user.email == 'tristanskyhook@gmail.com') {
-		console.log('admin logged in');
-		//change to admin page
-		//list users
-		//empty all sites
-		//list all sites
-		//just go to editor page
-        //maybe just append to currentParams
-        ///sitelist *
-        currentParams.user = user;
-        currentParams.sitelist = [];
-		navigate('editor', currentParams);
-    } else {
-		//empty site list
-		//get users sites
-        //list users sites and put in site list?????
-        currentParams.user = user;
-        currentParams.sitelist = [];
-		navigate('viewer', currentParams);
-    }
-    window.dispatchEvent(new Event('hashchange'));
-    window.dispatchEvent(new Event('resize'));
+    // put user in user list
+    // eventually, need to get site list from firebase cloud func
+    currentParams.user = user;
+    currentParams.sites = [];
 
+	navigate('viewer', currentParams);
+    return Promise.resolve(currentParams);
 }
 
 export function logout(auth) {

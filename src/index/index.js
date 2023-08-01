@@ -50,23 +50,30 @@ if (currentParams) {
 }
 
 // The application shell with shared visual components
-export function defaultPage(nav = true) {
+export function defaultPage(params)
+{
+	//if params is nothing, error
+	if (!params) {
+		console.error('params is undefined');
+		params = currentParams;
+	}
 
 	var title = document.getElementById('title');
 	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
 
-	title.addEventListener('click', () => {
+	title.addEventListener('click', function() {
+		console.log('TH clicked');
 		currentParams.darkTheme = !currentParams.darkTheme;
 		switchTheme(currentParams.darkTheme);
 	});
 
-	switchTheme(currentParams.darkTheme);
+	//switchTheme(currentParams.darkTheme);
 
 	var icon = document.getElementById('icon');
 	icon.href = favi;
 
 	//there should be a nav on every page, grab it and add navigate(element.title + '.html', currentParams) to each element
-	if (nav && document.getElementById('nav')) {
+	if (document.getElementById('nav')) {
 		var nav = document.getElementById('nav');
 		var navElements = nav.getElementsByClassName('Btn');
 		for (var i = 0; i < navElements.length; i++) {
@@ -83,27 +90,46 @@ export function loginPage() {
 	account.innerHTML = 'Login';
 	//replace listener
 	import('../shared/Log.js').then(({ login }) => {
-		account.addEventListener('click', function() { login(currentParams) });
+		account.addEventListener('click', function() { currentParams = login(currentParams) });
 	});
 
 }
 
 bootstrapAsync(getCurrentPage());
 
-onAuthStateChanged(auth, (user) => {
+//login functions
+function clogin() {
+	loginStyle();
+}
+
+export function loginStyle() {
+	//remove restricted classes for logged in users
+	
+	var elements = document.querySelectorAll('[class*="restricted"]');
+	for (var i = 0; i < elements.length; i++) {
+		elements[i].className = elements[i].className.replace('restricted', '');
+	}
+	//eventually discriminate between editor and viewe
+}
+	
+onAuthStateChanged(currentParams.firebaseEnv.auth, (user) => {
+
     if (user) {
-		//remove restricted classes for logged in users
-		var elements = document.querySelectorAll('[class*="restricted"]');
-		for (var i = 0; i < elements.length; i++) {
-			elements[i].className = elements[i].className.replace('restricted', '');
-		}
+		//user is logged in
+		clogin(currentParams, user);
+		
+		currentParams.user = user;
+		console.log('logged in', currentParams.user);
     } else {
 		//load login page
+		console.log('not logged in');
 		loginPage();
     }
 });
 
 function switchTheme(darkTheme) {
+	console.log('switching theme??' + darkTheme);
+	console.log('darkTheme2: ' + currentParams.darkTheme);
 	//change the logo url
 	title.src = darkTheme ? imageUrl1 : imageUrl2;
 	var mode = [darkTheme ? 'Light' : 'Dark', darkTheme ? 'Dark' : 'Light'];
@@ -186,8 +212,10 @@ export function navigate(pageName, params) {
 
 export function open(state) {
 	document.body.innerHTML = html;
-	defaultPage();
-	loginPage();
+	console.log('open', state);
+
+	defaultPage(state.params);
+	//loginPage();
 
 	return Promise.resolve();
 }
