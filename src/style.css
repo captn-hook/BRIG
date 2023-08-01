@@ -37,10 +37,11 @@ nav {
     height: 10%;
     color: white;
     justify-content: left;
+    overflow: auto;
+    /* hide scroll bar ? */
 }
 
 article {
-    width: 98%;
     height: 70%;
     color: white;
     justify-content: left;
@@ -48,6 +49,7 @@ article {
     line-height: 2;
     white-space: pre-wrap;
     padding-left: 2%;
+    margin-right: 2%;
     /* scroll doesnt appear until some text is off screen */
     margin-bottom: 30px;
     overflow: auto;

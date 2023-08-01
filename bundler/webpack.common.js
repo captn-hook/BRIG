@@ -28,7 +28,8 @@ module.exports = {
         library: "Data",
         library: "Panel",
         library: "ScreenSizes",
-        library: "UserTable"
+        library: "UserTable",
+        library: "Log",
     },
     target: 'web',
     devtool: 'source-map',

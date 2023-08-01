@@ -77,6 +77,17 @@ export function defaultPage(nav = true) {
 	}
 }
 
+export function loginPage() {
+	//turn the nav bar 'account' button into a login button
+	var account = document.getElementById('account');
+	account.innerHTML = 'Login';
+	//replace listener
+	import('../shared/Log.js').then(({ login }) => {
+		account.addEventListener('click', function() { login(currentParams) });
+	});
+
+}
+
 bootstrapAsync(getCurrentPage());
 
 onAuthStateChanged(auth, (user) => {
@@ -87,9 +98,8 @@ onAuthStateChanged(auth, (user) => {
 			elements[i].className = elements[i].className.replace('restricted', '');
 		}
     } else {
-		if (window.location.pathname == '/viewer' || window.location.pathname == '/editor') {
-			window.location.href = '/';
-		}
+		//load login page
+		loginPage();
     }
 });
 
@@ -177,6 +187,8 @@ export function navigate(pageName, params) {
 export function open(state) {
 	document.body.innerHTML = html;
 	defaultPage();
+	loginPage();
+
 	return Promise.resolve();
 }
 
