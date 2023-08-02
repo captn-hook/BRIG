@@ -37,3 +37,5 @@ The folder and file should be named 'Sitename' and 'Sitename.glb' respectively.
 In order to add new sites, the site list in index.js should be updated to find the new directory.
 In order to allow non-poppy accounts to access a site, the user's Firebase UID should be added as a metadata tag to the model and data file to permit access.
 
+bug in /index/ loading no JS
+loading / works

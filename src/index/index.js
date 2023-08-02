@@ -125,7 +125,10 @@ onAuthStateChanged(currentParams.firebaseEnv.auth, (user) => {
     } else {
 		//load login page
 		console.log('not logged in');
-		loginPage();
+		//if regmatch is index, turn homepage to expedited login
+		if (regMatchPath(location.pathname) == '') {
+			loginPage();
+		}
     }
 });
 
@@ -146,6 +149,7 @@ function switchTheme(darkTheme) {
 // Bind router to events (modern browsers only)
 function registerRouter() {
 	window.addEventListener("popstate", event => {
+		console.log('popstate');
 		openPage(event.state || {
 			page: getCurrentPage(),
 			params: currentParams
@@ -155,30 +159,46 @@ function registerRouter() {
 
 export function bootstrapAsync(pageName) {
 	currentAction = Promise.resolve();
+	console.log('boots: ' + pageName);
 	openPage({
 		page: pageName,
 		params: currentParams
 	})
 	registerRouter();
 }
+export function regMatchPath(path) {
+	const pages = ['editor', 'account', 'viewer'];
+	//regex matches like /editor/whatever/doesnt/matter -> editor
+	//                   /editor -> editor
+	//                   /account -> account
+	//                   /viewer/ -> viewer
+
+	let match = path.match(/^\/([^\/]+)(\/|$)/);
+	console.log('match: ' + match);
+	if (match) {
+		//check match[1] against known pages
+		if (pages.includes(match[1])) {
+			console.log('match[1]: ' + match[1]);
+			return match[1];
+		}
+	}
+	console.log('no match, returning index' + match);
+	return '';
+}
 
 // get current page from URL
 export function getCurrentPage() {
-	//we only want to allow one directory deep and only editor, viewer, and account
-	//otherwise we will redirect to website root
-	if (location.pathname == '/viewer' || location.pathname == '/editor' || location.pathname == '/account') {
-		return location.pathname.substring(1);
-	} else if (location.pathname == '/') {
-		return 'index';
-	} else {
-		window.location.href = '/';
-	}
+	console.log('pathname: ' + location.pathname);
+	let mtch = regMatchPath(location.pathname);
+	//enforce match on location.pathname
+	return mtch;
 }
 
 // Start loading loading page
 //const loadingPage = import("./loading/page");
 // Router logic for loading and opening a page.
 function openPage(state) {
+	console.log('state: ' + state);
 	//switchTheme(state.params.darkTheme);
 	const pageName = state.page;
 	currentAction = currentAction
@@ -189,6 +209,7 @@ function openPage(state) {
 		// Open the next page
 		.then(newPage => {
 			currentPage = newPage;
+			console.log('currentPage: ' + currentPage);
 			return currentPage.open(state);
 		})
 		// Display error page
@@ -197,6 +218,7 @@ function openPage(state) {
 			return import("../index/index")
 				.then(newPage => {
 					currentPage = newPage;
+					console.log('currentPage ERR: ' + currentPage);
 					return currentPage.open(err);
 				});
 		});

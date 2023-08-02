@@ -8,8 +8,8 @@ import {
 } from "./account.html";
 
 import {
-    login,
-    elogin,
+    emailLoginButton,
+    googleLoginButton,
     logout,
     loginStyle
 } from '../shared/Log.js';
@@ -23,12 +23,10 @@ export function open(state) {
 
     currentParams = state.params;
 
-    
-    let out = document.getElementById('logout')
-    //console.log('logout', out)
-    let log = document.getElementById('login')
-    //console.log('login', log)
-    let elog = document.getElementById('elogin')
+    let classes = document.getElementById('account').className.split(' ');
+    //remove defRestrictDark or defRestrictLight from classes
+    if (classes.indexOf('defRestrictDark') > -1) classes.splice(classes.indexOf('defRestrictDark'), 1);
+    if (classes.indexOf('defRestrictLight') > -1) classes.splice(classes.indexOf('defRestrictLight'), 1);
     //console.log('elogin', elog)
     //if there is a user, show logout, otherwise show login'
     //put username in user field
@@ -37,35 +35,22 @@ export function open(state) {
         usrname.innerHTML = currentParams.user.email;
 
         loginStyle();
-    
-        if (out) {
-            out.addEventListener('click', function() { 
-                logout(state.params.firebaseEnv.auth)
-                
-                state.params = null;
-                window.location.reload();
-            })
-        }
+
+        let logoutBtn = document.createElement('button');
+        logoutBtn.id = 'logout';
+        logoutBtn.innerHTML = 'Logout';
+        logoutBtn.classList.add(...classes);
+        logoutBtn.addEventListener('click', function() { logout(currentParams.firebaseEnv.auth); });
         
-        if (log) {
-            log.style.display = 'none';
-        }
-
-        if (elog) {
-            elog.style.display = 'none';
-        }
+        //create sitelist view
+        
     } else {
-        if (out) {
-            out.style.display = 'none';
-        }
 
-        if (log) {
-            log.addEventListener('click', function() { state.params = login(state.params) })
-        }
+        let accntBtns = document.getElementById('accountBtns');
+        accntBtns.appendChild(googleLoginButton());
+        accntBtns.appendChild(emailLoginButton(classes));
 
-        if (elog) {
-            elog.addEventListener('click', function() { state.params = elogin(state.params) })
-        }
+        //create account management buttons
     }    
     console.log('account open');
     return Promise.resolve();

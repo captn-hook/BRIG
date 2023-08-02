@@ -48,7 +48,9 @@ article {
     line-height: 2;
     white-space: pre-wrap;
     padding-left: 2%;
+    padding-right: 6%;
     margin-right: 2%;
+    margin-top: 10px;
     /* scroll doesnt appear until some text is off screen */
     margin-bottom: 30px;
     overflow: auto;
@@ -69,6 +71,42 @@ input {
     color: transparent;
 }
 
+/* restriced is removed when the user is logged in */
+.restricted {
+    /*grey out*/
+    opacity: 0.5 !important;
+    /*disable*/
+    pointer-events: none !important;
+}
+/* restriced2 is removed when the user with sites is logged in */
+.restricted2 {
+    /*grey out*/
+    opacity: 0.5 !important;
+    /*disable*/
+    pointer-events: none !important;
+}
+/* restriced3 is removed when an admin is logged in */
+.restricted3 {
+    display: none !important;
+}
+
+.defRestrictDark {
+    /* used for buttons that are restricted because they are currently active */
+    /*make look pushed in*/
+    box-shadow: inset 0 0 10px 5px rgba(77, 77, 77, 0.5) !important;
+    opacity: 0.8 !important;
+    pointer-events: none !important;
+    background-color: #142b15 !important;
+}
+
+.defRestrictLight {
+    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5) !important;
+    opacity: 0.8 !important;
+    pointer-events: none !important;
+    background-color: #1a471c !important;
+}
+
+
 .google {
     /* google svg in login button */
     position: absolute;
@@ -78,10 +116,22 @@ input {
     max-width: 30px;
     background-color: white;
     border-radius: 12px;
-    border: 5px solid white;
+    border: none;
     cursor: pointer;
     /*shadow*/
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+}
+
+.google:hover {
+    transition: 0.2s;
+    transform: scale(1.5);
+    box-shadow: inset 0 0 5px 2px rgba(142, 140, 140, 0.5);
+}
+
+.google:active {
+    transition: 0.1s;
+    transform: scale(1.3);
+    box-shadow: inset 0 0 9px 5px rgba(44, 44, 44, 0.5);
 }
 
 .signInError {
@@ -147,25 +197,6 @@ a {
 a:hover {
     background-color: gray;
     color: white;
-}
-
-/* restriced is removed when the user is logged in */
-.restricted {
-    /*grey out*/
-    opacity: 0.5;
-    /*disable*/
-    pointer-events: none;
-}
-/* restriced2 is removed when the user with sites is logged in */
-.restricted2 {
-    /*grey out*/
-    opacity: 0.5;
-    /*disable*/
-    pointer-events: none;
-}
-/* restriced3 is removed when an admin is logged in */
-.restricted3 {
-    display: none;
 }
 
 .logo {
@@ -239,14 +270,20 @@ a:hover {
 .tbOut {
     background-color: #e51e1e;
 }
-
+.btn-group {
+    transition: 0.5s;
+}
 /* Add a background color on hover */
 .btn-group button:hover {
+    transition: 1s;
     background-color: #3e8e41;
+    box-shadow: inset 0 0 3px 1px rgba(0, 0, 0, 0.5);
 }
 
 .btn-group button:active {
+    transition: 0.1s;
     background-color: #5eae51;
+    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);
 }
 
 th, td {
