@@ -85,32 +85,34 @@ export function defaultPage(params)
 }
 
 export function loginPage() {
-	//turn the nav bar 'account' button into a login button
+	//remove the account button and replace with login buttons
 	var account = document.getElementById('account');
-	account.innerHTML = 'Login';
-	//replace listener
-	import('../shared/Log.js').then(({ login }) => {
-		account.addEventListener('click', function() { currentParams = login(currentParams) });
-	});
+	var classes = account.className.split(' ');
+	//account.remove();
+	//get nav
+	var nav = document.getElementById('nav');
+	
+	import('../shared/Log.js').then((module) => {
+		console.log('module: ' + module.emailLoginButton);
+		var elogin = module.emailLoginButton(classes);
 
+		var login = module.googleLoginButton();
+
+		console.log('login: ' + login);
+			
+		nav.appendChild(login);
+		nav.appendChild(elogin);
+	}).catch((error) => { console.log(error); });		
 }
 
 bootstrapAsync(getCurrentPage());
 
 //login functions
 function clogin() {
-	loginStyle();
+	//import loginstyle from '../shared/Log.js';
+	import('../shared/Log.js').then((module) => { module.loginStyle(); }).catch((error) => { console.log(error); });
 }
 
-export function loginStyle() {
-	//remove restricted classes for logged in users
-	
-	var elements = document.querySelectorAll('[class*="restricted"]');
-	for (var i = 0; i < elements.length; i++) {
-		elements[i].className = elements[i].className.replace('restricted', '');
-	}
-	//eventually discriminate between editor and viewe
-}
 	
 onAuthStateChanged(currentParams.firebaseEnv.auth, (user) => {
 

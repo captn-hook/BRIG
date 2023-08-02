@@ -32,18 +32,17 @@ div {
 }
 
 nav {
-    width: 98%;
-    max-width: 800px;
-    height: 10%;
     color: white;
     justify-content: left;
-    overflow: auto;
+    font-size: 16px;
     /* hide scroll bar ? */
 }
 
 article {
     height: 70%;
     color: white;
+    background-color: black;
+    border-radius: 12px;
     justify-content: left;
     font-size: 16px;
     line-height: 2;
@@ -70,7 +69,51 @@ input {
     color: transparent;
 }
 
-button {
+.google {
+    /* google svg in login button */
+    position: absolute;
+    right: 20px;
+    padding: 4px;
+    max-height: 30px;
+    max-width: 30px;
+    background-color: white;
+    border-radius: 12px;
+    border: 5px solid white;
+    cursor: pointer;
+    /*shadow*/
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+}
+
+.signInError {
+    height: 100%;
+    max-height: min-content;
+    border: none;
+    font-size: 20px;
+    margin: 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    align-items: flex-start;
+    box-sizing: border-box;
+    margin: 0em;
+    padding: 1px 6px;
+    background-color: red;
+    border-radius: 12px;
+}
+
+.googleSignInError {
+    position: absolute;
+    right: 90px;
+    height: fit-content;
+    /*center vertically in nav*/
+    
+}
+
+
+.oldbutton {
     border-radius: 12px;
     cursor: pointer;
     vertical-align: middle;
@@ -88,7 +131,7 @@ button {
     min-width: 90px;
 }
 
-.Btn {
+.oldBtn {
     border: 2px solid gray;
 }
 
@@ -135,7 +178,7 @@ a:hover {
 }
 
 .bgDark {
-    background-color: rgb(27, 27, 27);
+    background-color: rgb(10, 10, 10);
 }
 
 .bgLight {
@@ -158,6 +201,21 @@ a:hover {
 .btLight {
     background-color: lightgray;
     color: black;
+}
+
+.Btn {
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    min-width: 60px;
+    min-height: 30px;
+    font-size: 26px;
+    margin: 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
 }
 
 .cell {

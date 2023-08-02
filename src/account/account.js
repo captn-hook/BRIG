@@ -1,6 +1,5 @@
 import {
     //navigate, 
-    loginStyle,
     defaultPage
 } from '../index/index.js';
 
@@ -11,7 +10,8 @@ import {
 import {
     login,
     elogin,
-    logout
+    logout,
+    loginStyle
 } from '../shared/Log.js';
 
 let currentParams;
@@ -25,11 +25,11 @@ export function open(state) {
 
     
     let out = document.getElementById('logout')
-    console.log('logout', out)
+    //console.log('logout', out)
     let log = document.getElementById('login')
-    console.log('login', log)
+    //console.log('login', log)
     let elog = document.getElementById('elogin')
-    console.log('elogin', elog)
+    //console.log('elogin', elog)
     //if there is a user, show logout, otherwise show login'
     //put username in user field
     if (currentParams.user) {

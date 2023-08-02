@@ -10,32 +10,32 @@ import {
     Clock
 } from 'three';
 
-import {
-    Data,
-    RemoteData,
-    GetGroups,
-    GetAreas,
-} from '../shared/Data';
+// import {
+//     Data,
+//     RemoteData,
+//     GetGroups,
+//     GetAreas,
+// } from '../shared/Data';
 
-import {
-    ScreenSizes
-} from '../shared/ScreenSizes';
+// import {
+//     ScreenSizes
+// } from '../shared/ScreenSizes';
 
-import {
-    OrbitControls
-} from 'three/examples/jsm/controls/OrbitControls.js';
+// import {
+//     OrbitControls
+// } from 'three/examples/jsm/controls/OrbitControls.js';
 
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
 
-import {
-    Area
-} from '../shared/Area';
+// import {
+//     Area
+// } from '../shared/Area';
 
-import {
-    Panel
-} from '../shared/Panel';
+// import {
+//     Panel
+// } from '../shared/Panel';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -59,7 +59,9 @@ export function open(pp) {
         2: 'areas'
     }
 
-    const sizes = new ScreenSizes();
+    const sizes = import('../shared/ScreenSizes').then((module) => {
+        return module.ScreenSizes;
+    });
 
     const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
@@ -69,11 +71,17 @@ export function open(pp) {
     // Controls
     const canvas2d = document.getElementById('2d');
 
-    const controls = new OrbitControls(camera, canvas2d);
+    //const controls = new OrbitControls(camera, canvas2d);
 
-    controls.enableDamping = true;
-    controls.target.set(0, 0, 0);
+    const controls = import('three/examples/jsm/controls/OrbitControls.js').then((module) => {
+        c =  new module.OrbitControls(camera, canvas2d);
+        
+        c.enableDamping = true;
+        c.target.set(0, 0, 0);
+        return c;    
+    });
 
+    
     var cameraTargPos = new Vector3(5, 5, 5);
     var cameraTargView = new Vector3(0, 0, 0);
 
@@ -89,11 +97,23 @@ export function open(pp) {
     const canvas3d = document.querySelector('canvas.webgl');
 
 
-    var workingArea = new Area([]);
+    //var workingArea = new Area([]);
 
-    const leftPanel = new Panel(document.getElementById('left'));
+    var workingArea = import('../shared/Area').then((module) => {
+        return new module.Area([]);
+    });
 
-    const userTable = new UserTable(document.getElementById('table'), defaultDropd);
+    //const leftPanel = new Panel(document.getElementById('left'));
+
+    const leftPanel = import('../shared/Panel').then((module) => {
+        return new module.Panel(document.getElementById('left'));
+    });
+    
+    //const userTable = new UserTable(document.getElementById('table'), defaultDropd);
+
+    // const userTable = import('../shared/UserTable').then((module) => {
+    //     return new module.UserTable(document.getElementById('table'), defaultDropd);
+    // });
 
 
     //canvasleft.oncontextmenu = () => false;
@@ -416,72 +436,72 @@ export function open(pp) {
 
     var editPos = false;
 
-    async function savePerms() {
+    // async function savePerms() {
 
-        var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
+    //     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
 
-        //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
+    //     //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
 
-        var inner = '';
+    //     var inner = '';
 
-        let d = {}
+    //     let d = {}
 
 
 
-        userTable.inUsers.forEach((user) => {
-            inner += '"' + user[1] + '":"' + user[0] + '",';
+    //     userTable.inUsers.forEach((user) => {
+    //         inner += '"' + user[1] + '":"' + user[0] + '",';
 
-            d[user[1]] = user[0];
+    //         d[user[1]] = user[0];
 
-            setDoc(doc(db, user[0], dropd.value), {
-                'access': true,
-            })
-        })
+    //         setDoc(doc(db, user[0], dropd.value), {
+    //             'access': true,
+    //         })
+    //     })
 
-        userTable.allUsers.forEach((user) => {
-            inner += '"' + user[1] + '":"false",';
+    //     userTable.allUsers.forEach((user) => {
+    //         inner += '"' + user[1] + '":"false",';
 
-            d[user[1]] = 'false';
+    //         d[user[1]] = 'false';
 
-            setDoc(doc(db, user[0], dropd.value), {
-                'access': false,
-            })
-        })
+    //         setDoc(doc(db, user[0], dropd.value), {
+    //             'access': false,
+    //         })
+    //     })
 
-        inner = inner.slice(0, -1);
+    //     inner = inner.slice(0, -1);
 
-        inner = '{"customMetadata":{' + inner + '}}';
+    //     inner = '{"customMetadata":{' + inner + '}}';
 
-        const newMetadata = JSON.parse(inner);
+    //     const newMetadata = JSON.parse(inner);
 
-        updateMetadata(itemRef, newMetadata).then((metadata) => {
+    //     updateMetadata(itemRef, newMetadata).then((metadata) => {
 
-            /* updates csvs
-            updateMetadata(dataRef, newMetadata).then((metadata) => {
-    */
-            userTable.populateTable();
-            /*s
+    //         /* updates csvs
+    //         updateMetadata(dataRef, newMetadata).then((metadata) => {
+    // */
+    //         userTable.populateTable();
+    //         /*s
 
-                    }).catch((error) => {
+    //                 }).catch((error) => {
 
-                        /console.log(error)
+    //                     /console.log(error)
 
-                    });
-            */
-        }).catch((error) => {
+    //                 });
+    //         */
+    //     }).catch((error) => {
 
-            //console.log(error)
+    //         //console.log(error)
 
-        });
-        /*
-            try {
-                const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
-                /onsole.log("Document written");
-            } catch (e) {
-                console.error("Error adding document");
-            }
-        */
-    };
+    //     });
+    //     /*
+    //         try {
+    //             const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
+    //             /onsole.log("Document written");
+    //         } catch (e) {
+    //             console.error("Error adding document");
+    //         }
+    //     */
+    // };
 
     var back = document.getElementById('bg')
 
