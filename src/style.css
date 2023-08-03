@@ -40,8 +40,6 @@ nav {
 
 article {
     height: 70%;
-    color: white;
-    background-color: black;
     border-radius: 12px;
     justify-content: left;
     font-size: 16px;
@@ -93,14 +91,14 @@ input {
 .defRestrictDark {
     /* used for buttons that are restricted because they are currently active */
     /*make look pushed in*/
-    box-shadow: inset 0 0 10px 5px rgba(77, 77, 77, 0.5) !important;
+    box-shadow: inset 0 0 10px 5px #172718 !important;
     opacity: 0.8 !important;
     pointer-events: none !important;
     background-color: #142b15 !important;
 }
 
 .defRestrictLight {
-    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: inset 0 0 10px 5px #2b502d !important;
     opacity: 0.8 !important;
     pointer-events: none !important;
     background-color: #1a471c !important;
@@ -111,7 +109,7 @@ input {
     /* google svg in login button */
     position: absolute;
     right: 20px;
-    padding: 4px;
+    padding: 6px;
     max-height: 30px;
     max-width: 30px;
     background-color: white;
@@ -134,34 +132,23 @@ input {
     box-shadow: inset 0 0 9px 5px rgba(44, 44, 44, 0.5);
 }
 
-.signInError {
-    height: 100%;
-    max-height: min-content;
-    border: none;
-    font-size: 20px;
-    margin: 6px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 15px;
-    padding-right: 15px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+signInParent {
+    position: relative;
+}
+
+.signInError { 
+    /* span tooltip under */
+    position: fixed;
     display: inline-block;
-    align-items: flex-start;
-    box-sizing: border-box;
-    margin: 0em;
-    padding: 1px 6px;
     background-color: red;
+    padding: 5px;
     border-radius: 12px;
+    color: white;
+    opacity: 0.7;
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.5);
+    /*center*/
+    transform: translate(-90%, 120%);
 }
-
-.googleSignInError {
-    position: absolute;
-    right: 90px;
-    height: fit-content;
-    /*center vertically in nav*/
-    
-}
-
 
 .oldbutton {
     border-radius: 12px;
@@ -213,7 +200,7 @@ a:hover {
 }
 
 .bgLight {
-    background-color: rgb(230, 230, 230);
+    background-color: rgb(182, 182, 182);
 }
 
 .fgDark {
@@ -221,17 +208,20 @@ a:hover {
 }
 
 .fgLight {
-    color: rgb(52, 52, 52);
+    color: rgb(28, 28, 28);
 }
 
 .btDark {
     background-color: gray;
     color: white;
+    box-shadow: 0 0 5px 0 rgba(126, 126, 126, 0.5);
+
 }
 
 .btLight {
     background-color: lightgray;
     color: black;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
 }
 
 .Btn {
@@ -246,7 +236,24 @@ a:hover {
     padding-bottom: 10px;
     padding-left: 15px;
     padding-right: 15px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+}
+/*Btn <img> */
+.btn-group img {
+    float: left;
+    max-height: 30px;
+    background-color: white;
+}
+
+.btn-group img:hover {
+    transition: 0.2s;
+    transform: scale(1.1);
+    box-shadow: inset 0 0 5px 2px rgba(142, 140, 140, 0.5);
+}
+
+.btn-group img:active {
+    transition: 0.1s;
+    transform: scale(1);
+    box-shadow: inset 0 0 9px 5px rgba(44, 44, 44, 0.5);
 }
 
 .cell {
@@ -271,11 +278,11 @@ a:hover {
     background-color: #e51e1e;
 }
 .btn-group {
-    transition: 0.5s;
+    transition: 0.2s;
 }
 /* Add a background color on hover */
 .btn-group button:hover {
-    transition: 1s;
+    transition: .2s;
     background-color: #3e8e41;
     box-shadow: inset 0 0 3px 1px rgba(0, 0, 0, 0.5);
 }

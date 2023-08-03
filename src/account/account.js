@@ -1,6 +1,7 @@
 import {
     //navigate, 
-    defaultPage
+    defaultPage,
+    switchTheme
 } from '../index/index.js';
 
 import {
@@ -14,14 +15,10 @@ import {
     loginStyle
 } from '../shared/Log.js';
 
-let currentParams;
-
 export function open(state) {
     
 	document.body.innerHTML = html;
     defaultPage(state.params);
-
-    currentParams = state.params;
 
     let classes = document.getElementById('account').className.split(' ');
     //remove defRestrictDark or defRestrictLight from classes
@@ -30,9 +27,9 @@ export function open(state) {
     //console.log('elogin', elog)
     //if there is a user, show logout, otherwise show login'
     //put username in user field
-    if (currentParams.user) {
+    if (state.params.firebaseEnv.auth.currentUser) {
         let usrname = document.getElementById('username');
-        usrname.innerHTML = currentParams.user.email;
+        usrname.innerHTML = state.params.firebaseEnv.auth.currentUser.email;
 
         loginStyle();
 
@@ -40,18 +37,19 @@ export function open(state) {
         logoutBtn.id = 'logout';
         logoutBtn.innerHTML = 'Logout';
         logoutBtn.classList.add(...classes);
-        logoutBtn.addEventListener('click', function() { logout(currentParams.firebaseEnv.auth); });
+        logoutBtn.addEventListener('click', function() { logout(state.params.firebaseEnv.auth); });
         
         //create sitelist view
         
     } else {
 
         let accntBtns = document.getElementById('accountBtns');
-        accntBtns.appendChild(googleLoginButton());
-        accntBtns.appendChild(emailLoginButton(classes));
+        accntBtns.appendChild(googleLoginButton(state.params, classes));
+        accntBtns.appendChild(emailLoginButton(state.params, classes));
 
         //create account management buttons
     }    
+    switchTheme(state.params.darkTheme);
     console.log('account open');
     return Promise.resolve();
 }

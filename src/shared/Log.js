@@ -25,14 +25,13 @@ function signInWithMyPopup() {
 function displaySignInError(goog = false) {
     hideSignInError();
     //create a element to display error in nav
-    var se = document.createElement('div');
+    var se = document.createElement('span');
     se.id = 'signInError';
     se.innerHTML = 'Sign In Failed';
     se.classList.add('signInError');
-    if (goog) {
-        se.classList.add('googleSignInError');
-    }
-    document.getElementById('nav').appendChild(se);
+    let bt = document.getElementById(goog ? 'login' : 'elogin')
+    bt.classList.add('signInParent');
+    bt.appendChild(se);
 }
 
 function hideSignInError() {
@@ -43,13 +42,13 @@ function hideSignInError() {
     }
 }
 
-export function elogin(currentParams) {
+export function elogin(params) {
     console.log('elogin');
     signInWithMyPopup().then((result) => {
-        signInWithEmailAndPassword(currentParams.firebaseEnv.auth, result.user, result.password)
+        signInWithEmailAndPassword(params.firebaseEnv.auth, result.user, result.password)
             .then((userCredential) => {
                 // Signed in
-                const user = userCredential.user;
+                console.log(userCredential);
                 hideSignInError();
                 signedIn();
             })
@@ -70,11 +69,10 @@ export function elogin(currentParams) {
     return Promise.resolve();
 }
 
-export function login(currentParams) {
-    console.log('login');
-    signInWithPopup(currentParams.firebaseEnv.auth, currentParams.firebaseEnv.provider)
+export function login(params) {
+    signInWithPopup(params.firebaseEnv.auth, params.firebaseEnv.provider)
         .then((result) => {
-            //just puts in currentParams.user
+            console.log(result);
             hideSignInError();
             signedIn();
         })
@@ -102,12 +100,11 @@ export function logout(auth) {
 
 export function loginStyle() {
 	//remove restricted classes for logged in users
-	
 	var elements = document.querySelectorAll('[class*="restricted"]');
 	for (var i = 0; i < elements.length; i++) {
 		elements[i].className = elements[i].className.replace('restricted', '');
-	}
-	//eventually discriminate between editor and viewe
+    }
+	//eventually discriminate between editor and viewer
 }
 
 export function createButton(id, text, classes) {
@@ -118,10 +115,10 @@ export function createButton(id, text, classes) {
 	button.classList.add( ...classes );
 	return button;
 }
-
-export function emailLoginButton(classes = ['Btn']) {
+//params contains a firebaseEnv auth object
+export function emailLoginButton(params, classes = ['Btn']) {
     var button = createButton('elogin', 'Email Login', classes);
-    button.addEventListener('click', function() { elogin(); });
+    button.addEventListener('click', function() { elogin( params ); });
     return button;
 }
 
@@ -133,8 +130,8 @@ export function imageButton(id, src, classes) {
 	return button;
 }
 
-export function googleLoginButton(classes = ['google']) {
+export function googleLoginButton(params, classes = ['google']) {
     var button = imageButton('login', google, classes);
-    button.addEventListener('click', function() { login(); });
+    button.addEventListener('click', function() { login( params ); });
     return button;
 }

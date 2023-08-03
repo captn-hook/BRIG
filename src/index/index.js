@@ -41,30 +41,22 @@ let currentPage;
 let currentAction;
 let currentParams = { firebaseEnv: { app: app, provider: provider, auth: auth, }, darkTheme: true };
 
-
-if (currentParams) {
-	//defined
-} else {
-	//not defined
-	currentParams = { darkTheme: true };
-}
-
 // The application shell with shared visual components
 export function defaultPage(params)
 {
-	//if params is nothing, error
+	//if params is nothing, fuck
 	if (!params) {
 		console.error('params is undefined');
 		params = currentParams;
 	}
 
 	var title = document.getElementById('title');
-	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
+	title.src = params.darkTheme ? imageUrl1 : imageUrl2;
 
 	title.addEventListener('click', function() {
 		console.log('TH clicked');
-		currentParams.darkTheme = !currentParams.darkTheme;
-		switchTheme(currentParams.darkTheme);
+		params.darkTheme = !params.darkTheme;
+		switchTheme(params.darkTheme);
 	});
 
 	//switchTheme(currentParams.darkTheme);
@@ -78,7 +70,7 @@ export function defaultPage(params)
 		var navElements = nav.getElementsByClassName('Btn');
 		for (var i = 0; i < navElements.length; i++) {
 			navElements[i].addEventListener('click', function() {
-				navigate(this.id, currentParams);
+				navigate(this.id, params);
 			});
 		}
 	}
@@ -117,24 +109,16 @@ function clogin() {
 onAuthStateChanged(currentParams.firebaseEnv.auth, (user) => {
 
     if (user) {
-		//user is logged in
-		clogin(currentParams, user);
-		
-		currentParams.user = user;
 		console.log('logged in', currentParams.user);
     } else {
-		//load login page
 		console.log('not logged in');
-		//if regmatch is index, turn homepage to expedited login
 		if (regMatchPath(location.pathname) == '') {
 			loginPage();
 		}
     }
 });
 
-function switchTheme(darkTheme) {
-	console.log('switching theme??' + darkTheme);
-	console.log('darkTheme2: ' + currentParams.darkTheme);
+export function switchTheme(darkTheme) {
 	//change the logo url
 	title.src = darkTheme ? imageUrl1 : imageUrl2;
 	var mode = [darkTheme ? 'Light' : 'Dark', darkTheme ? 'Dark' : 'Light'];
