@@ -76,7 +76,7 @@ export function defaultPage(params)
 	}
 }
 
-export function loginPage() {
+export function loginPage(params) {
 	//remove the account button and replace with login buttons
 	var account = document.getElementById('account');
 	var classes = account.className.split(' ');
@@ -86,9 +86,9 @@ export function loginPage() {
 	
 	import('../shared/Log.js').then((module) => {
 		console.log('module: ' + module.emailLoginButton);
-		var elogin = module.emailLoginButton(classes);
+		var elogin = module.emailLoginButton(params, classes);
 
-		var login = module.googleLoginButton();
+		var login = module.googleLoginButton(params);
 
 		console.log('login: ' + login);
 			
@@ -113,7 +113,7 @@ onAuthStateChanged(currentParams.firebaseEnv.auth, (user) => {
     } else {
 		console.log('not logged in');
 		if (regMatchPath(location.pathname) == '') {
-			loginPage();
+			loginPage(currentParams);
 		}
     }
 });

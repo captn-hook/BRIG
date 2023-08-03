@@ -30,7 +30,7 @@ function displaySignInError(goog = false) {
     se.innerHTML = 'Sign In Failed';
     se.classList.add('signInError');
     let bt = document.getElementById(goog ? 'login' : 'elogin')
-    bt.classList.add('signInParent');
+    //bt.classList.add('signInParent');
     bt.appendChild(se);
 }
 

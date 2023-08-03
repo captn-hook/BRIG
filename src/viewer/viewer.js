@@ -10,32 +10,45 @@ import {
     Clock
 } from 'three';
 
-// import {
-//     Data,
-//     RemoteData,
-//     GetGroups,
-//     GetAreas,
-// } from '../shared/Data';
+import {
+    default as html
+} from './viewer.html';
 
-// import {
-//     ScreenSizes
-// } from '../shared/ScreenSizes';
+import {
+    Data,
+    RemoteData,
+    GetGroups,
+    GetAreas,
+} from '../shared/Data';
 
-// import {
-//     OrbitControls
-// } from 'three/examples/jsm/controls/OrbitControls.js';
+import {
+    ScreenSizes
+} from '../shared/ScreenSizes';
+
+import {
+    OrbitControls
+} from 'three/examples/jsm/controls/OrbitControls.js';
 
 /*
 Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
 */
 
-// import {
-//     Area
-// } from '../shared/Area';
+import {
+    Area
+} from '../shared/Area';
 
-// import {
-//     Panel
-// } from '../shared/Panel';
+import {
+    Panel
+} from '../shared/Panel';
+
+import {
+    getStorage,
+    ref,
+    listAll,
+    getBlob,
+    //updateMetadata,
+    getMetadata,
+} from 'firebase/storage';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -48,21 +61,25 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 */
 
 export function open(pp) {
-    
+    document.body.innerHTML = html;
+    console.log('viewer open', pp);
     const app = pp.params.firebaseEnv.app;
     const auth = pp.params.firebaseEnv.auth;
     const provider = pp.params.firebaseEnv.provider;
-
+    
+    const storage = getStorage(app);
     const state = {
         0: 'spreadsheet',
         1: 'groups',
         2: 'areas'
     }
 
-    const sizes = import('../shared/ScreenSizes').then((module) => {
-        return module.ScreenSizes;
-    });
-
+    // const sizes = import('../shared/ScreenSizes').then((module) => {
+    //     return module.ScreenSizes;
+    // }).then((sizes) => {
+    //     return sizes;
+    // });
+    const sizes = new ScreenSizes();
     const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
 
     camera.position.set(5, 5, 5); // Set position like this
@@ -71,15 +88,15 @@ export function open(pp) {
     // Controls
     const canvas2d = document.getElementById('2d');
 
-    //const controls = new OrbitControls(camera, canvas2d);
+    const controls = new OrbitControls(camera, canvas2d);
 
-    const controls = import('three/examples/jsm/controls/OrbitControls.js').then((module) => {
-        c =  new module.OrbitControls(camera, canvas2d);
+    // const controls = import('three/examples/jsm/controls/OrbitControls.js').then((module) => {
+    //     var c =  new module.OrbitControls(camera, canvas2d);
         
-        c.enableDamping = true;
-        c.target.set(0, 0, 0);
-        return c;    
-    });
+    //     c.enableDamping = true;
+    //     c.target.set(0, 0, 0);
+    //     return c;    
+    // });
 
     
     var cameraTargPos = new Vector3(5, 5, 5);
@@ -97,17 +114,17 @@ export function open(pp) {
     const canvas3d = document.querySelector('canvas.webgl');
 
 
-    //var workingArea = new Area([]);
+    var workingArea = new Area([]);
 
-    var workingArea = import('../shared/Area').then((module) => {
-        return new module.Area([]);
-    });
+    // var workingArea = import('../shared/Area').then((module) => {
+    //     return new module.Area([]);
+    // });
 
-    //const leftPanel = new Panel(document.getElementById('left'));
+    const leftPanel = new Panel(document.getElementById('left'));
 
-    const leftPanel = import('../shared/Panel').then((module) => {
-        return new module.Panel(document.getElementById('left'));
-    });
+    // const leftPanel = import('../shared/Panel').then((module) => {
+    //     return new module.Panel(document.getElementById('left'));
+    // });
     
     //const userTable = new UserTable(document.getElementById('table'), defaultDropd);
 
@@ -138,7 +155,9 @@ export function open(pp) {
     var alpha = true;
 
 
-    document.getElementById('valueBtnS').addEventListener('click', valueButton);
+    const vs = document.getElementById('valueBtnS')
+    console.log(vs);
+    vs.addEventListener('click', valueButton);
     document.getElementById('valueBtnG').addEventListener('click', valueButton);
     document.getElementById('valueBtnA').addEventListener('click', valueButton);
 
@@ -595,6 +614,7 @@ export function open(pp) {
     ctrlBtn.addEventListener('click', btn6.adminMenu);
 
     //set size
+    console.log(sizes)
     sizes.updateSizes(leftPanel);
 
     // Lights
