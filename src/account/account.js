@@ -47,7 +47,7 @@ export function open(state) {
 
         let accntBtns = document.getElementById('accountBtns');
         let elog = emailLoginButton(state.params, classes);
-        let gg = googleLoginButton(state.params, classes.concat('googleAcnt'));
+        let gg = googleLoginButton(state.params, classes.concat('googAcnt').concat('googPos'));
         accntBtns.appendChild(elog);
         accntBtns.appendChild(gg);
        

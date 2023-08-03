@@ -78,6 +78,7 @@ export function loginPage(params) {
 	//account.remove();
 	//get nav
 	var nav = document.getElementById('nav');
+	console.log('ADDED LOGINS BUTTONS');
 	import('../shared/Log.js').then((module) => {
 		console.log('module: ' + module.emailLoginButton);
 		var elogin = module.emailLoginButton(params, classes);
@@ -101,13 +102,10 @@ function clogin() {
 onAuthStateChanged(currentParams.firebaseEnv.auth, (user) => {
 
     if (user) {
-		console.log('logged in', currentParams.user);
+		console.log('AUTH STATE logged in', currentParams.user);
 		clogin();
     } else {
-		console.log('not logged in');
-		if (regMatchPath(location.pathname) == '') {
-			loginPage(currentParams);
-		}
+		console.log('AUTH STATE  not logged in', location.pathname);
     }
 });
 
@@ -222,9 +220,12 @@ export function open(state) {
 	console.log('OPEN() INDEX', state);
 	defaultPage(state.params);
 	if (state.params.firebaseEnv.auth.currentUser) {
+		console.log('logged in style');
 		clogin();
+	} else {
+		console.log('not logged in style');
+		loginPage(state.params);
 	}
-	//loginPage();
 	return Promise.resolve();
 }
 

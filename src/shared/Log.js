@@ -1,6 +1,7 @@
 import {
     signInWithPopup,
     signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut
 } from "firebase/auth"
 
@@ -23,13 +24,27 @@ function signInWithMyPopup() {
 }
 
 function displaySignInError(goog = false) {
+    console.log('displaySignInError');
     hideSignInError();
     //create a element to display error in nav
     var se = document.createElement('span');
     se.id = 'signInError';
     se.innerHTML = 'Sign In Failed';
-    se.classList.add('signInError');
+    se.classList.add(goog ? 'googAcntError' : 'signInError');
     let bt = document.getElementById(goog ? 'login' : 'elogin')
+    if (goog && bt.classList.contains('googPos')) {
+        //remove class googPos
+        bt.classList.remove('googPos');
+        bt.classList.add('signInParent');
+        console.log('goog', bt);
+        console.log('goog', bt.classList);
+        //hacky but fk it
+    } else if (!goog && !document.getElementById('login').classList.contains('googPos') && document.getElementById('login').classList.contains('signInParent')) {
+        //add googpose back
+        let gg = document.getElementById('login')
+        gg.classList.add('googPos');
+        gg.classList.remove('signInParent');
+    }
     //bt.classList.add('signInParent');
     bt.appendChild(se);
 }
@@ -119,13 +134,15 @@ export function createButton(id, text, classes) {
 export function emailLoginButton(params, classes = ['Btn']) {
     var button = createButton('elogin', 'Email Login', classes);
     button.addEventListener('click', function() { elogin( params ); });
+    //testing sign in error
+    //button.addEventListener('mouseover', function() { displaySignInError(); });
     return button;
 }
 
 export function imageButton(id, src, classes) {
-	var button = document.createElement('img');
+	var button = document.createElement('button');
 	button.id = id;
-	button.src = src;
+    button.style.backgroundImage = 'url(' + src + ')';
 	button.classList.add( ...classes );
 	return button;
 }
@@ -134,5 +151,13 @@ export function googleLoginButton(params, classes = ['google']) {
     console.log('googleLoginButton', classes);
     var button = imageButton('login', google, classes);
     button.addEventListener('click', function() { login( params ); });
+    //testing sign in error on load
+    //button.addEventListener('mouseover', function() { displaySignInError(true); });
+    return button;
+}
+
+export function resetButton(params, classes = ['Btn']) {
+    var button = createButton('reset', 'Reset Password', classes);
+    button.addEventListener('click', function() { reset( params ); });
     return button;
 }
