@@ -20,7 +20,7 @@ export function open(state) {
 	document.body.innerHTML = html;
     defaultPage(state.params);
 
-    let classes = document.getElementById('account').className.split(' ');
+    var classes = document.getElementById('account').className.split(' ');
     //remove defRestrictDark or defRestrictLight from classes
     if (classes.indexOf('defRestrictDark') > -1) classes.splice(classes.indexOf('defRestrictDark'), 1);
     if (classes.indexOf('defRestrictLight') > -1) classes.splice(classes.indexOf('defRestrictLight'), 1);
@@ -34,18 +34,23 @@ export function open(state) {
         loginStyle();
 
         let logoutBtn = document.createElement('button');
+        let accntBtns = document.getElementById('accountBtns');
         logoutBtn.id = 'logout';
         logoutBtn.innerHTML = 'Logout';
         logoutBtn.classList.add(...classes);
         logoutBtn.addEventListener('click', function() { logout(state.params.firebaseEnv.auth); });
         
+        accntBtns.appendChild(logoutBtn);
         //create sitelist view
         
     } else {
 
         let accntBtns = document.getElementById('accountBtns');
-        accntBtns.appendChild(googleLoginButton(state.params, classes));
-        accntBtns.appendChild(emailLoginButton(state.params, classes));
+        let elog = emailLoginButton(state.params, classes);
+        let gg = googleLoginButton(state.params, classes.concat('googleAcnt'));
+        accntBtns.appendChild(elog);
+        accntBtns.appendChild(gg);
+       
 
         //create account management buttons
     }    

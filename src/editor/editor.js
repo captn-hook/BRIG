@@ -1,3 +1,13 @@
+import '../style.css';
+import imageUrl1 from '../images/logoDark.png';
+import imageUrl2 from '../images/logoLight.png';
+import favi from '../images/favi16.ico';
+
+var title = document.getElementById('title');
+title.src = imageUrl1;
+
+var icon = document.getElementById('icon');
+icon.href = favi;
 
 import {
     PerspectiveCamera,
@@ -9,7 +19,16 @@ import {
     Scene,
     Clock
 } from 'three';
+/*
 
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {
+    GLTFLoader
+} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {
+    DRACOLoader
+} from 'three/examples/jsm/loaders/DRACOLoader';
+*/
 import {
     Data,
     saveFile,
@@ -20,15 +39,36 @@ import {
     userSites,
     saveArea,
     GetAreas,
-} from '../shared/Data';
+} from '../shared//Data';
 
 import {
     ScreenSizes
-} from '../shared/ScreenSizes';
+} from '../shared//ScreenSizes';
 
 import {
     OrbitControls
 } from 'three/examples/jsm/controls/OrbitControls.js';
+
+/*
+Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
+*/
+
+// Import the functions you need from the SDKs you need
+
+import {
+    initializeApp
+} from 'firebase/app';
+
+import {
+    getAuth,
+    signInWithPopup,
+    GoogleAuthProvider,
+    onAuthStateChanged,
+    confirmPasswordReset,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+} from 'firebase/auth';
 
 import {
     getStorage,
@@ -70,15 +110,33 @@ import {
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
-export function open(state) {
-    const app = state.params.firebaseEnv.app;
-    const auth = state.params.firebaseEnv.auth;
-    const provider = state.params.firebaseEnv.provider;
+import {
+    firebaseConfig
+} from '../key';
 
-    const storage = getStorage(app);
-    const db = getFirestore(app);
+    // const firebaseConfig = {
+    //     apiKey: config.apiKey,
+    //     authDomain: 'brig-b2ca3.firebaseapp.com',
+    //     projectId: 'brig-b2ca3',
+    //     storageBucket: 'brig-b2ca3.appspot.com',
+    //     messagingSenderId: '536591450814',
+    //     appId: '1:536591450814:web:40eb73d5b1bf09ce36d4ef',
+    //     measurementId: 'G-0D9RW0VMCQ'
+    // };
 
-    const functions = getFunctions(app);
+    // // Initialize Firebase
+    // const app = initializeApp(firebaseConfig);
+import {
+    default as html
+} from './editor.html';
+
+export function open(st) {
+    document.body.innerHTML = html;
+
+    const storage = getStorage(st.params.firebaseEnv.app);
+    const db = getFirestore(st.params.firebaseEnv.app);
+
+    const functions = getFunctions(st.params.firebaseEnv.app);
     //connectFunctionsEmulator(functions, 'localhost', 5001);
 
     const listUsers = httpsCallable(functions, 'listUsers');
@@ -86,6 +144,13 @@ export function open(state) {
     /*
         Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
     */
+
+
+    const state = {
+        0: 'spreadsheet',
+        1: 'groups',
+        2: 'areas'
+    }
 
     const sizes = new ScreenSizes();
 
@@ -1072,6 +1137,9 @@ export function open(state) {
         LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
 
     */
+    const provider = new GoogleAuthProvider();
+
+    const auth = getAuth();
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -1499,7 +1567,6 @@ export function open(state) {
     }
 
     tick();
-
     return Promise.resolve();
 }
 

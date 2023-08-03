@@ -131,6 +131,7 @@ export function imageButton(id, src, classes) {
 }
 
 export function googleLoginButton(params, classes = ['google']) {
+    console.log('googleLoginButton', classes);
     var button = imageButton('login', google, classes);
     button.addEventListener('click', function() { login( params ); });
     return button;
