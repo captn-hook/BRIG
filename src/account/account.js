@@ -15,10 +15,10 @@ import {
     loginStyle
 } from '../shared/Log.js';
 
-export function open(state) {
+export function open(state, firebaseEnv = null) {
     
 	document.body.innerHTML = html;
-    defaultPage(state.params);
+    defaultPage(state.params.darkTheme);
 
     var classes = document.getElementById('account').className.split(' ');
     //remove defRestrictDark or defRestrictLight from classes
@@ -27,9 +27,9 @@ export function open(state) {
     //console.log('elogin', elog)
     //if there is a user, show logout, otherwise show login'
     //put username in user field
-    if (state.params.firebaseEnv.auth.currentUser) {
+    if (firebaseEnv.auth.currentUser) {
         let usrname = document.getElementById('username');
-        usrname.innerHTML = state.params.firebaseEnv.auth.currentUser.email;
+        usrname.innerHTML = firebaseEnv.auth.currentUser.email;
 
         loginStyle();
 
@@ -38,7 +38,7 @@ export function open(state) {
         logoutBtn.id = 'logout';
         logoutBtn.innerHTML = 'Logout';
         logoutBtn.classList.add(...classes);
-        logoutBtn.addEventListener('click', function() { logout(state.params.firebaseEnv.auth); });
+        logoutBtn.addEventListener('click', function() { logout(firebaseEnv.auth); });
         
         accntBtns.appendChild(logoutBtn);
         //create sitelist view
@@ -46,8 +46,8 @@ export function open(state) {
     } else {
 
         let accntBtns = document.getElementById('accountBtns');
-        let elog = emailLoginButton(state.params, classes);
-        let gg = googleLoginButton(state.params, classes.concat('googAcnt').concat('googPos'));
+        let elog = emailLoginButton(firebaseEnv.auth, classes);
+        let gg = googleLoginButton(firebaseEnv.auth, firebaseEnv.provider, classes.concat('googAcnt').concat('googPos'));
         accntBtns.appendChild(elog);
         accntBtns.appendChild(gg);
        
@@ -55,7 +55,7 @@ export function open(state) {
         //create account management buttons
     }    
     switchTheme(state.params.darkTheme);
-    console.log('account open');
+    //console.log('account open');
     return Promise.resolve();
 }
 

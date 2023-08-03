@@ -234,6 +234,29 @@ a:hover {
     width: auto;
 }
 
+.ereset {
+    /* reset pass div */
+    margin-top: 10%;
+}
+
+.ereset input {
+    /* reset pass input */
+    background-color: gray;
+    color: white;
+    border-radius: 12px;
+    border: 2px solid gray;
+    padding: 5px;
+    margin: 5px;
+}
+
+.ereset button {
+    /* reset pass button */
+    border-radius: 12px;
+    border: 2px solid gray;
+    padding: 5px;
+    margin: 5px;
+}
+
 .bgDark {
     background-color: rgb(10, 10, 10);
 }
@@ -318,6 +341,7 @@ a:hover {
 }
 .btn-group {
     transition: 0.2s;
+    height: fit-content
 }
 /* Add a background color on hover */
 .btn-group button:hover {

@@ -24,7 +24,7 @@ function signInWithMyPopup() {
 }
 
 function displaySignInError(goog = false) {
-    console.log('displaySignInError');
+    //console.log('displaySignInError');
     hideSignInError();
     //create a element to display error in nav
     var se = document.createElement('span');
@@ -36,8 +36,8 @@ function displaySignInError(goog = false) {
         //remove class googPos
         bt.classList.remove('googPos');
         bt.classList.add('signInParent');
-        console.log('goog', bt);
-        console.log('goog', bt.classList);
+        //console.log('goog', bt);
+        //console.log('goog', bt.classList);
         //hacky but fk it
     } else if (!goog && !document.getElementById('login').classList.contains('googPos') && document.getElementById('login').classList.contains('signInParent')) {
         //add googpose back
@@ -57,13 +57,13 @@ function hideSignInError() {
     }
 }
 
-export function elogin(params) {
-    console.log('elogin');
+export function elogin(auth) {
+    //console.log('elogin');
     signInWithMyPopup().then((result) => {
-        signInWithEmailAndPassword(params.firebaseEnv.auth, result.user, result.password)
+        signInWithEmailAndPassword(auth, result.user, result.password)
             .then((userCredential) => {
                 // Signed in
-                console.log(userCredential);
+                //console.log(userCredential);
                 hideSignInError();
                 signedIn();
             })
@@ -72,22 +72,27 @@ export function elogin(params) {
                 //const errorMessage = error.message;
                 //console.log(errorCode, errorMessage);
                 displaySignInError();
-                console.log("Email Sign In Failed");
+                //if there is a ereset id on document, append to it
+                if (document.getElementById('ereset')) {
+                    console.log('ereset', document.getElementById('ereset'));
+                    document.getElementById('ereset').appendChild(resetPassForm(auth));
+                }
+                //console.log("Email Sign In Failed");
             });
     })
     .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
+        //console.log(errorCode, errorMessage);
     });
 
     return Promise.resolve();
 }
 
-export function login(params) {
-    signInWithPopup(params.firebaseEnv.auth, params.firebaseEnv.provider)
+export function login(auth, provider) {
+    signInWithPopup(auth, provider)
         .then((result) => {
-            console.log(result);
+            //console.log(result);
             hideSignInError();
             signedIn();
         })
@@ -96,7 +101,7 @@ export function login(params) {
             //const errorMessage = error.message;
             //console.log(errorCode, errorMessage);
             displaySignInError(true);
-            console.log("Popup Sign In Failed");
+            //console.log("Popup Sign In Failed");
         });
         
     return Promise.resolve();
@@ -108,7 +113,7 @@ async function signedIn() {
 }
 
 export function logout(auth) {
-    console.log('logout');
+    //console.log('logout');
     signOut(auth)
     //also clear all sites and user list
 }
@@ -131,9 +136,9 @@ export function createButton(id, text, classes) {
 	return button;
 }
 //params contains a firebaseEnv auth object
-export function emailLoginButton(params, classes = ['Btn']) {
+export function emailLoginButton(auth, classes = ['Btn']) {
     var button = createButton('elogin', 'Email Login', classes);
-    button.addEventListener('click', function() { elogin( params ); });
+    button.addEventListener('click', function() { elogin( auth ).catch((error) => { console.log(error); }); });
     //testing sign in error
     //button.addEventListener('mouseover', function() { displaySignInError(); });
     return button;
@@ -147,17 +152,42 @@ export function imageButton(id, src, classes) {
 	return button;
 }
 
-export function googleLoginButton(params, classes = ['google']) {
-    console.log('googleLoginButton', classes);
+export function googleLoginButton(auth, provider, classes = ['google']) {
+    //console.log('googleLoginButton', classes);
     var button = imageButton('login', google, classes);
-    button.addEventListener('click', function() { login( params ); });
+    button.addEventListener('click', function() { login( auth, provider ); });
     //testing sign in error on load
     //button.addEventListener('mouseover', function() { displaySignInError(true); });
     return button;
 }
 
-export function resetButton(params, classes = ['Btn']) {
-    var button = createButton('reset', 'Reset Password', classes);
-    button.addEventListener('click', function() { reset( params ); });
-    return button;
+export function resetPassForm(auth) {
+    //creates a input for email and a button to send reset email
+    var form = document.createElement('form');
+    form.id = 'resetPassForm';
+    var input = document.createElement('input');
+    input.id = 'resetPassEmail';
+    input.type = 'email';
+    input.placeholder = 'Email';
+    var button = document.createElement('button');
+    button.id = 'resetPass';
+    button.innerHTML = 'Reset Password';
+    button.addEventListener('click', function() {
+        sendPasswordResetEmail(auth, document.getElementById('resetPassEmail').value)
+        .then(() => {
+            // Password reset email sent!
+            // green background
+            form.style.backgroundColor = '#00ff00';
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            //console.log(errorCode, errorMessage);
+            // red background
+            form.style.backgroundColor = '#ff0000';
+        });
+    });
+    form.appendChild(input);
+    form.appendChild(button);
+    return form;
 }
