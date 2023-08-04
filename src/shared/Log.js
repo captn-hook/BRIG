@@ -23,6 +23,32 @@ function signInWithMyPopup() {
     });
 }
 
+function resetPasswordQ(auth) {
+    return new Promise((resolve, reject) => {
+        var email = prompt('Email');
+        resolve(email);
+    });
+}
+
+export function resetPassButton(auth, classes) {
+    var resetPass = createButton('resetPass', 'Reset Password', classes);
+    resetPass.addEventListener('click', function() {
+        resetPasswordQ(auth).then((email) => {
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    // Password reset email sent!
+                    console.log('Password reset email sent!');
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(errorCode, errorMessage);
+                });
+        });
+    });
+    return resetPass;
+}
+
 function displaySignInError(goog = false) {
     //console.log('displaySignInError');
     hideSignInError();
@@ -32,28 +58,36 @@ function displaySignInError(goog = false) {
     se.innerHTML = 'Sign In Failed';
     se.classList.add(goog ? 'googAcntError' : 'signInError');
     let bt = document.getElementById(goog ? 'login' : 'elogin')
+
     if (goog && bt.classList.contains('googPos')) {
         //remove class googPos
         bt.classList.remove('googPos');
         bt.classList.add('signInParent');
-        //console.log('goog', bt);
-        //console.log('goog', bt.classList);
-        //hacky but fk it
-    } else if (!goog && !document.getElementById('login').classList.contains('googPos') && document.getElementById('login').classList.contains('signInParent')) {
-        //add googpose back
-        let gg = document.getElementById('login')
-        gg.classList.add('googPos');
-        gg.classList.remove('signInParent');
     }
+
     //bt.classList.add('signInParent');
+    se.addEventListener('mouseover', function() { hideSignInError(); });
     bt.appendChild(se);
 }
 
 function hideSignInError() {
     //remove element if exists
     var se = document.getElementById('signInError');
+
     if (se) {
-        se.remove();
+    //fade out
+    //remove element after transition
+    se.style.transition = 'opacity 0.5s';
+    se.style.opacity = 0;
+    setTimeout(function() { se.remove(); removeGoogPos(); }, 500);
+    }
+}
+
+function removeGoogPos() {
+    if (document.getElementById('login').classList.contains('signInParent')) {
+        let gg = document.getElementById('login')
+        gg.classList.add('googPos');
+        gg.classList.remove('signInParent');
     }
 }
 
@@ -73,18 +107,18 @@ export function elogin(auth) {
                 //console.log(errorCode, errorMessage);
                 displaySignInError();
                 //if there is a ereset id on document, append to it
-                if (document.getElementById('ereset')) {
-                    console.log('ereset', document.getElementById('ereset'));
-                    document.getElementById('ereset').appendChild(resetPassForm(auth));
-                }
+                // if (document.getElementById('ereset') && !document.getElementById('resetPassForm')) {
+                //     console.log('ereset', document.getElementById('ereset'));
+                //     document.getElementById('ereset').appendChild(resetPassForm(auth));
+                // }
                 //console.log("Email Sign In Failed");
             });
     })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        //console.log(errorCode, errorMessage);
-    });
+    // .catch((error) => {
+    //     const errorCode = error.code;
+    //     const errorMessage = error.message;
+    //     //console.log(errorCode, errorMessage);
+    // });
 
     return Promise.resolve();
 }
@@ -115,7 +149,12 @@ async function signedIn() {
 export function logout(auth) {
     //console.log('logout');
     signOut(auth)
-    //also clear all sites and user list
+    //dispatch reload event
+    .then(() => {
+        //console.log('reload');
+        location.reload();
+    }
+    )
 }
 
 export function loginStyle() {
@@ -172,21 +211,26 @@ export function resetPassForm(auth) {
     var button = document.createElement('button');
     button.id = 'resetPass';
     button.innerHTML = 'Reset Password';
-    button.addEventListener('click', function() {
-        sendPasswordResetEmail(auth, document.getElementById('resetPassEmail').value)
-        .then(() => {
-            // Password reset email sent!
-            // green background
-            form.style.backgroundColor = '#00ff00';
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            //console.log(errorCode, errorMessage);
-            // red background
-            form.style.backgroundColor = '#ff0000';
-        });
-    });
+    // button.addEventListener('click', function() {
+    //     console.log('resetPass');
+    //     //sendPasswordResetEmail(auth, document.getElementById('resetPassEmail').value)
+    //     // .then(() => {
+    //     //     // Password reset email sent!
+    //     //     // green background
+    //     //     form.style.backgroundColor = '#00ff00';
+    //     // })
+    //     // .catch((error) => {
+    //     //     const errorCode = error.code;
+    //     //     const errorMessage = error.message;
+    //     //     //console.log(errorCode, errorMessage);
+    //     //     // red background
+    //     //     form.style.backgroundColor = '#ff0000';
+    //     // });
+    // });
+    //OK SO BUTTON HAS LISTENER SOMEHOW!!!
+    button.replaceWith(button.cloneNode());
+    button.addEventListener('click', function() { console.log('resetPass'); })
+
     form.appendChild(input);
     form.appendChild(button);
     return form;

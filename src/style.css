@@ -26,7 +26,7 @@ canvas {
 }
 
 div {
-    height: 100vh;
+    /*height: 100vh;*/
     font-family: 'Arial';
     font-size: 20px;
 }
@@ -66,7 +66,31 @@ textarea {
 input {
     margin: 2%;
     width: 40%;
-    color: transparent;
+}
+
+.siteList {
+    margin: 2%;
+    width: 40%;
+    height: 95%;
+    overflow-y: scroll;
+    font-family: 'Arial';
+    font-size: 20px;
+    background-color: #7d7d7d;
+    border-radius: 12px;
+}
+
+.siteElem {
+    border-radius: 12px;
+    margin: 2%;
+    padding: 2%;
+    width: 40%;
+    height: 95%;
+    font-family: 'Arial';
+    font-size: 20px;
+}
+
+.siteElem:hover {
+    background-color: #a6a6a6;
 }
 
 /* restriced is removed when the user is logged in */
@@ -236,13 +260,13 @@ a:hover {
 
 .ereset {
     /* reset pass div */
-    margin-top: 10%;
+    margin-top: 10px;
 }
 
 .ereset input {
     /* reset pass input */
-    background-color: gray;
-    color: white;
+    /*text readablity text-color: white; */
+    
     border-radius: 12px;
     border: 2px solid gray;
     padding: 5px;
@@ -267,10 +291,12 @@ a:hover {
 
 .fgDark {
     color: rgb(226, 226, 226);
+    background-color: rgb(10, 10, 10);
 }
 
 .fgLight {
     color: rgb(28, 28, 28);
+    background-color: rgb(182, 182, 182);
 }
 
 .btDark {

@@ -75,7 +75,7 @@ export function loginPage() {
 		nav.appendChild(login);
 		
 		switchTheme();
-	}).catch((error) => { console.err(error); });		
+	})//.catch((error) => { console.err(error); });		
 }
 
 bootstrapAsync(getCurrentPage());
@@ -83,7 +83,7 @@ bootstrapAsync(getCurrentPage());
 //login functions
 function clogin() {
 	//import loginstyle from '../shared/Log.js';
-	import('../shared/Log.js').then((module) => { module.loginStyle(); }).catch((error) => { console.err(error); });
+	import('../shared/Log.js').then((module) => { module.loginStyle(); })//.catch((error) => { console.err(error); });
 	//import sitelist and add to params
 	
 }
@@ -92,6 +92,8 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 
     if (user) {
 		console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
+		console.log('RELOADING PAGE', currentParams);
+		currentPage.open({params: currentParams}, firebaseEnv);
 		clogin();
     } else {
 		console.log('AUTH STATE  not logged in', location.pathname);
@@ -164,12 +166,12 @@ function openPage(state) {
 	//console.log('OPEN Params: ' + state.params);
 	//switchTheme(state.params.darkTheme);
 	const pageName = state.page;
-	//var currentPath = document.location.pathname
-	//currentPath = currentPath.replace('/', '').replace('/', '');
-	// if (pageName != currentPath && currentPath != '') {
-	// 	console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
-	// 	document.location.pathname = pageName;
-	// } 
+	var currentPath = document.location.pathname
+	currentPath = currentPath.replace('/', '').replace('/', '');
+	if (pageName != currentPath && currentPath != '') {
+		console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
+		document.location.pathname = pageName;
+	} 
 	currentAction = currentAction
 		// Close the current page
 		.then(() => currentPage && currentPage.close())
@@ -179,18 +181,20 @@ function openPage(state) {
 		.then(newPage => {
 			currentPage = newPage;
 			//console.log('currentPage: ' + currentPage);
+			console.log('OPENING PAGE: ', state);
+			console.log('WITH: ', firebaseEnv, firebaseEnv.auth.currentUser);
 			return currentPage.open(state, firebaseEnv);
 		})
 		// Display error page
-		.catch(err => {
-			console.error(err);
-			return import("../index/index")
-				.then(newPage => {
-					currentPage = newPage;
-					//console.log('currentPage ERR: ' + currentPage);
-					return currentPage.open(err);
-				});
-		});
+		// .catch(err => {
+		// 	console.error(err);
+		// 	return import("../index/index")
+		// 		.then(newPage => {
+		// 			currentPage = newPage;
+		// 			//console.log('currentPage ERR: ' + currentPage);
+		// 			return currentPage.open(err);
+		// 		});
+		// });
 	return currentAction;
 }
 

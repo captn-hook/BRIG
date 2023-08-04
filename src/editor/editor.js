@@ -56,16 +56,10 @@ Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase
 // Import the functions you need from the SDKs you need
 
 import {
-    initializeApp
-} from 'firebase/app';
-
-import {
     getAuth,
     signInWithPopup,
     GoogleAuthProvider,
     onAuthStateChanged,
-    confirmPasswordReset,
-    createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
 } from 'firebase/auth';
@@ -111,22 +105,6 @@ import {
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 import {
-    firebaseConfig
-} from '../key';
-
-    // const firebaseConfig = {
-    //     apiKey: config.apiKey,
-    //     authDomain: 'brig-b2ca3.firebaseapp.com',
-    //     projectId: 'brig-b2ca3',
-    //     storageBucket: 'brig-b2ca3.appspot.com',
-    //     messagingSenderId: '536591450814',
-    //     appId: '1:536591450814:web:40eb73d5b1bf09ce36d4ef',
-    //     measurementId: 'G-0D9RW0VMCQ'
-    // };
-
-    // // Initialize Firebase
-    // const app = initializeApp(firebaseConfig);
-import {
     default as html
 } from './editor.html';
 
@@ -144,7 +122,6 @@ export function open(st) {
     /*
         Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
     */
-
 
     const state = {
         0: 'spreadsheet',
@@ -587,8 +564,6 @@ export function open(st) {
         var inner = '';
 
         let d = {}
-
-
 
         userTable.inUsers.forEach((user) => {
             inner += '"' + user[1] + '":"' + user[0] + '",';
