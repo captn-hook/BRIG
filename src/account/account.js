@@ -1,8 +1,4 @@
-import {
-    //navigate, 
-    defaultPage,
-    switchTheme
-} from '../index/index.js';
+import defaultPage from "../index/DefaultPage"; '../index/DefaultPage.js';
 
 import {
     default as html
@@ -29,7 +25,7 @@ export function open(state, firebaseEnv = null) {
     document.body.innerHTML = html;
     console.log('ACT OPEN', state);
     console.log('WITH: ', state.params);
-    defaultPage(state.params.darkTheme);
+    defaultPage();
 
     var classes = document.getElementById('account').className.split(' ');
     //remove defRestrictDark or defRestrictLight from classes
@@ -76,7 +72,7 @@ export function open(state, firebaseEnv = null) {
 
         //create account management buttons
     }
-    switchTheme(state.params.darkTheme);
+    //switchTheme(state.params.darkTheme);
     //console.log('account open');
     return Promise.resolve();
 }

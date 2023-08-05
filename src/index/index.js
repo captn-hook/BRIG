@@ -1,7 +1,4 @@
 import '../style.css';
-import imageUrl1 from '../images/logoDark.png';
-import imageUrl2 from '../images/logoLight.png';
-import favi from '../images/favi16.ico';
 
 import {
     initializeApp
@@ -21,6 +18,7 @@ import {
 	default as html
 } from "./index.html";
 
+import defaultPage from './DefaultPage.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -31,32 +29,8 @@ const auth = getAuth();
 let currentPage;
 let currentAction;
 let currentParams = { darkTheme: true };
+//just a passable container for firebase stuff
 let firebaseEnv = { app: app, provider: provider, auth: auth };
-
-// The application shell with shared visual components
-export function defaultPage()
-{
-	var title = document.getElementById('title');
-	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
-	title.addEventListener('click', function() {
-		//console.log('TH clicked');
-		currentParams.darkTheme = !currentParams.darkTheme;
-		switchTheme();
-	});
-	//switchTheme(currentParams.darkTheme);
-	var icon = document.getElementById('icon');
-	icon.href = favi;
-	//there should be a nav on every page, grab it and add navigate(element.title + '.html', currentParams) to each element
-	if (document.getElementById('nav')) {
-		var nav = document.getElementById('nav');
-		var navElements = nav.getElementsByClassName('Btn');
-		for (var i = 0; i < navElements.length; i++) {
-			navElements[i].addEventListener('click', function() {
-				navigate(this.id);
-			});
-		}
-	}
-}
 
 export function loginPage() {
 	//remove the account button and replace with login buttons
@@ -74,7 +48,6 @@ export function loginPage() {
 		nav.appendChild(elogin);
 		nav.appendChild(login);
 		
-		switchTheme();
 	})//.catch((error) => { console.err(error); });		
 }
 
@@ -100,15 +73,6 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
     }
 });
 
-export function switchTheme() {
-	//change the logo url
-	title.src = currentParams.darkTheme ? imageUrl1 : imageUrl2;
-	var mode = [currentParams.darkTheme ? 'Light' : 'Dark', currentParams.darkTheme ? 'Dark' : 'Light'];
-	var elements = document.querySelectorAll('[class*=' + mode[0] + ']');
-	for (var i = 0; i < elements.length; i++) {
-		elements[i].className = elements[i].className.replace(mode[0], mode[1]);
-	}
-}
 
 // Bind router to events (modern browsers only)
 function registerRouter() {
@@ -211,7 +175,7 @@ export function navigate(pageName) {
 export function open(state, firebaseEnv = null) {
 	document.body.innerHTML = html;
 	//console.log('OPEN() INDEX', state);
-	defaultPage(state.params);
+	defaultPage();
 	if (firebaseEnv.auth.currentUser) {
 		//console.log('logged in style');
 		clogin();
@@ -219,7 +183,6 @@ export function open(state, firebaseEnv = null) {
 		//console.log('not logged in style');
 		loginPage();
 	}
-	switchTheme();
 	return Promise.resolve();
 }
 
