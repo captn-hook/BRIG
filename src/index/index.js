@@ -200,10 +200,13 @@ function openPage(state) {
 
 // Router logic, Called by pages
 // Starts navigating to another page
-export function navigate(pageName) {
+export function navigate(pageName, hash = '') {
 	const state = { page: pageName, params: currentParams };
 	const hist = { page: pageName};
-	//console.log('navigatine: ' + pageName);
+	if (hash != '') {
+		state.params.hash = hash;
+	}
+	console.log('navigatine: ' + pageName + ' with hash: ' + hash);
 	window.history.pushState(state, pageName, `${pageName}`);
 	openPage(state);
 }

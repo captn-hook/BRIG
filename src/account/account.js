@@ -1,5 +1,5 @@
 import {
-    //navigate, 
+    navigate, 
     defaultPage,
     switchTheme
 } from '../index/index.js';
@@ -109,6 +109,8 @@ function siteListElem(app, uid) {
                 let siteElem = document.createElement('div');
                 siteElem.classList.add('siteElem');
                 siteElem.innerHTML = site;
+                siteElem.addEventListener('click', function () { navigate('viewer', site); });
+
                 list.appendChild(siteElem);
             });
 

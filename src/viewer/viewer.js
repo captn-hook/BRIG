@@ -60,7 +60,7 @@ import {
     Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
 */
 
-export function open(pp) {
+export function open(pp, firebaseEnv) {
     document.body.innerHTML = html;
     console.log('viewer open', pp);
     const app = pp.params.firebaseEnv.app;

@@ -5,9 +5,9 @@ import {
     signOut
 } from "firebase/auth"
 
-import {
-    navigate,
-} from '../index/index.js';
+// import {
+//     navigate,
+// } from '../index/index.js';
 
 import google from '../images/google.svg';
 
@@ -142,7 +142,8 @@ export function login(auth, provider) {
 }
 
 async function signedIn() {
-	navigate('viewer');
+	//navigate('viewer');
+    console.log('signedIn');
     return Promise.resolve();
 }
 
