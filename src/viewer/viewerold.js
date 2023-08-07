@@ -2,6 +2,7 @@
 import {
     PerspectiveCamera,
     Vector3,
+    Raycaster,
     WebGLRenderer,
     Color,
     AmbientLight,
@@ -28,6 +29,13 @@ import {
     OrbitControls
 } from 'three/examples/jsm/controls/OrbitControls.js';
 
+/*
+Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    Firebase    
+*/
+
+import {
+    Area
+} from '../shared/Area';
 
 import {
     Panel
@@ -36,110 +44,109 @@ import {
 import {
     getStorage,
     ref,
+    listAll,
     getBlob,
+    //updateMetadata,
+    getMetadata,
 } from 'firebase/storage';
 
 import {
     getFirestore,
 } from 'firebase/firestore';
 
-import {
-    default as defaultPage
-} from '../index/DefaultPage';
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+/*
+    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup    Setup
+*/
 
 export function open(pp, firebaseEnv) {
     document.body.innerHTML = html;
-    defaultPage();
-
     console.log('viewer open', pp);
     console.log('WITH: ', pp.params);
-    
-    //firebase
+
     const app = firebaseEnv.app;
     const auth = firebaseEnv.auth;
     const provider = firebaseEnv.provider;
     const db = getFirestore(app);
-    const storage = getStorage(app);
     
     if (pp.params.hash) {
         console.log('hash', pp.params.hash);
         window.location.hash = pp.params.hash;
     }
 
+    const storage = getStorage(app);
     const state = {
         0: 'spreadsheet',
         1: 'groups',
         2: 'areas'
     }
 
+    // const sizes = import('../shared/ScreenSizes').then((module) => {
+    //     return module.ScreenSizes;
+    // }).then((sizes) => {
+    //     return sizes;
+    // });
     const sizes = new ScreenSizes();
-
     const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
-    camera.position.set(5, 5, 5);
+
+    camera.position.set(5, 5, 5); // Set position like this
     camera.lookAt(new Vector3(0, 0, 0));
-    var cameraTargPos = new Vector3(5, 5, 5);
-    var cameraTargView = new Vector3(0, 0, 0);
-    
-    var alpha = true;
-    var camFree = false;
 
-    var ms = []
-    var ts = []
-    var tracers = []
-    var insights = []
-    var views = []
-
-    var globalObj;
-    var sceneMeshes = [];
-    
-    var stupid = null;
-    
-    var doVals = false;
-    
-    var lastgi = -1;
-    var lastai = -1;
-
-    // three Scene
-    const scene = new Scene();
-    scene.background = new Color(0x000000);
-    scene.add(camera);
-    
-    window.dispatchEvent(new Event('hashchange'));
-
-    // Lights
-    const light = new AmbientLight(0x404040); // soft white light
-    light.intensity = 3;
-    scene.add(light);
-
-    const defaultDropd = 'Select a site';
-
-    // Canvassesses
-    const canvas3d = document.querySelector('canvas.webgl'); //viewer
-    const canvas2d = document.getElementById('2d'); //spreadsheet
+    // Controls
+    const canvas2d = document.getElementById('2d');
 
     const controls = new OrbitControls(camera, canvas2d);
 
+    // const controls = import('three/examples/jsm/controls/OrbitControls.js').then((module) => {
+    //     var c =  new module.OrbitControls(camera, canvas2d);
+        
+    //     c.enableDamping = true;
+    //     c.target.set(0, 0, 0);
+    //     return c;    
+    // });
+
+    
+    var cameraTargPos = new Vector3(5, 5, 5);
+    var cameraTargView = new Vector3(0, 0, 0);
+
+    // Scene
+    const scene = new Scene();
+    scene.background = new Color(0x000000);
+    scene.add(camera);
+
+    //selet
+    const dropd = document.getElementById('dropdown');
+
+    // Canvas
+    const canvas3d = document.querySelector('canvas.webgl');
+
+
+    var workingArea = new Area([]);
+
+    // var workingArea = import('../shared/Area').then((module) => {
+    //     return new module.Area([]);
+    // });
+
     const leftPanel = new Panel(document.getElementById('left'));
 
-    sizes.updateSizes(leftPanel);
-
-    const renderer = new WebGLRenderer({
-        canvas: canvas3d
-    });
+    // const leftPanel = import('../shared/Panel').then((module) => {
+    //     return new module.Panel(document.getElementById('left'));
+    // });
     
-    
-    renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    
-    const clock = new Clock();
+    //const userTable = new UserTable(document.getElementById('table'), defaultDropd);
 
-    const dataInput = document.getElementById('datapicker');
-
-    const modelInput = document.getElementById('modelpicker');
+    // const userTable = import('../shared/UserTable').then((module) => {
+    //     return new module.UserTable(document.getElementById('table'), defaultDropd);
+    // });
 
 
-    //elements    
+    //canvasleft.oncontextmenu = () => false;
+
     const sGroup = document.getElementById('saveGroup');
     const aGroup = document.getElementById('addGroup');
     const dGroup = document.getElementById('deleteGroup');
@@ -148,26 +155,24 @@ export function open(pp, firebaseEnv) {
     const aArea = document.getElementById('addArea');
     const dArea = document.getElementById('deleteArea');
 
-    const bug1 = document.getElementById('bug1');
-    const bug2 = document.getElementById('bug2');
-    const bug3 = document.getElementById('bug3');
+    //const ctxLeft = canvasleft.getContext('2d');
 
-    const dropd = document.getElementById('dropdown');
     const textbox = document.getElementById('textbox');
 
+
+    //buttons
+
+    //buttons
+
+    var alpha = true;
+
+
     const vs = document.getElementById('valueBtnS')
-
-    const ctrlBtn = document.getElementById('ctrlBtn');
-
-    const ctrl = document.getElementById('ctrl');
-
-    const root = document.getElementById('root');
-
-
+    console.log(vs);
+    vs.addEventListener('click', valueButton);
     document.getElementById('valueBtnG').addEventListener('click', valueButton);
     document.getElementById('valueBtnA').addEventListener('click', valueButton);
 
-    
     function valueButton(e) {
         if (e.target.innerHTML == 'Show values') {
             e.target.innerHTML = 'Hide values';
@@ -179,7 +184,7 @@ export function open(pp, firebaseEnv) {
             doVals = false;
         }
     }
-    
+
     document.getElementById('opacityBtnS').addEventListener('click', opacityButton);
     document.getElementById('opacityBtnG').addEventListener('click', opacityButton);
     document.getElementById('opacityBtnA').addEventListener('click', opacityButton);
@@ -196,7 +201,6 @@ export function open(pp, firebaseEnv) {
         }
     }
 
-    
     document.getElementById('flipBtn').addEventListener('click', (e) => {
 
         if (e.target.innerHTML == 'Flip Selection ◐') {
@@ -235,7 +239,8 @@ export function open(pp, firebaseEnv) {
         }
     })
 
-    
+    var camFree = false;
+
     document.getElementById('camBtn').addEventListener('click', (e) => {
         if (e.target.innerHTML == 'Multi 🎥') {
             e.target.innerHTML = 'Locked 📷';
@@ -328,6 +333,10 @@ export function open(pp, firebaseEnv) {
         }
     })
 
+    const bug1 = document.getElementById('bug1');
+    const bug2 = document.getElementById('bug2');
+    const bug3 = document.getElementById('bug3');
+
     document.getElementById('groups').addEventListener('click', (e) => {
         leftPanel.next();
 
@@ -357,7 +366,6 @@ export function open(pp, firebaseEnv) {
         sizes.updateSizes(leftPanel);
     })
 
-    
     sGroup.addEventListener('click', plant1);
 
     async function plant1() {
@@ -384,6 +392,275 @@ export function open(pp, firebaseEnv) {
         leftPanel.groups[leftPanel.gi] = undefined;
     })
 
+    //areabtns
+    sArea.addEventListener('click', tnalp3);
+
+    async function tnalp3() {
+        if (leftPanel.ai != 0 && leftPanel.ai != -1) {
+            leftPanel.areas[leftPanel.ai].text = leftPanel.text;
+            //console.log("", leftPanel.ai)
+            saveArea(db, dropd.value, leftPanel.ai + 1, leftPanel.areas[leftPanel.ai])
+        }
+    }
+
+    aArea.addEventListener('click', tnalp4)
+
+    async function tnalp4() {
+        if (workingArea.points.length > 2) {
+            var i = 0;
+            workingArea.text = leftPanel.text;
+            leftPanel.areas.forEach((e) => {
+                if (e != undefined) {
+                    i++;
+                }
+            })
+
+            var n = prompt("Enter Area Name");
+            workingArea.name = String(n);
+
+            var x = prompt("Enter Area Value");
+            workingArea.setValue(parseFloat(x));
+
+            var a = new Area(workingArea.points, workingArea.value, workingArea.name, workingArea.text)
+
+            leftPanel.areas.push(a);
+            //console.log("A", leftPanel.ai)
+            saveArea(db, dropd.value, i + 1, a)
+            workingArea = new Area([]);
+        }
+    }
+
+    dArea.addEventListener('click', (e) => {
+        //console.log("D", leftPanel.ai)
+        //console.log('deleting area', leftPanel.ai + 1)
+        deleteDoc(doc(db, dropd.value, 'area' + (leftPanel.ai + 1)));
+        leftPanel.areas[leftPanel.ai] = undefined;
+    })
+
+    const ctrlBtn = document.getElementById('ctrlBtn');
+
+    const ctrl = document.getElementById('ctrl');
+
+    const root = document.getElementById('root');
+
+    //dev funcs
+
+    var d0 = document.getElementById('log');
+    var d1 = document.getElementById('selectPanel1')
+    var d2 = document.getElementById('selectPanel2')
+
+    function switchDisplay(state) {
+        if (state == 0) {
+            d0.style.display = 'block'
+            d1.style.display = 'none'
+            d2.style.display = 'none'
+        } else if (state == 1) {
+            d0.style.display = 'none'
+            d1.style.display = 'block'
+            d2.style.display = 'none'
+        } else if (state == 2) {
+            d0.style.display = 'none'
+            d1.style.display = 'none'
+            d2.style.display = 'block'
+        }
+    }
+
+    var editPos = false;
+
+    // async function savePerms() {
+
+    //     var itemRef = ref(storage, '/Sites/' + dropd.value + '/' + dropd.value + '.glb')
+
+    //     //var dataRef = ref(storage, '/Sites/' + dropd.value + '/data.csv')
+
+    //     var inner = '';
+
+    //     let d = {}
+
+
+
+    //     userTable.inUsers.forEach((user) => {
+    //         inner += '"' + user[1] + '":"' + user[0] + '",';
+
+    //         d[user[1]] = user[0];
+
+    //         setDoc(doc(db, user[0], dropd.value), {
+    //             'access': true,
+    //         })
+    //     })
+
+    //     userTable.allUsers.forEach((user) => {
+    //         inner += '"' + user[1] + '":"false",';
+
+    //         d[user[1]] = 'false';
+
+    //         setDoc(doc(db, user[0], dropd.value), {
+    //             'access': false,
+    //         })
+    //     })
+
+    //     inner = inner.slice(0, -1);
+
+    //     inner = '{"customMetadata":{' + inner + '}}';
+
+    //     const newMetadata = JSON.parse(inner);
+
+    //     updateMetadata(itemRef, newMetadata).then((metadata) => {
+
+    //         /* updates csvs
+    //         updateMetadata(dataRef, newMetadata).then((metadata) => {
+    // */
+    //         userTable.populateTable();
+    //         /*s
+
+    //                 }).catch((error) => {
+
+    //                     /console.log(error)
+
+    //                 });
+    //         */
+    //     }).catch((error) => {
+
+    //         //console.log(error)
+
+    //     });
+    //     /*
+    //         try {
+    //             const docRef = await setDoc(doc(db, dropd.value, 'access'), d);
+    //             /onsole.log("Document written");
+    //         } catch (e) {
+    //             console.error("Error adding document");
+    //         }
+    //     */
+    // };
+
+    var back = document.getElementById('bg')
+
+    var tx = document.getElementById('tx')
+
+    var bw = true;
+
+    var btns = document.getElementsByClassName('Btn');
+
+    var cells = document.getElementsByClassName('cell');
+
+    // document.getElementById('blackandwhite').addEventListener('click', (e) => {
+
+    //     bw = !bw;
+
+    //     leftPanel.setbw(bw)
+
+    //     userTable.bw = bw;
+
+    //     if (bw) {
+    //         e.target.innerHTML = 'Light Mode';
+    //         scene.background = new Color(0x000000);
+    //         back.style.background = 'rgb(27, 27, 27)';
+    //         title.src = imageUrl1;
+    //         tx.style.color = 'lightgray';
+    //         textbox.style.backgroundColor = 'gray';
+    //         textbox.style.color = 'white'
+    //         ctrl.style.backgroundColor = 'rgb(27, 27, 27)';
+
+    //         for (var i = 0; i < btns.length; i++) {
+    //             btns[i].classList.remove('btLight');
+    //             btns[i].classList.add('btDark');
+    //         }
+
+    //         for (var i = 0; i < cells.length; i++) {
+    //             cells[i].classList.remove('tbLight');
+    //             cells[i].classList.add('tbDark');
+    //         }
+    //     } else {
+    //         e.target.innerHTML = 'Dark Mode';
+    //         scene.background = new Color(0xffffff);
+    //         back.style.background = 'rgb(230, 230, 230)';
+    //         title.src = imageUrl2;
+    //         tx.style.color = 'black';
+    //         textbox.style.backgroundColor = 'lightgray';
+    //         textbox.style.color = 'black'
+
+    //         ctrl.style.backgroundColor = 'rgb(230, 230, 230)';
+
+    //         for (var i = 0; i < btns.length; i++) {
+    //             btns[i].classList.remove('btDark');
+    //             btns[i].classList.add('btLight');
+    //         }
+
+    //         for (var i = 0; i < cells.length; i++) {
+    //             cells[i].classList.add('tbLight');
+    //             cells[i].classList.remove('tbDark');
+    //         }
+    //     }
+    // })
+
+    var btn6 = {
+        adminMenu: function () {
+            if (ctrl.style.display == 'block') {
+                ctrl.style.display = 'none';
+                root.style.width = '100%';
+            } else {
+                ctrl.style.display = 'block';
+                root.style.width = '80%';
+            }
+            window.dispatchEvent(new Event('resize'));
+        }
+    };
+
+    function validateEmail(email) {
+        return email.match(
+            /^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+    };
+
+    //set group to selected
+    const table = document.getElementById('table');
+
+
+    var inUsers = [];
+    var allUsers = [];
+
+
+    // btn event listeners
+
+    ctrlBtn.addEventListener('click', btn6.adminMenu);
+
+    //set size
+    sizes.updateSizes(leftPanel);
+    window.dispatchEvent(new Event('hashchange'));
+
+    // Lights
+    const light = new AmbientLight(0x404040); // soft white light
+    light.intensity = 3;
+    scene.add(light);
+
+
+    //Renderer
+    const renderer = new WebGLRenderer({
+        canvas: canvas3d
+    });
+
+    renderer.setSize(sizes.width, sizes.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    /*
+        Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading    Loading
+    */
+    var defaultDropd = 'Select a site';
+
+    //load data from file
+    //var [ms, ts, tracers, insights, views] = Data(data);
+    var ms = []
+    var ts = []
+    var tracers = []
+    var insights = []
+    var views = []
+    //loadfunc =====================================================<
+    //load3DModel(building);
+
+    var globalObj;
+    var sceneMeshes = [];
+
     // onLoad callback
     function onLoadLoad(obj) {
 
@@ -409,6 +686,18 @@ export function open(pp, firebaseEnv) {
         console.error(err)
     }
 
+    /*
+    Misc
+    */
+
+    const clock = new Clock();
+
+    const dataInput = document.getElementById('datapicker');
+
+    const modelInput = document.getElementById('modelpicker');
+
+
+    //data funccs
 
     function getGLTFLoader() {
         return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
@@ -547,6 +836,52 @@ export function open(pp, firebaseEnv) {
         }
     }
 
+    //sign in function
+
+    var availableSites = [];
+
+    var folderRef = ref(storage, '/Sites')
+
+    var accessibleSites = [];
+
+    var allUsersM = [];
+
+    var me = '';
+
+    function allSites() {
+        listAll(folderRef).then((e) => {
+
+            for (var i = 0; i < e.prefixes.length; i++) {
+                availableSites.push(e.prefixes[i].name)
+            }
+
+            var promises = [];
+
+            for (var i = 0; i < availableSites.length; i++) {
+
+                var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
+
+                promises.push(getMetadata(fileRef)
+                    .then((data) => {
+                        availableSites.sort();
+                        accessibleSites.sort();
+                        accessibleSites.push(data.name.split('.')[0])
+
+                    })
+                    .catch((err) => {
+
+                        //console.error(err);
+
+                    }));
+            }
+
+            Promise.all(promises).then(() => {
+                siteList(accessibleSites);
+            });
+
+        })
+    }
+
     function siteList(s) {
         //empty dropdown
         while (dropd.firstChild) {
@@ -571,6 +906,7 @@ export function open(pp, firebaseEnv) {
         })
 
     }
+    var stupid = null;
 
     function loadRefAndDoc(ref, doc) {
 
@@ -623,7 +959,20 @@ export function open(pp, firebaseEnv) {
             })
 
     }
-    
+    //live variables
+
+    var doVals = false;
+
+
+    /*
+        LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE    LIVE
+
+    */
+
+    /*
+        EVENTS
+    */
+
     document.addEventListener('DOMContentLoaded', (e) => {
         sizes.updateSizes(leftPanel);
     })
@@ -713,10 +1062,46 @@ export function open(pp, firebaseEnv) {
         stoplookin();
 
         e.preventDefault();
+
+        if (editPos && leftPanel.spreadsheet == state[2]) {
+            workingArea.points.pop();
+        }
+
     })
 
     sizes.canvas2d.addEventListener('click', (e) => {
             stoplookin();
+
+            if (editPos) {
+
+                var raycaster = new Raycaster();
+                var mouse = {
+                    x: (e.clientX - leftPanel.canvas.innerWidth) / renderer.domElement.clientWidth * 2 - 1,
+                    y: -(e.clientY / renderer.domElement.clientHeight) * 2 + 1
+                };
+
+                raycaster.setFromCamera(mouse, camera);
+
+                var intersects = raycaster.intersectObjects(sceneMeshes, true);
+
+                var doP = (leftPanel.spreadsheet == state[0]) ? true : false;
+
+                
+                //console.log(intersects, doP);
+
+                if (intersects.length > 0) {
+                    if (doP) {
+                        if (leftPanel.firstClickX == 1) {
+                            ms[leftPanel.firstClickY - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                        } else if (leftPanel.firstClickY == 1) {
+                            ts[leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                        }
+                    } else {
+                        //console.log(workingArea.points);
+                        workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
+                    }
+                }
+            }
 
             //store pos in link
             var pos = String('P=' + Math.round(camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
@@ -816,6 +1201,10 @@ export function open(pp, firebaseEnv) {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     })
 
+    var lastgi = -1;
+    var lastai = -1;
+
+    //load defaullt if no hash
     if (window.location.hash == '' || window.location.hash[1] == '&') {
         loadRefs(ref(storage, '/Example/example.glb'), ref(storage, '/Example/data.csv'))
     }
@@ -861,12 +1250,12 @@ export function open(pp, firebaseEnv) {
             tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
     
             //Points
-            ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, pp.params.darkTheme));
-            ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, pp.params.darkTheme));
+            ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
+            ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, bw));
         }
         
         if (leftPanel) {
-            if (pp.params.darkTheme) {
+            if (bw) {
                 leftPanel.ctx.fillStyle = 'black';
             } else {
                 leftPanel.ctx.fillStyle = 'white';
@@ -917,6 +1306,7 @@ export function open(pp, firebaseEnv) {
                     a.drawArea(camera, sizes, doVals, alpha);
                 }
             });
+            workingArea.drawArea(camera, sizes, doVals, true, 'last');
         }
 
         // Call tick again on the next frame

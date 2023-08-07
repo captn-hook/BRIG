@@ -9,30 +9,27 @@
 </head>
 
 <body class="bgDark">
-    <div id="root" style="width: 100%;">
+    <div id="root" class="bgDark spaDiv">
         <!-- Left Div -->
-        <div id="bg" style="width: 30%; float: left; background: rgb(27, 27, 27);">
+        <div id="bg" class="bgDark spaDiv lf1">
 
             <!-- Vertical Div 0, title -->
-            <div style="height: 9%; overflow: hidden;">
-                <img id="title" style="height: 40%; margin: 5%;" src="../images/logoDark.png" alt="Poppy Logo">
+            <div>
+                <img id="title" class="logo smalltit" src="../images/logoDark.png" alt="Poppy Logo">
+                <nav class="btn-group smallbt" id="nav">
+                    <button id="viewer" class="smallbt Btn btDark defRestrictDark">Viewer</button><button id="editor" class="smallbt Btn btDark restricted2">Editor</button><button id="index" class="smallbt Btn btDark">Home</button><button id="account" class="smallbt Btn btDark">Account</button>
+                </nav>
             </div>
-            <!-- Vertical Div 1.0 website buttons -->
-            <div id="webButtons" class="btn-group" style="height: 6%;" title="Website Buttons">
-                <button class="Btn btDark" style="width: 30%;" id="homeBT" title="Go to home page" onclick="window.location.href='index.html'">Home</button>
-                <button class="Btn btDark" style="width: 30%;" id="accountBT" title="Go to account page" onclick="window.location.href='account.html'">Account</button>
-                <button class="Btn btDark" style="width: 30%;" id="blackandwhite" title="Change visual style">Theme</button>
-            </div>
-            <!-- Vertical Div 1.5 site buttons -->
-            <div id="siteButtons" class="btn-group" style="display: block; height: 7%;" title="Site Dropdown">
+            <!-- Vertical Div 1 site buttons -->
+            <div id="siteButtons" class="smallbt btn-group" title="Site Dropdown">
                 <label id="tx" for="sites" style="color:lightgrey;">Choose a site:</label>
                 <select name="sites" id="dropdown" title="Dropdown">
                     <option value="Empty">Example</option> <!-- This is a placeholder, filled in on load -->
                 </select>
-              <button class="Btn btDark" id="groups" style="width: 25%; height: 40%; margin: 3%;" title="Groups Menu">Groups</button>
+              <button class="smallbt Btn btDark" id="groups" style="width: 25%; height: 40%; margin: 3%;" title="Groups Menu">Groups</button>
             </div>
             <!-- Vertical Div 2.0 Spreadsheet control-->
-            <div style="display: block; height: 8%;  position: relative;" class="btn-group" id="bug1">
+            <div class="btn-group" id="bug1">
                 <button class="Btn btDark" id="valueBtnS" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnS" class="opacityBtn" title="Toggle Transparency">Transparent</button><button class="Btn btDark" id="flipBtn" title="Flip selection visibility">Flip selection ◐</button>
                 <button class="Btn btDark" id="camBtn" title="Change camera control mode">Free 📹</button><button class="Btn btDark" id="resetBtn" title="Toggle all visibility">Toggle all ❎</button><button class="Btn btDark" id="toggleBtn" title="Toggle selection visibility">Toggle selection ◧</button>
             </div>

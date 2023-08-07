@@ -31,6 +31,28 @@ div {
     font-size: 20px;
 }
 
+.spaDiv {
+    height: 100vh;
+}
+
+.lf1 {
+    width: 30%;
+    float: left;    
+}
+
+.smalltit {
+    max-width: 60%;
+}
+
+.smallbt {
+    font-size: 12px !important;
+    max-height: 60%;
+}
+.lfHead {
+    height: 9%;
+    overflow: hidden;
+}
+
 nav {
     color: white;
     justify-content: left;

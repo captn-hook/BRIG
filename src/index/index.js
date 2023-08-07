@@ -75,15 +75,24 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 
 
 // Bind router to events (modern browsers only)
-function registerRouter() {
-	window.addEventListener("popstate", event => {
-		//console.log('popstate');
-		openPage(event.state || {
-			page: getCurrentPage(),
-			params: currentParams
-		});
-	});
-}
+// function registerRouter() {
+// 	window.addEventListener("popstate", event => {
+// 		console.log('popstate');
+// 		//check if the page is the same as the current page
+// 		//if it is, just update the params
+// 		//if it isn't, open the page
+// 		console.log('event.state: ' + event.state);
+// 		if (event.state.page == currentPage.name) {
+// 			currentPage.open({params: event.state.params}, firebaseEnv);
+// 		} else {
+				
+// 			openPage(event.state || {
+// 				page: getCurrentPage(),
+// 				params: currentParams
+// 			});
+// 		}
+// 	});
+// }
 
 export function bootstrapAsync(pageName) {
 	currentAction = Promise.resolve();
@@ -92,7 +101,7 @@ export function bootstrapAsync(pageName) {
 		page: pageName,
 		params: currentParams
 	})
-	registerRouter();
+	//registerRouter();
 }
 export function regMatchPath(path) {
 	const pages = ['editor', 'account', 'viewer'];
@@ -134,7 +143,7 @@ function openPage(state) {
 	currentPath = currentPath.replace('/', '').replace('/', '');
 	if (pageName != currentPath && currentPath != '') {
 		console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
-		document.location.pathname = pageName;
+		//document.location.pathname = pageName;
 	} 
 	currentAction = currentAction
 		// Close the current page
@@ -149,16 +158,7 @@ function openPage(state) {
 			console.log('WITH: ', firebaseEnv, firebaseEnv.auth.currentUser);
 			return currentPage.open(state, firebaseEnv);
 		})
-		// Display error page
-		// .catch(err => {
-		// 	console.error(err);
-		// 	return import("../index/index")
-		// 		.then(newPage => {
-		// 			currentPage = newPage;
-		// 			//console.log('currentPage ERR: ' + currentPage);
-		// 			return currentPage.open(err);
-		// 		});
-		// });
+
 	return currentAction;
 }
 
@@ -167,10 +167,7 @@ function openPage(state) {
 export function navigate(pageName, hash = '') {
 	const state = { page: pageName, params: currentParams };
 	const hist = { page: pageName};
-	if (hash != '') {
-		state.params.hash = hash;
-	}
-	console.log('navigatine: ' + pageName + ' with hash: ' + hash);
+	state.params.hash = hash;
 	window.history.pushState(state, pageName, `${pageName}`);
 	openPage(state);
 }

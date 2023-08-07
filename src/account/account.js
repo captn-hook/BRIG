@@ -1,8 +1,10 @@
 import {
-    navigate, 
-    defaultPage,
-    switchTheme
+    navigate 
 } from '../index/index.js';
+
+import {
+    default as defaultPage
+} from '../index/DefaultPage.js';
 
 import {
     default as html
