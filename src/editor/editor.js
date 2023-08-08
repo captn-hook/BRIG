@@ -28,6 +28,15 @@ import {
 } from './UserTable.js';
 
 import {
+    Raycaster,
+    Vector3,
+} from 'three';
+
+import {
+    Area,
+} from '../shared/Area.js';
+
+import {
     getFunctions,
     httpsCallable,
     //connectFunctionsEmulator
@@ -92,7 +101,6 @@ export function open(state, firebaseEnv) {
     const dataInput = document.getElementById('datapicker');
 
     const modelInput = document.getElementById('modelpicker');
-
 
     document.getElementById('saveFiles').addEventListener('click', (e) => {
         saveFile(V.ms, V.ts, V.tracers, V.insights, V.views);
@@ -177,9 +185,141 @@ export function open(state, firebaseEnv) {
 
     });
 
+    V.sizes.canvas2d.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+
+        if (editPos && V.leftPanel.spreadsheet == V.state[2]) {
+            V.workingArea.points.pop();
+        }
+
+    })
+
+    V.sizes.canvas2d.addEventListener('click', (e) => {
+        if (editPos) {
+
+            var raycaster = new Raycaster();
+            var mouse = {
+                x: (e.clientX - V.leftPanel.canvas.innerWidth) / V.renderer.domElement.clientWidth * 2 - 1,
+                y: -(e.clientY / V.renderer.domElement.clientHeight) * 2 + 1
+            };
+
+            raycaster.setFromCamera(mouse, V.camera);
+
+            var intersects = raycaster.intersectObjects(V.sceneMeshes, true);
+
+            var doP = (V.leftPanel.spreadsheet == V.state[0]) ? true : false;
+
+
+            //console.log(intersects, doP);
+
+            if (intersects.length > 0) {
+                if (doP) {
+                    if (V.leftPanel.firstClickX == 1) {
+                        V.ms[V.leftPanel.firstClickY - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    } else if (V.leftPanel.firstClickY == 1) {
+                        V.ts[V.leftPanel.firstClickX - 2].pos = new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y);
+                    }
+                } else {
+                    console.log(V.workingArea.points);
+                    V.workingArea.points.push(new Vector3(intersects[0].point.x, intersects[0].point.z, intersects[0].point.y));
+                }
+            }
+        }
+
+        //store pos in link
+        var pos = String('P=' + Math.round(V.camera.position.x * 100) / 100) + '/' + String(Math.round(V.camera.position.y * 100) / 100) + '/' + String(Math.round(V.camera.position.z * 100) / 100) + '/' + String(Math.round(V.camera.rotation.x * 100) / 100) + '/' + String(Math.round(V.camera.rotation.y * 100) / 100) + '/' + String(Math.round(V.camera.rotation.z * 100) / 100)
+
+        if (pos[0] != null) {
+            window.location.hash = V.leftPanel.siteheader + '&' + pos;
+        }
+    },
+        false);
+
+    sGroup.addEventListener('click', plant1);
+
+    async function plant1() {
+        if (V.leftPanel.gi != 0 && V.leftPanel.gi != -1) {
+            V.leftPanel.groups[V.leftPanel.gi] = await saveGroup(db, V.dropd.value, V.leftPanel.gi, V.tracers, V.leftPanel.text)
+        }
+    }
+
+    aGroup.addEventListener('click', plant2)
+
+    async function plant2() {
+        var i = 0;
+        V.leftPanel.groups.forEach((e) => {
+            if (e != undefined) {
+                i++;
+            }
+        })
+        V.leftPanel.groups[i] = await saveGroup(db,V.dropd.value, i, V.tracers, V.leftPanel.text)
+
+    }
+
+    dGroup.addEventListener('click', (e) => {
+        deleteDoc(doc(db, V.dropd.value, 'group' + V.leftPanel.gi));
+        V.leftPanel.groups[V.leftPanel.gi] = undefined;
+    })
+
+    //areabtns
+    sArea.addEventListener('click', tnalp3);
+
+    async function tnalp3() {
+        if (V.leftPanel.ai != 0 && V.leftPanel.ai != -1) {
+            V.leftPanel.areas[V.leftPanel.ai].text = V.leftPanel.text;
+            //console.log("", leftPanel.ai)
+            saveArea(db, V.dropd.value, V.leftPanel.ai + 1, V.leftPanel.areas[leftPanel.ai])
+        }
+    }
+
+    aArea.addEventListener('click', tnalp4)
+
+    async function tnalp4() {
+        if (V.workingArea.points.length > 2) {
+            var i = 0;
+            V.workingArea.text = V.leftPanel.text;
+            V.leftPanel.areas.forEach((e) => {
+                if (e != undefined) {
+                    i++;
+                }
+            })
+
+            var n = prompt("Enter Area Name");
+            V.workingArea.name = String(n);
+
+            var x = prompt("Enter Area Value");
+            V.workingArea.setValue(parseFloat(x));
+
+            var a = new Area(V.workingArea.points, V.workingArea.value, V.workingArea.name, V.workingArea.text)
+
+            V.leftPanel.areas.push(a);
+            //console.log("A", leftPanel.ai)
+            saveArea(db, dropd.value, i + 1, a)
+            V.workingArea = new Area([]);
+        }
+    }
+
+    dArea.addEventListener('click', (e) => {
+        //console.log("D", leftPanel.ai)
+        //console.log('deleting area', leftPanel.ai + 1)
+        deleteDoc(doc(db, V.dropd.value, 'area' + (V.leftPanel.ai + 1)));
+        V.leftPanel.areas[V.leftPanel.ai] = undefined;
+    })
+
+    V.textbox.addEventListener('input', e => {
+        if (V.textbox.readOnly == false) {
+            if (V.leftPanel.spreadsheet == state[0]) {
+                V.insights[leftPanel.firstClickY] = encodeURI(V.textbox.value.replaceAll(/,/g, '~'));
+            } else {
+                V.leftPanel.text = encodeURI(V.textbox.value.replaceAll(/,/g, '~'))
+                //console.log(leftPanel.text);
+            }
+        }
+    })
+
     function allSites() {
         listAll(folderRef).then((e) => {
-           
+
             for (var i = 0; i < e.prefixes.length; i++) {
                 availableSites.push(e.prefixes[i].name)
             }

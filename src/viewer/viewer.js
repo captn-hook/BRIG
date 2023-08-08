@@ -44,6 +44,10 @@ import {
 } from 'firebase/firestore';
 
 import {
+    Area
+} from '../shared/Area';
+
+import {
     default as defaultPage
 } from '../index/DefaultPage';
 
@@ -53,12 +57,15 @@ export var tracers = []
 export var insights = []
 export var views = []
 
+export var workingArea = new Area([]);
+
 export const state = {
     0: 'spreadsheet',
     1: 'groups',
     2: 'areas'
 }
 
+export var renderer;
 export const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 500);
 
 // three Scene
@@ -253,7 +260,7 @@ export function cont(pp, firebaseEnv) {
 
     sizes.updateSizes(leftPanel);
 
-    const renderer = new WebGLRenderer({
+    renderer = new WebGLRenderer({
         canvas: canvas3d
     });
     
@@ -928,6 +935,10 @@ export function cont(pp, firebaseEnv) {
                     a.drawArea(camera, sizes, doVals, alpha);
                 }
             });
+            if (workingArea) {
+                workingArea.drawArea(camera, sizes, doVals, true, 'last');
+            }
+
         }
 
         // Call tick again on the next frame
