@@ -47,17 +47,163 @@ import {
     default as defaultPage
 } from '../index/DefaultPage';
 
+export var ms = []
+export var ts = []
+export var tracers = []
+export var insights = []
+export var views = []
+
+export const state = {
+    0: 'spreadsheet',
+    1: 'groups',
+    2: 'areas'
+}
+
+export const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 500);
+
+// three Scene
+const scene = new Scene();
+scene.background = new Color(0x000000);
+scene.add(camera);
+
+export const defaultDropd = 'Select a site';
+export var dropd;
+export var textbox;
 
 export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
     return cont(state, firebaseEnv);
 }
 
+export var leftPanel;
+export var sizes;
+
+export var globalObj;
+export var sceneMeshes = [];
+
+// onLoad callback
+export function onLoadLoad(obj) {
+
+    sceneMeshes = [];
+
+    sceneMeshes.push(obj.scene.children[0]);
+
+    obj.scene.children[0].children.forEach((e) => {
+        sceneMeshes.push(e);
+    })
+
+    scene.add(obj.scene);
+    globalObj = scene.children[scene.children.length - 1];
+}
+
+export function getGLTFLoader() {
+    return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
+        return new GLTF.GLTFLoader;
+    });
+}
+
+export function getDRACOLoader() {
+    return getGLTFLoader().then((GLTFLoader) => {
+        return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
+
+            const DRACOLoader = new DRACO.DRACOLoader();
+
+            DRACOLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+
+            GLTFLoader.setDRACOLoader(DRACOLoader);
+
+            return GLTFLoader;
+        });
+    })
+}
+
+export function siteList(s) {
+    //empty dropdown
+    while (dropd.firstChild) {
+        dropd.removeChild(dropd.firstChild);
+    }
+
+    //add default option
+    var def = document.createElement('option');
+    def.text = defaultDropd;
+    dropd.add(def);
+
+    s.forEach((site) => {
+        var option = document.createElement('option');
+        option.text = site;
+        dropd.add(option);
+
+        if (window.location.hash != '' && window.location.hash[1] != '&') {
+            if (window.location.hash.split('&')[0].substring(1) == dropd.options[dropd.length - 1].text) {
+                dropd.selectedIndex = dropd.length - 1;
+            }
+        }
+    })
+
+}
+
+// onProgress callback
+export function onProgressLog(xhr) {
+    //console.log("LOADING: ", xhr.loaded / xhr.total * 100);
+}
+
+// onError callback
+export function onErrorLog(err) {
+    console.error(err)
+}
+
+export function handleModels(input) {
+    //remove old stuff first
+
+    if (globalObj != null) {
+        scene.remove(globalObj);
+    }
+
+    var read = new FileReader();
+
+    read.readAsArrayBuffer(input);
+
+
+    read.onloadend = function () {
+
+
+        getDRACOLoader().then((loader) => {
+
+            loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
+
+        })
+
+    }
+}
+
+export function handleFiles(input) {
+
+    //remove old stuff first
+    leftPanel.blankClicks();
+
+    var read = new FileReader();
+
+
+    read.readAsBinaryString(input);
+
+    read.onloadend = function () {
+
+        [ms, ts, tracers, insights, views] = Data(read.result)
+
+        leftPanel.setTracers(ms, ts, tracers)
+        //resize sheet if sizes isnt undefined
+        if (sizes != undefined) {
+            sizes.updateSizes(leftPanel);
+        }
+    }
+}
+
+
 export function cont(pp, firebaseEnv) {
     
     defaultPage();
-    console.log('viewer open', pp);
-    console.log('WITH: ', pp.params);
+    //console.log('viewer open', pp);
+    //console.log('WITH: ', pp.params);
     
     //firebase
     const app = firebaseEnv.app;
@@ -66,16 +212,11 @@ export function cont(pp, firebaseEnv) {
     const db = getFirestore(app);
     const storage = getStorage(app);
 
+    leftPanel = new Panel(document.getElementById('left'));
 
-    const state = {
-        0: 'spreadsheet',
-        1: 'groups',
-        2: 'areas'
-    }
-
-    const sizes = new ScreenSizes();
-
-    const camera = new PerspectiveCamera(75, sizes.width / sizes.height, 1, 500);
+    dropd = document.getElementById('dropdown');
+    textbox = document.getElementById('textbox');
+    
     camera.position.set(5, 5, 5);
     camera.lookAt(new Vector3(0, 0, 0));
     var cameraTargPos = new Vector3(5, 5, 5);
@@ -85,15 +226,6 @@ export function cont(pp, firebaseEnv) {
     var camFree = false;
     
     var bw = pp.params.darkTheme;
-
-    var ms = []
-    var ts = []
-    var tracers = []
-    var insights = []
-    var views = []
-
-    var globalObj;
-    var sceneMeshes = [];
     
     var stupid = null;
     
@@ -102,19 +234,15 @@ export function cont(pp, firebaseEnv) {
     var lastgi = -1;
     var lastai = -1;
 
-    // three Scene
-    const scene = new Scene();
-    scene.background = new Color(0x000000);
-    scene.add(camera);
     
     window.dispatchEvent(new Event('hashchange'));
 
+    sizes = new ScreenSizes();
     // Lights
     const light = new AmbientLight(0x404040); // soft white light
     light.intensity = 3;
     scene.add(light);
-
-    const defaultDropd = 'Select a site';
+    
 
     // Canvassesses
     const canvas3d = document.querySelector('canvas.webgl'); //viewer
@@ -122,7 +250,6 @@ export function cont(pp, firebaseEnv) {
 
     const controls = new OrbitControls(camera, canvas2d);
 
-    const leftPanel = new Panel(document.getElementById('left'));
 
     sizes.updateSizes(leftPanel);
 
@@ -136,31 +263,17 @@ export function cont(pp, firebaseEnv) {
     
     const clock = new Clock();
 
-    const dataInput = document.getElementById('datapicker');
-
-    const modelInput = document.getElementById('modelpicker');
-
 
     //elements    
-    const sGroup = document.getElementById('saveGroup');
-    const aGroup = document.getElementById('addGroup');
-    const dGroup = document.getElementById('deleteGroup');
-
-    const sArea = document.getElementById('saveArea');
-    const aArea = document.getElementById('addArea');
-    const dArea = document.getElementById('deleteArea');
 
     const bug1 = document.getElementById('bug1');
     const bug2 = document.getElementById('bug2');
     const bug3 = document.getElementById('bug3');
 
-    const dropd = document.getElementById('dropdown');
-    const textbox = document.getElementById('textbox');
-
     //load files from google storage by dropdown name
     dropd.addEventListener('change', (event) => {
 
-        console.log("DROPD", event.target.value);
+        //console.log("DROPD", event.target.value);
         [ms, ts, tracers, insights, views] = [
             [],
             [],
@@ -169,7 +282,7 @@ export function cont(pp, firebaseEnv) {
             []
         ];
 
-        console.log("CGANGIN", event.target.value);
+        //console.log("CGANGIN", event.target.value);
 
         if (event.target.value == null || event.target.value == undefined || event.target.value == '') {
             var targ = leftPanel.siteheader;
@@ -177,7 +290,7 @@ export function cont(pp, firebaseEnv) {
             var targ = event.target.value;
         }
 
-        console.log("TARG", targ);
+        //console.log("TARG", targ);
 
         if (targ != defaultDropd) {
 
@@ -190,9 +303,9 @@ export function cont(pp, firebaseEnv) {
             //loadRefs(modelRef, dataRef)
             leftPanel.groups = GetGroups(db, targ);
             leftPanel.areas = GetAreas(db, targ);
-            console.log("AREAS", leftPanel.areas);
-            console.log("GROUPS", leftPanel.groups);
-            console.log("GETING", targ);
+            //console.log("AREAS", leftPanel.areas);
+            //console.log("GROUPS", leftPanel.groups);
+            //console.log("GETING", targ);
             loadRefAndDoc(modelRef, targ);
 
             leftPanel.siteheader = targ;
@@ -235,7 +348,7 @@ export function cont(pp, firebaseEnv) {
 
     if (pp.params.site) {
         //LOAD
-        console.log('LOADING SITE: ', pp.params.site);
+       //('LOADING SITE: ', pp.params.site);
     } else {
         interpHash();
     }
@@ -243,7 +356,8 @@ export function cont(pp, firebaseEnv) {
     if (pp.params.siteList) {//have to wait for resolve
         siteList(pp.params.siteList);
     }
-
+    
+    vs.addEventListener('click', valueButton);
     document.getElementById('valueBtnG').addEventListener('click', valueButton);
     document.getElementById('valueBtnA').addEventListener('click', valueButton);
 
@@ -437,97 +551,6 @@ export function cont(pp, firebaseEnv) {
         sizes.updateSizes(leftPanel);
     })
 
-    // onLoad callback
-    function onLoadLoad(obj) {
-
-        sceneMeshes = [];
-
-        sceneMeshes.push(obj.scene.children[0]);
-
-        obj.scene.children[0].children.forEach((e) => {
-            sceneMeshes.push(e);
-        })
-
-        scene.add(obj.scene);
-        globalObj = scene.children[scene.children.length - 1];
-    }
-
-    // onProgress callback
-    function onProgressLog(xhr) {
-        console.log("LOADING: ", xhr.loaded / xhr.total * 100);
-    }
-
-    // onError callback
-    function onErrorLog(err) {
-        console.error(err)
-    }
-
-
-    function getGLTFLoader() {
-        return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
-            return new GLTF.GLTFLoader;
-        });
-    }
-
-    function getDRACOLoader() {
-        return getGLTFLoader().then((GLTFLoader) => {
-            return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
-
-                const DRACOLoader = new DRACO.DRACOLoader();
-
-                DRACOLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-
-                GLTFLoader.setDRACOLoader(DRACOLoader);
-
-                return GLTFLoader;
-            });
-        })
-    }
-
-    function handleModels(input) {
-        //remove old stuff first
-
-        if (globalObj != null) {
-            scene.remove(globalObj);
-        }
-
-        var read = new FileReader();
-
-        read.readAsArrayBuffer(input);
-
-
-        read.onloadend = function () {
-
-
-            getDRACOLoader().then((loader) => {
-
-                loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
-
-            })
-
-        }
-    }
-
-    function handleFiles(input) {
-
-        //remove old stuff first
-        leftPanel.blankClicks();
-
-        var read = new FileReader();
-
-
-        read.readAsBinaryString(input);
-
-        read.onloadend = function () {
-
-            [ms, ts, tracers, insights, views] = Data(read.result)
-
-            leftPanel.setTracers(ms, ts, tracers)
-            //resize sheet
-            sizes.updateSizes(leftPanel);
-        }
-    }
-
     function updateCam() {
 
         //console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
@@ -598,31 +621,6 @@ export function cont(pp, firebaseEnv) {
         }
     }
 
-    function siteList(s) {
-        //empty dropdown
-        while (dropd.firstChild) {
-            dropd.removeChild(dropd.firstChild);
-        }
-
-        //add default option
-        var def = document.createElement('option');
-        def.text = defaultDropd;
-        dropd.add(def);
-
-        s.forEach((site) => {
-            var option = document.createElement('option');
-            option.text = site;
-            dropd.add(option);
-
-            if (window.location.hash != '' && window.location.hash[1] != '&') {
-                if (window.location.hash.split('&')[0].substring(1) == dropd.options[dropd.length - 1].text) {
-                    dropd.selectedIndex = dropd.length - 1;
-                }
-            }
-        })
-
-    }
-
     function loadRefAndDoc(ref, doc) {
 
         getBlob(ref)
@@ -637,7 +635,7 @@ export function cont(pp, firebaseEnv) {
 
             [ms, ts, tracers, insights, views] = data;
 
-            console.log(ms, ts, tracers, insights, views)
+            //console.log(ms, ts, tracers, insights, views)
             
             leftPanel.setTracers(ms, ts, tracers)
 
@@ -802,8 +800,10 @@ export function cont(pp, firebaseEnv) {
 
             }
         }
-
-        leftPanel.setFontsize();
+        //set font size with shortest of ms and ds
+        let lengthms = ms.length;
+        let lengthds = ts.length;
+        leftPanel.setFontsize(Math.min(lengthms, lengthds));
 
     }
 

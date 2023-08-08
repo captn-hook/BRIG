@@ -37,12 +37,12 @@ export function resetPassButton(auth, classes) {
             sendPasswordResetEmail(auth, email)
                 .then(() => {
                     // Password reset email sent!
-                    console.log('Password reset email sent!');
+                    //console.log('Password reset email sent!');
                 })
                 .catch((error) => {
                     const errorCode = error.code;
                     const errorMessage = error.message;
-                    console.log(errorCode, errorMessage);
+                    //console.log(errorCode, errorMessage);
                 });
         });
     });
@@ -143,7 +143,7 @@ export function login(auth, provider) {
 
 async function signedIn() {
 	//navigate('viewer');
-    console.log('signedIn');
+    //console.log('signedIn');
     return Promise.resolve();
 }
 
@@ -159,10 +159,10 @@ export function logout(auth) {
 }
 
 export function loginStyle() {
-    console.log('loginStyle');
+    //console.log('loginStyle');
 	//remove restricted classes for logged in users
 	var elements = document.querySelectorAll('[class*="restricted"]')
-    console.log(elements);
+    //console.log(elements);
 	for (var i = 0; i < elements.length; i++) {
 		elements[i].className = elements[i].className.replace('restricted', '');
     }
@@ -185,7 +185,7 @@ export function createButton(id, text, classes) {
 //params contains a firebaseEnv auth object
 export function emailLoginButton(auth, classes = ['Btn']) {
     var button = createButton('elogin', 'Email Login', classes);
-    button.addEventListener('click', function() { elogin( auth ).catch((error) => { console.log(error); }); });
+button.addEventListener('click', function() { elogin( auth ).catch((error) => { /*console.log(error);*/ }); });
     //testing sign in error
     //button.addEventListener('mouseover', function() { displaySignInError(); });
     return button;
@@ -237,8 +237,7 @@ export function resetPassForm(auth) {
     // });
     //OK SO BUTTON HAS LISTENER SOMEHOW!!!
     button.replaceWith(button.cloneNode());
-    button.addEventListener('click', function() { console.log('resetPass'); })
-
+    button.addEventListener('click', function() { /*console.log('resetPass'); */});
     form.appendChild(input);
     form.appendChild(button);
     return form;

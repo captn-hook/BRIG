@@ -1,0 +1,65 @@
+[debug] [2023-08-08T14:44:23.969Z] ----------------------------------------------------------------------
+[debug] [2023-08-08T14:44:23.971Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\trist\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2023-08-08T14:44:23.971Z] CLI Version:   12.3.0
+[debug] [2023-08-08T14:44:23.972Z] Platform:      win32
+[debug] [2023-08-08T14:44:23.972Z] Node Version:  v16.15.1
+[debug] [2023-08-08T14:44:23.978Z] Time:          Tue Aug 08 2023 07:44:23 GMT-0700 (Pacific Daylight Time)
+[debug] [2023-08-08T14:44:23.978Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-08-08T14:44:24.039Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-08-08T14:44:24.039Z] > authorizing via signed-in user (tristanskyhook@gmail.com)
+[debug] [2023-08-08T14:44:24.039Z] [iam] checking project brig-b2ca3 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2023-08-08T14:44:24.040Z] > refreshing access token with scopes: []
+[debug] [2023-08-08T14:44:24.042Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2023-08-08T14:44:24.042Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-08-08T14:44:24.164Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2023-08-08T14:44:24.164Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2023-08-08T14:44:24.170Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/brig-b2ca3:testIamPermissions [none]
+[debug] [2023-08-08T14:44:24.171Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/brig-b2ca3:testIamPermissions x-goog-quota-user=projects/brig-b2ca3
+[debug] [2023-08-08T14:44:24.171Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/brig-b2ca3:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2023-08-08T14:44:24.260Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/brig-b2ca3:testIamPermissions 200
+[debug] [2023-08-08T14:44:24.260Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/brig-b2ca3:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2023-08-08T14:44:24.261Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/brig-b2ca3/serviceAccounts/brig-b2ca3@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2023-08-08T14:44:24.261Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/brig-b2ca3/serviceAccounts/brig-b2ca3@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2023-08-08T14:44:24.471Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/brig-b2ca3/serviceAccounts/brig-b2ca3@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2023-08-08T14:44:24.471Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/brig-b2ca3/serviceAccounts/brig-b2ca3@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2023-08-08T14:44:24.472Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3 [none]
+[debug] [2023-08-08T14:44:24.724Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3 200
+[debug] [2023-08-08T14:44:24.724Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3 {"projectId":"brig-b2ca3","projectNumber":"536591450814","displayName":"BRIG","name":"projects/brig-b2ca3","resources":{"hostingSite":"brig-b2ca3","realtimeDatabaseInstance":"brig-b2ca3-default-rtdb","storageBucket":"brig-b2ca3.appspot.com","locationId":"us-central"},"state":"ACTIVE","etag":"1_3c47818a-de27-4039-95ac-aa0bf0e51dda"}
+[info] 
+[info] === Deploying to 'brig-b2ca3'...
+[info] 
+[info] i  deploying functions, hosting 
+[debug] [2023-08-08T14:44:24.727Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3 [none]
+[debug] [2023-08-08T14:44:24.859Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3 200
+[debug] [2023-08-08T14:44:24.859Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3 {"projectId":"brig-b2ca3","projectNumber":"536591450814","displayName":"BRIG","name":"projects/brig-b2ca3","resources":{"hostingSite":"brig-b2ca3","realtimeDatabaseInstance":"brig-b2ca3-default-rtdb","storageBucket":"brig-b2ca3.appspot.com","locationId":"us-central"},"state":"ACTIVE","etag":"1_3c47818a-de27-4039-95ac-aa0bf0e51dda"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2023-08-08T14:44:24.861Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudfunctions.googleapis.com [none]
+[debug] [2023-08-08T14:44:24.861Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/brig-b2ca3
+[debug] [2023-08-08T14:44:24.861Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/runtimeconfig.googleapis.com [none]
+[debug] [2023-08-08T14:44:24.861Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/brig-b2ca3
+[debug] [2023-08-08T14:44:24.862Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudbuild.googleapis.com [none]
+[debug] [2023-08-08T14:44:24.862Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudbuild.googleapis.com x-goog-quota-user=projects/brig-b2ca3
+[debug] [2023-08-08T14:44:24.862Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/artifactregistry.googleapis.com [none]
+[debug] [2023-08-08T14:44:24.862Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/artifactregistry.googleapis.com x-goog-quota-user=projects/brig-b2ca3
+[debug] [2023-08-08T14:44:25.117Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/runtimeconfig.googleapis.com 200
+[debug] [2023-08-08T14:44:25.117Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2023-08-08T14:44:25.139Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/artifactregistry.googleapis.com 200
+[debug] [2023-08-08T14:44:25.139Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/artifactregistry.googleapis.com [omitted]
+[info] +  artifactregistry: required API artifactregistry.googleapis.com is enabled 
+[debug] [2023-08-08T14:44:25.147Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudfunctions.googleapis.com 200
+[debug] [2023-08-08T14:44:25.147Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudfunctions.googleapis.com [omitted]
+[info] +  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2023-08-08T14:44:25.361Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudbuild.googleapis.com 200
+[debug] [2023-08-08T14:44:25.361Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/brig-b2ca3/services/cloudbuild.googleapis.com [omitted]
+[info] +  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2023-08-08T14:44:25.361Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3/adminSdkConfig [none]
+[debug] [2023-08-08T14:44:25.522Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3/adminSdkConfig 200
+[debug] [2023-08-08T14:44:25.522Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/brig-b2ca3/adminSdkConfig {"projectId":"brig-b2ca3","databaseURL":"https://brig-b2ca3-default-rtdb.firebaseio.com","storageBucket":"brig-b2ca3.appspot.com","locationId":"us-central"}
+[debug] [2023-08-08T14:44:25.523Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/brig-b2ca3/configs [none]
+[debug] [2023-08-08T14:44:25.759Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/brig-b2ca3/configs 200
+[debug] [2023-08-08T14:44:25.759Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/brig-b2ca3/configs {}
+[debug] [2023-08-08T14:44:25.760Z] Validating nodejs source

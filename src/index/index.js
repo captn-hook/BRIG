@@ -77,8 +77,8 @@ function getList(app, uid) {
 onAuthStateChanged(firebaseEnv.auth, (user) => {
 
     if (user) {
-		console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
-		console.log('RELOADING PAGE', currentParams);
+		//console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
+		//console.log('RELOADING PAGE', currentParams);
 		getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
 			currentParams.siteList = list;
 			currentPage.open({params: currentParams}, firebaseEnv);
@@ -86,7 +86,7 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 			clogin();
 		});
     } else {
-		console.log('AUTH STATE  not logged in', location.pathname);
+		//console.log('AUTH STATE  not logged in', location.pathname);
     }
 });
 
@@ -174,8 +174,8 @@ function openPage(state) {
 		.then(newPage => {
 			currentPage = newPage;
 			//console.log('currentPage: ' + currentPage);
-			console.log('OPENING PAGE: ', state);
-			console.log('WITH: ', firebaseEnv, firebaseEnv.auth.currentUser);
+			//console.log('OPENING PAGE: ', state);
+			//console.log('WITH: ', firebaseEnv, firebaseEnv.auth.currentUser);
 			return currentPage.open(state, firebaseEnv);
 		})
 

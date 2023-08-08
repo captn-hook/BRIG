@@ -120,7 +120,6 @@ class Panel {
     }
 
     setFontsize(l) {
-
         if (l == undefined){
             if (this.tracers != undefined) {
                 l = this.tracers.length;

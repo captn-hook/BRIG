@@ -228,8 +228,15 @@ class Tracer2d extends Tracer {
     drawValues(ctxLeft, cellWidth, cellHeight) {
 
         if (this.visible) {
-
-            var size = parseInt(cellWidth / 2.3);
+            let min = cellHeight < cellWidth ? true : false;
+            let minv = min ? cellHeight : cellWidth;
+            if (min) {
+                //cellHeight
+                var size  = parseInt(minv / 1.3);
+            } else {
+                //cellWidth
+                var size = parseInt(minv / 2.3);
+            }
 
             ctxLeft.font = size.toString() + "px Arial";
             ctxLeft.textAlign = "center";
