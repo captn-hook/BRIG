@@ -113,8 +113,8 @@ export function open(state, firebaseEnv) {
 
     document.getElementById('saveCam').addEventListener('click', (e) => {
         //console.log('saveCam')
-        V.views[leftPanel.firstClickY - 1] = [String(V.camera.position.x), String(V.camera.position.y), String(V.camera.position.z)];
-        //console.log(views)
+        V.views[V.leftPanel.firstClickY - 1] = [String(V.camera.position.x), String(V.camera.position.y), String(V.camera.position.z)];
+        console.log(V.views)
     })
 
     var editPos = false;
