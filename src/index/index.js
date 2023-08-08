@@ -82,8 +82,9 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 		getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
 			currentParams.siteList = list;
 			currentPage.open({params: currentParams}, firebaseEnv);
+			
+			clogin();
 		});
-		clogin();
     } else {
 		console.log('AUTH STATE  not logged in', location.pathname);
     }

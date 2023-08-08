@@ -31,8 +31,21 @@ div {
     font-size: 20px;
 }
 
+.ctrld {
+    z-index: 1;
+    position: absolute;
+    right: 0;
+    margin-left: auto;
+    margin-right: 0%;
+    margin-top: 0%;
+    width: 20%;
+}
 .spaDiv {
     height: 100vh;
+}
+
+.spWid {
+    width: 100%;
 }
 
 .lf1 {

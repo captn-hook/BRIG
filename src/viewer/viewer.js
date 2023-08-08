@@ -48,10 +48,14 @@ import {
 } from '../index/DefaultPage';
 
 
-export function open(pp, firebaseEnv) {
+export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
-    defaultPage();
+    return cont(state, firebaseEnv);
+}
 
+export function cont(pp, firebaseEnv) {
+    
+    defaultPage();
     console.log('viewer open', pp);
     console.log('WITH: ', pp.params);
     
@@ -79,6 +83,8 @@ export function open(pp, firebaseEnv) {
     
     var alpha = true;
     var camFree = false;
+    
+    var bw = pp.params.darkTheme;
 
     var ms = []
     var ts = []
@@ -676,6 +682,21 @@ export function open(pp, firebaseEnv) {
     })
 
     //canvas
+    document.getElementById('title').addEventListener('click', (e) => {
+
+        bw = !bw;
+
+        leftPanel.setbw(bw)
+
+        if (bw) {
+            e.target.innerHTML = 'Light Mode';
+            scene.background = new Color(0x000000);
+        } else {
+            e.target.innerHTML = 'Dark Mode';
+            scene.background = new Color(0xffffff);
+        }
+    })
+
 
     function stoplookin() {
         if (leftPanel.camFree) {
