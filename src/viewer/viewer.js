@@ -61,11 +61,7 @@ export function open(pp, firebaseEnv) {
     const provider = firebaseEnv.provider;
     const db = getFirestore(app);
     const storage = getStorage(app);
-    
-    if (pp.params.hash) {
-        console.log('hash', pp.params.hash);
-        window.location.hash = pp.params.hash;
-    }
+
 
     const state = {
         0: 'spreadsheet',
@@ -155,6 +151,74 @@ export function open(pp, firebaseEnv) {
     const dropd = document.getElementById('dropdown');
     const textbox = document.getElementById('textbox');
 
+    //load files from google storage by dropdown name
+    dropd.addEventListener('change', (event) => {
+
+        console.log("DROPD", event.target.value);
+        [ms, ts, tracers, insights, views] = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        console.log("CGANGIN", event.target.value);
+
+        if (event.target.value == null || event.target.value == undefined || event.target.value == '') {
+            var targ = leftPanel.siteheader;
+        } else {
+            var targ = event.target.value;
+        }
+
+        console.log("TARG", targ);
+
+        if (targ != defaultDropd) {
+
+            var modelRef = ref(storage, '/Sites/' + targ + '/' + targ + '.glb');
+
+            // .glb, load model
+
+            //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
+
+            //loadRefs(modelRef, dataRef)
+            leftPanel.groups = GetGroups(db, targ);
+            leftPanel.areas = GetAreas(db, targ);
+            console.log("AREAS", leftPanel.areas);
+            console.log("GROUPS", leftPanel.groups);
+            console.log("GETING", targ);
+            loadRefAndDoc(modelRef, targ);
+
+            leftPanel.siteheader = targ;
+
+        } else {
+            //load default
+
+            /*
+            load example
+            */
+            var modelRef = ref(storage, '/Example/example.glb');
+
+            var dataRef = ref(storage, '/Example/data.csv');
+
+            // .glb, load model
+
+            loadRefs(modelRef, dataRef)
+
+            leftPanel.groups = GetGroups(db, targ);
+            leftPanel.areas = GetAreas(db, targ);
+
+            /*
+            Animate
+            */
+            leftPanel.siteheader = 'Example';
+        }
+
+        //window.location.hash = leftPanel.siteheader + '&';
+
+    })
+
+
     const vs = document.getElementById('valueBtnS')
 
     const ctrlBtn = document.getElementById('ctrlBtn');
@@ -163,6 +227,16 @@ export function open(pp, firebaseEnv) {
 
     const root = document.getElementById('root');
 
+    if (pp.params.site) {
+        //LOAD
+        console.log('LOADING SITE: ', pp.params.site);
+    } else {
+        interpHash();
+    }
+
+    if (pp.params.siteList) {//have to wait for resolve
+        siteList(pp.params.siteList);
+    }
 
     document.getElementById('valueBtnG').addEventListener('click', valueButton);
     document.getElementById('valueBtnA').addEventListener('click', valueButton);
@@ -357,33 +431,6 @@ export function open(pp, firebaseEnv) {
         sizes.updateSizes(leftPanel);
     })
 
-    
-    sGroup.addEventListener('click', plant1);
-
-    async function plant1() {
-        if (leftPanel.gi != 0 && leftPanel.gi != -1) {
-            leftPanel.groups[leftPanel.gi] = await saveGroup(db, dropd.value, leftPanel.gi, tracers, leftPanel.text)
-        }
-    }
-
-    aGroup.addEventListener('click', plant2)
-
-    async function plant2() {
-        var i = 0;
-        leftPanel.groups.forEach((e) => {
-            if (e != undefined) {
-                i++;
-            }
-        })
-        leftPanel.groups[i] = await saveGroup(db, dropd.value, i, tracers, leftPanel.text)
-
-    }
-
-    dGroup.addEventListener('click', (e) => {
-        deleteDoc(doc(db, dropd.value, 'group' + leftPanel.gi));
-        leftPanel.groups[leftPanel.gi] = undefined;
-    })
-
     // onLoad callback
     function onLoadLoad(obj) {
 
@@ -451,8 +498,6 @@ export function open(pp, firebaseEnv) {
                 loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
 
             })
-
-            //userTable.populateTable(storage, allUsersM, dropd.value, bw);
 
         }
     }
@@ -586,6 +631,8 @@ export function open(pp, firebaseEnv) {
 
             [ms, ts, tracers, insights, views] = data;
 
+            console.log(ms, ts, tracers, insights, views)
+            
             leftPanel.setTracers(ms, ts, tracers)
 
             if (stupid != null) {
@@ -627,69 +674,6 @@ export function open(pp, firebaseEnv) {
     document.addEventListener('DOMContentLoaded', (e) => {
         sizes.updateSizes(leftPanel);
     })
-
-    //load files from google storage by dropdown name
-    dropd.addEventListener('change', (event) => {
-
-        [ms, ts, tracers, insights, views] = [
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-
-        //console.log(event.target.value);
-
-        if (event.target.value == null || event.target.value == undefined || event.target.value == '') {
-            var targ = leftPanel.siteheader;
-        } else {
-            var targ = event.target.value;
-        }
-
-        if (targ != defaultDropd) {
-
-            var modelRef = ref(storage, '/Sites/' + targ + '/' + targ + '.glb');
-
-
-            // .glb, load model
-
-            //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
-
-            //loadRefs(modelRef, dataRef)
-            leftPanel.groups = GetGroups(db, targ);
-            leftPanel.areas = GetAreas(db, targ);
-            loadRefAndDoc(modelRef, targ);
-
-            leftPanel.siteheader = targ;
-
-        } else {
-            //load default
-
-            /*
-            load example
-            */
-            var modelRef = ref(storage, '/Example/example.glb');
-
-            var dataRef = ref(storage, '/Example/data.csv');
-
-            // .glb, load model
-
-            loadRefs(modelRef, dataRef)
-
-            leftPanel.groups = GetGroups(db, targ);
-            leftPanel.areas = GetAreas(db, targ);
-
-            /*
-            Animate
-            */
-            leftPanel.siteheader = 'Example';
-        }
-
-        //window.location.hash = leftPanel.siteheader + '&';
-
-    })
-
 
     //canvas
 
@@ -738,24 +722,24 @@ export function open(pp, firebaseEnv) {
         }
     })
 
-    //file input
-    window.addEventListener('hashchange', (e) => {
-
+    function interpHash() {
+        
         var hash = window.location.hash.substring(1)
 
         if (hash[0] != '&') {
             var params = hash.split('&');
 
-            if (params[0] != dropd.value && params[0][0] != 'X' && params[0][0] != 'P' && params[0][0] != 'G') {
+      
+            if (params[0] != leftPanel.siteheader && params[0][0] != 'X' && params[0][0] != 'P' && params[0][0] != 'G') {
                 leftPanel.siteheader = params[0];
                 dropd.value = params[0];
-                dropd.dispatchEvent(new Event('change'));
+                dropd.dispatchEvent(new Event('change'));   
             }
 
             if (params[1] && params[1][0] == 'G') {
                 //setTimeout(giHack, 1500, params);
                 leftPanel.spreadsheet = state[1];
-                if (params[0] != dropd.value) {
+                if (params[0] != leftPanel.siteheader) {
                     stupid = params[1].substring(2);
                 } else {
                     leftPanel.gi = params[1].substring(2);
@@ -799,6 +783,12 @@ export function open(pp, firebaseEnv) {
         }
 
         leftPanel.setFontsize();
+
+    }
+
+    //file input
+    window.addEventListener('hashchange', (e) => {
+        interpHash();
 
     });
 

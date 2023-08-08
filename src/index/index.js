@@ -18,6 +18,14 @@ import {
 	default as html
 } from "./index.html";
 
+import {
+    userSites
+} from '../shared/Data.js';
+
+import {
+    getFirestore
+} from 'firebase/firestore';
+
 import defaultPage from './DefaultPage.js';
 
 // Initialize Firebase
@@ -61,12 +69,20 @@ function clogin() {
 	
 }
 
+function getList(app, uid) {
+    const db = getFirestore(app);
+	return userSites(db, uid);
+}
+
 onAuthStateChanged(firebaseEnv.auth, (user) => {
 
     if (user) {
 		console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
 		console.log('RELOADING PAGE', currentParams);
-		currentPage.open({params: currentParams}, firebaseEnv);
+		getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
+			currentParams.siteList = list;
+			currentPage.open({params: currentParams}, firebaseEnv);
+		});
 		clogin();
     } else {
 		console.log('AUTH STATE  not logged in', location.pathname);
@@ -74,25 +90,28 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 });
 
 
-// Bind router to events (modern browsers only)
-// function registerRouter() {
-// 	window.addEventListener("popstate", event => {
-// 		console.log('popstate');
-// 		//check if the page is the same as the current page
-// 		//if it is, just update the params
-// 		//if it isn't, open the page
-// 		console.log('event.state: ' + event.state);
-// 		if (event.state.page == currentPage.name) {
-// 			currentPage.open({params: event.state.params}, firebaseEnv);
-// 		} else {
+//Bind router to events (modern browsers only)
+function registerRouter() {
+	window.addEventListener("popstate", event => {
+		
+		//check if the page is the same as the current page
+		//if it is, just update the params
+		//if it isn't, open the page
+
+		if (event.state == null) {
+			//pass
+
+		} else if (event.state.page == currentPage.name) {
+			currentPage.open({params: event.state.params}, firebaseEnv);
+		} else {
 				
-// 			openPage(event.state || {
-// 				page: getCurrentPage(),
-// 				params: currentParams
-// 			});
-// 		}
-// 	});
-// }
+			openPage(event.state || {
+				page: getCurrentPage(),
+				params: currentParams
+			});
+		}
+	});
+}
 
 export function bootstrapAsync(pageName) {
 	currentAction = Promise.resolve();
@@ -101,7 +120,7 @@ export function bootstrapAsync(pageName) {
 		page: pageName,
 		params: currentParams
 	})
-	//registerRouter();
+	registerRouter();
 }
 export function regMatchPath(path) {
 	const pages = ['editor', 'account', 'viewer'];
@@ -143,7 +162,7 @@ function openPage(state) {
 	currentPath = currentPath.replace('/', '').replace('/', '');
 	if (pageName != currentPath && currentPath != '') {
 		console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
-		//document.location.pathname = pageName;
+		document.location.pathname = pageName;
 	} 
 	currentAction = currentAction
 		// Close the current page

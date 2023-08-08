@@ -18,14 +18,6 @@ import {
     loginStyle
 } from '../shared/Log.js';
 
-import {
-    userSites
-} from '../shared/Data.js';
-
-import {
-    getFirestore
-} from 'firebase/firestore';
-
 export function open(state, firebaseEnv = null) {
 
     document.body.innerHTML = html;
@@ -56,12 +48,9 @@ export function open(state, firebaseEnv = null) {
         accntBtns.appendChild(logoutBtn);
         //create sitelist view
         console.log('getting list', firebaseEnv.app, firebaseEnv.auth.currentUser.uid);
-        let elem = siteListElem(firebaseEnv.app, firebaseEnv.auth.currentUser.uid)
-        .then((elem) => {
-            document.getElementById('info').appendChild(elem);
-        }).catch((err) => {
-            console.error(err);
-        });
+        let elem = siteListElem(state.params.siteList);
+        document.getElementById('info').appendChild(elem);
+       
 
 
     } else {
@@ -87,40 +76,21 @@ export function close() {
     return Promise.resolve();
 }
 
-function getList(app, uid) {
-    const db = getFirestore(app);
-    return new Promise((resolve, reject) => {
-        userSites(db, uid).then((sites) => {
-            resolve(sites);
-        }).catch((err) => {
-            reject(err);
-        }
-        );
-    });
-}
-function siteListElem(app, uid) {
+function siteListElem(sites) {
     //returns a scrollable list of sites populated from 
     let list = document.createElement('div');
     list.id = 'siteList';
     list.classList.add('siteList');
-    return new Promise((resolve, reject) => {
-        getList(app, uid).then((sites) => {
-            console.log('LIST: ', sites);
-            sites.forEach((site) => {
-                console.log('SITE: ', site);
-                let siteElem = document.createElement('div');
-                siteElem.classList.add('siteElem');
-                siteElem.innerHTML = site;
-                siteElem.addEventListener('click', function () { navigate('viewer', site); });
 
-                list.appendChild(siteElem);
-            });
+    sites.forEach((site) => {
+        console.log('SITE: ', site);
+        let siteElem = document.createElement('div');
+        siteElem.classList.add('siteElem');
+        siteElem.innerHTML = site;
+        siteElem.addEventListener('click', function () { navigate('viewer', site); });
 
-            console.log('LIST: ', list);
-            resolve(list);
-
-        }).catch((err) => {
-            reject(err);
-        });   
+        list.appendChild(siteElem);
     });
+
+    return list;
 }
