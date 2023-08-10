@@ -952,8 +952,8 @@ async function signedIn(user) {
     const ext = user.email.split('@')
 
     //var allUsersM = []
-
-    if (ext[1] == 'poppy.com' || user.email == 'tristanskyhook@gmail.com') {
+    
+    if (ext[1] == 'poppy.com' || user.email == 'tristanskyhook@gmail.com' || user.email == 'aaron@poppy.com') {
 
         ctrlBtn.style.display = 'block';
         sGroup.style.display = 'inline-block';

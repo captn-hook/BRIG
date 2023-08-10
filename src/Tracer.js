@@ -229,8 +229,11 @@ class Tracer2d extends Tracer {
 
         if (this.visible) {
 
-            var size = parseInt(cellWidth / 2.3);
-
+            if (cellWidth < cellHeight) {
+                var size = parseInt(cellWidth / 2.3);
+            } else {
+                var size = parseInt(cellHeight / 1.3);
+            }
             ctxLeft.font = size.toString() + "px Arial";
             ctxLeft.textAlign = "center";
             ctxLeft.strokeStyle = 'black';
