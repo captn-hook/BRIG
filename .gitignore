@@ -2,6 +2,7 @@ node_modules/
 models/
 data/
 dist/
+old/
 key.js
 .firebase/
 .github/
