@@ -13,9 +13,9 @@ const pages = [
 module.exports = {
     entry: {
         index: path.resolve(__dirname, '../src/index/index.js'),
-        viewer: path.resolve(__dirname, '../src/viewer/viewer.js'),
-        editor: path.resolve(__dirname, '../src/editor/editor.js'),
-        account: path.resolve(__dirname, '../src/account/account.js'),
+        // viewer: path.resolve(__dirname, '../src/viewer/viewer.js'),
+        // editor: path.resolve(__dirname, '../src/editor/editor.js'),
+        // account: path.resolve(__dirname, '../src/account/account.js'),
     },
     output: {
         filename: 'bundle.[name].js',
