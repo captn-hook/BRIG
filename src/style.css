@@ -8,8 +8,12 @@ body {
 }
 
 label {
-    font-size: small;
-    margin-left: 3px;
+    font-size: medium;
+    margin-left: auto;
+    margin-right: 3px;
+    /*center vertically*/
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 select {
@@ -418,8 +422,18 @@ a:hover {
 
 .tbOut {
     background-color: #e51e1e;
-}
+} 
+
 .btn-group {
+    transition: 0.2s;
+    height: fit-content
+}
+
+.btn-group button {
+    font-size: large !important;
+}
+
+.btn-group3 {
     transition: 0.2s;
     /*grid styling on buttons*/
     display: grid;

@@ -400,11 +400,11 @@ export function cont(pp, firebaseEnv) {
     
     document.getElementById('flipBtn').addEventListener('click', (e) => {
 
-        if (e.target.innerHTML == 'Flip Selection ◐') {
-            e.target.innerHTML = 'Flip Selection ◑';
+        if (e.target.innerHTML == 'Flip ◐') {
+            e.target.innerHTML = 'Flip ◑';
             //show values
         } else {
-            e.target.innerHTML = 'Flip Selection ◐';
+            e.target.innerHTML = 'Flip ◐';
             //hide values
         }
         //find the difference between click 1 and click 2
@@ -492,11 +492,11 @@ export function cont(pp, firebaseEnv) {
 
         var mode = null;
 
-        if (e.target.innerHTML == 'Toggle selection ◧') {
-            e.target.innerHTML = 'Toggle selection ◨';
+        if (e.target.innerHTML == 'Toggle ◧') {
+            e.target.innerHTML = 'Toggle ◨';
             mode = true;
         } else {
-            e.target.innerHTML = 'Toggle selection ◧';
+            e.target.innerHTML = 'Toggle ◧';
             mode = false;
         }
 
@@ -536,7 +536,7 @@ export function cont(pp, firebaseEnv) {
             //if saved tracers exist, turn them on 
             //display tracers
             e.target.innerHTML = 'Groups'; //button indicates next state
-            bug1.style.display = 'block'
+            bug1.style.display = 'grid'
             bug2.style.display = 'none'
             bug3.style.display = 'none'
             sizes.spreadsheetDiv.style.overflow = 'hidden';
@@ -544,7 +544,7 @@ export function cont(pp, firebaseEnv) {
             //display groups
             e.target.innerHTML = 'Areas'; //button indicates next state
             bug1.style.display = 'none'
-            bug2.style.display = 'block'
+            bug2.style.display = 'grid'
             bug3.style.display = 'none'
             sizes.spreadsheetDiv.style.overflow = 'auto';
         } else if (leftPanel.spreadsheet == state[2]) {
@@ -552,7 +552,7 @@ export function cont(pp, firebaseEnv) {
             e.target.innerHTML = 'Tracers'; //button indicates next state
             bug1.style.display = 'none'
             bug2.style.display = 'none'
-            bug3.style.display = 'block'
+            bug3.style.display = 'grid'
             sizes.spreadsheetDiv.style.overflow = 'auto';
         }
         sizes.updateSizes(leftPanel);

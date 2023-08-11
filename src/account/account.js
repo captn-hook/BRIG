@@ -12,6 +12,7 @@ import {
 
 import {
     emailLoginButton,
+    createAccountButton,
     googleLoginButton,
     resetPassButton,
     logout,
@@ -58,11 +59,13 @@ export function open(state, firebaseEnv = null) {
         let accntBtns = document.getElementById('accountBtns');
         let elog = emailLoginButton(firebaseEnv.auth, classes)
         let rp = resetPassButton(firebaseEnv.auth, classes);
+        let createAccnt = createAccountButton(firebaseEnv.auth, classes);
 
         let gg = googleLoginButton(firebaseEnv.auth, firebaseEnv.provider, classes.concat('googAcnt').concat('googPos'));
 
         accntBtns.appendChild(elog);
         accntBtns.appendChild(rp);
+        accntBtns.appendChild(createAccnt);
         accntBtns.appendChild(gg);
 
         //create account management buttons

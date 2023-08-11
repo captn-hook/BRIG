@@ -2,6 +2,7 @@ import {
     signInWithPopup,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
+    createUserWithEmailAndPassword,
     signOut
 } from "firebase/auth"
 
@@ -43,31 +44,35 @@ export function resetPassButton(auth, classes) {
                     const errorCode = error.code;
                     const errorMessage = error.message;
                     //console.log(errorCode, errorMessage);
+                    displaySignInError('resetPass');
                 });
         });
     });
     return resetPass;
 }
 
-function displaySignInError(goog = false) {
-    //console.log('displaySignInError');
+function displaySignInError(nodeid) {
+    console.log('displaySignInError', nodeid);
+    let node = document.getElementById(nodeid);
+
+    let goog = node.classList.contains('googAcnt'); 
+    console.log('displaySignInError', nodeid, goog);
     hideSignInError();
     //create a element to display error in nav
     var se = document.createElement('span');
     se.id = 'signInError';
     se.innerHTML = 'Sign In Failed';
     se.classList.add(goog ? 'googAcntError' : 'signInError');
-    let bt = document.getElementById(goog ? 'login' : 'elogin')
-
-    if (goog && bt.classList.contains('googPos')) {
+    
+    if (goog && node.classList.contains('googPos')) {
         //remove class googPos
-        bt.classList.remove('googPos');
-        bt.classList.add('signInParent');
+        node.classList.remove('googPos');
+        node.classList.add('signInParent');
     }
 
     //bt.classList.add('signInParent');
     se.addEventListener('mouseover', function() { hideSignInError(); });
-    bt.appendChild(se);
+    node.appendChild(se);
 }
 
 function hideSignInError() {
@@ -84,7 +89,7 @@ function hideSignInError() {
 }
 
 function removeGoogPos() {
-    if (document.getElementById('login').classList.contains('signInParent')) {
+    if (document.getElementById('login').classList.contains('googAcnt')) {
         let gg = document.getElementById('login')
         gg.classList.add('googPos');
         gg.classList.remove('signInParent');
@@ -105,7 +110,7 @@ export function elogin(auth) {
                 //const errorCode = error.code;
                 //const errorMessage = error.message;
                 //console.log(errorCode, errorMessage);
-                displaySignInError();
+                displaySignInError('elogin');
                 //if there is a ereset id on document, append to it
                 // if (document.getElementById('ereset') && !document.getElementById('resetPassForm')) {
                 //     console.log('ereset', document.getElementById('ereset'));
@@ -134,7 +139,7 @@ export function login(auth, provider) {
             //const errorCode = error.code;
             //const errorMessage = error.message;
             //console.log(errorCode, errorMessage);
-            displaySignInError(true);
+            displaySignInError('login');
             //console.log("Popup Sign In Failed");
         });
         
@@ -185,7 +190,7 @@ export function createButton(id, text, classes) {
 //params contains a firebaseEnv auth object
 export function emailLoginButton(auth, classes = ['Btn']) {
     var button = createButton('elogin', 'Email Login', classes);
-button.addEventListener('click', function() { elogin( auth ).catch((error) => { /*console.log(error);*/ }); });
+    button.addEventListener('click', function() { elogin( auth ).catch((error) => { /*console.log(error);*/ }); });
     //testing sign in error
     //button.addEventListener('mouseover', function() { displaySignInError(); });
     return button;
@@ -241,4 +246,34 @@ export function resetPassForm(auth) {
     form.appendChild(input);
     form.appendChild(button);
     return form;
+}
+
+export function createAccount(auth) {
+    signInWithMyPopup().then((result) => {
+        createUserWithEmailAndPassword(auth, result.user, result.password)
+            .then((userCredential) => {
+                // Signed in
+                //console.log(userCredential);
+                hideSignInError();
+                signedIn();
+            })
+            .catch((error) => {
+                //const errorCode = error.code;
+                //const errorMessage = error.message;
+                //console.log(errorCode, errorMessage);
+                displaySignInError('createAccount');
+                //console.log("Email Sign In Failed");
+            });
+    })
+    // .catch((error) => {
+    //     const errorCode = error.code;
+    //     const errorMessage = error.message;
+    //     //console.log(errorCode, errorMessage);
+    // });
+}
+
+export function createAccountButton(auth, classes = ['Btn']) {
+    var button = createButton('createAccount', 'Create Account', classes);
+    button.addEventListener('click', function() { createAccount(auth); });
+    return button;
 }
