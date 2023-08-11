@@ -33,7 +33,7 @@ canvas {
 div {
     /*height: 100vh;*/
     font-family: 'Arial';
-    font-size: 20px;
+    font-size: medium;
 }
 
 .spDark {
@@ -82,7 +82,7 @@ div {
 }
 
 .smallbt {
-    font-size: 12px !important;
+    font-size: small;
     max-height: 60%;
 }
 .lfHead {
@@ -93,7 +93,7 @@ div {
 nav {
     color: white;
     justify-content: left;
-    font-size: 16px;
+    font-size: small;
     /* hide scroll bar ? */
 }
 
@@ -101,7 +101,7 @@ article {
     height: 70%;
     border-radius: 12px;
     justify-content: left;
-    font-size: 16px;
+    font-size: medium;
     line-height: 2;
     white-space: pre-wrap;
     padding-left: 2%;
@@ -119,7 +119,7 @@ textarea {
     height: 95%;
     overflow-y: scroll;
     font-family: 'Arial';
-    font-size: 20px;
+    font-size: medium;
 }
 
 input {
@@ -132,7 +132,7 @@ input {
     height: 95%;
     overflow-y: scroll;
     font-family: 'Arial';
-    font-size: 20px;
+    font-size: medium;
     background-color: #7d7d7d;
     border-radius: 12px;
 }
@@ -144,7 +144,7 @@ input {
     width: 40%;
     height: 95%;
     font-family: 'Arial';
-    font-size: 20px;
+    font-size: medium;
 }
 
 .siteElem:hover {
@@ -275,7 +275,7 @@ input {
     border-radius: 12px;
     cursor: pointer;
     vertical-align: middle;
-    font-size: 20px;
+    font-size: medium;
     margin: 3px;
     padding-top: 4px;
     padding-bottom: 4px;
@@ -376,7 +376,7 @@ a:hover {
     cursor: pointer;
     min-width: 60px;
     min-height: 30px;
-    font-size: 26px;
+    font-size: medium;
     margin: 6px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -430,7 +430,8 @@ a:hover {
 }
 
 .btn-group button {
-    font-size: large !important;
+    /* change with screen size */
+    font-size: small;
 }
 
 .btn-group3 {
@@ -471,7 +472,8 @@ a:hover {
 th, td {
     border: 1px solid white;
     color: white;
-    font-size: 12px;
+    /*reactive*/
+    font-size: small;
     border-collapse: collapse;
     padding: 5px;
     width: 80%;
