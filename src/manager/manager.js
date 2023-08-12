@@ -13,18 +13,23 @@ import {
 import {
     getStorage,
     ref,
-    listAll,
-    getBlob,
+    //listAll,
+    //getBlob,
     updateMetadata,
-    getMetadata,
+    //getMetadata,
 } from 'firebase/storage';
 
+import {
+    default as defaultPage
+} from '../index/DefaultPage.js';
+
 export function open(state, firebaseEnv) {
+    
+    document.body.innerHTML = html;
+    defaultPage();
 
     const storage = getStorage(firebaseEnv.app);
     
-    document.body.innerHTML = html;
-
     const defaults = 'Select a site'
     const s = { value: defaults };
 

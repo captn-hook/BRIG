@@ -1,17 +1,17 @@
 import '../style.css';
 
 import {
-    initializeApp
+	initializeApp
 } from 'firebase/app';
 
 import {
-    getAuth,
-    GoogleAuthProvider,
-    onAuthStateChanged,
+	getAuth,
+	GoogleAuthProvider,
+	onAuthStateChanged,
 } from 'firebase/auth';
 
 import {
-    firebaseConfig
+	firebaseConfig
 } from '../key';
 
 import {
@@ -19,22 +19,27 @@ import {
 } from "./index.html";
 
 import {
-    userSites
+	userSites
 } from '../shared/Data.js';
 
 import {
-    getFirestore
+	doc,
+	getFirestore
 } from 'firebase/firestore';
 
 import defaultPage from './DefaultPage.js';
 
-
+import {
+    getFunctions,
+    httpsCallable,
+    connectFunctionsEmulator
+} from 'firebase/functions';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
-
+console.log('init');
 // Router state
 let currentPage;
 let currentAction;
@@ -57,7 +62,7 @@ export function loginPage() {
 		//console.log('login: ' + login);
 		nav.appendChild(elogin);
 		nav.appendChild(login);
-		
+
 	})//.catch((error) => { console.err(error); });		
 }
 
@@ -68,35 +73,59 @@ function clogin() {
 	//import loginstyle from '../shared/Log.js';
 	import('../shared/Log.js').then((module) => { module.loginStyle(); })//.catch((error) => { console.err(error); });
 	//import sitelist and add to params
-	
+	if (document.getElementById('manager')) {
+		document.getElementById('manager').style.display = 'block';
+	}
 }
 
 function getList(app, uid) {
-    const db = getFirestore(app);
+	const db = getFirestore(app);
 	return userSites(db, uid);
 }
 
-onAuthStateChanged(firebaseEnv.auth, (user) => {
+const functions = getFunctions(firebaseEnv.app);
+//connectFunctionsEmulator(functions, 'localhost', 5001);
+const allSites = httpsCallable(functions, 'allSites');
 
-    if (user) {
-		//console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
-		//console.log('RELOADING PAGE', currentParams);
-		getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
-			currentParams.siteList = list;
-			currentPage.open({params: currentParams}, firebaseEnv);
-			
-			clogin();
-		});
-    } else {
+onAuthStateChanged(firebaseEnv.auth, (user) => {
+	console.log('auth');
+	if (user) {
+		let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
+
+		if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
+			allSites().then((list) => {
+				currentParams.siteList = list;
+				currentPage.open({ params: currentParams }, firebaseEnv);
+				clogin();
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+
+			if (document.getElementById('manager')) {
+				document.getElementById('manager').style.display = 'block';
+			}
+		} else {
+			//console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
+			//console.log('RELOADING PAGE', currentParams);
+			getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
+				currentParams.siteList = list;
+
+				currentPage.open({ params: currentParams }, firebaseEnv);
+
+				clogin();
+			});
+		}
+	} else {
 		//console.log('AUTH STATE  not logged in', location.pathname);
-    }
+	}
 });
 
 
 //Bind router to events (modern browsers only)
 function registerRouter() {
 	window.addEventListener("popstate", event => {
-		
+
 		//check if the page is the same as the current page
 		//if it is, just update the params
 		//if it isn't, open the page
@@ -105,9 +134,9 @@ function registerRouter() {
 			//pass
 
 		} else if (event.state.page == currentPage.name) {
-			currentPage.open({params: event.state.params}, firebaseEnv);
+			currentPage.open({ params: event.state.params }, firebaseEnv);
 		} else {
-				
+
 			openPage(event.state || {
 				page: getCurrentPage(),
 				params: currentParams
@@ -126,7 +155,7 @@ export function bootstrapAsync(pageName) {
 	registerRouter();
 }
 export function regMatchPath(path) {
-	const pages = ['editor', 'account', 'viewer', 'manager'];
+	const pages = ['editor', 'account', 'viewer', 'manager']
 	//regex matches like /editor/whatever/doesnt/matter -> editor
 	//                   /editor -> editor
 	//                   /account -> account
@@ -166,7 +195,7 @@ function openPage(state) {
 	if (pageName != currentPath && currentPath != '') {
 		console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
 		document.location.pathname = pageName;
-	} 
+	}
 	currentAction = currentAction
 		// Close the current page
 		.then(() => currentPage && currentPage.close())
@@ -188,7 +217,7 @@ function openPage(state) {
 // Starts navigating to another page
 export function navigate(pageName, hash = '') {
 	const state = { page: pageName, params: currentParams };
-	const hist = { page: pageName};
+	const hist = { page: pageName };
 	state.params.hash = hash;
 	window.history.pushState(state, pageName, `${pageName}`);
 	openPage(state);

@@ -53,7 +53,7 @@ export function open(state, firebaseEnv) {
     const storage = getStorage(app);
 
     const functions = getFunctions(firebaseEnv.app);
-    connectFunctionsEmulator(functions, 'localhost', 5001);
+    //connectFunctionsEmulator(functions, 'localhost', 5001);
     const allSites = httpsCallable(functions, 'allSites');
 
     if (firebaseEnv.auth.currentUser) {

@@ -22,8 +22,6 @@ import {
 export function open(state, firebaseEnv = null) {
 
     document.body.innerHTML = html;
-    console.log('ACT OPEN', state);
-    console.log('WITH: ', state.params);
     defaultPage();
 
     var classes = document.getElementById('account').className.split(' ');
@@ -34,6 +32,7 @@ export function open(state, firebaseEnv = null) {
     //if there is a user, show logout, otherwise show login'
     //put username in user field
     if (firebaseEnv.auth.currentUser) {
+        console.log('user: ', firebaseEnv.auth.currentUser.email);
         let usrname = document.getElementById('username');
         usrname.innerHTML = firebaseEnv.auth.currentUser.email;
 
@@ -47,12 +46,18 @@ export function open(state, firebaseEnv = null) {
         logoutBtn.addEventListener('click', function () { logout(firebaseEnv.auth); });
 
         accntBtns.appendChild(logoutBtn);
-        //create sitelist view
-        console.log('getting list', firebaseEnv.app, firebaseEnv.auth.currentUser.uid);
-        let elem = siteListElem(state.params.siteList);
-        document.getElementById('info').appendChild(elem);
-       
+        //create sitelist view      
+        
+		let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
+		if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
+            document.getElementById('manager').style.display = 'block';
+        }
+
+        if (state.params.siteList != undefined) {
+            let elem = siteListElem(state.params.siteList);
+            document.getElementById('info').appendChild(elem);
+        }
 
     } else {
 
