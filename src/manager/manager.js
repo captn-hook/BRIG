@@ -16,48 +16,51 @@ import {
     //listAll,
     //getBlob,
     updateMetadata,
-    //getMetadata,
+    //getMetadata, 
 } from 'firebase/storage';
 
 import {
     default as defaultPage
 } from '../index/DefaultPage.js';
 
+import {
+    default as siteListElem
+} from '../account/siteListElem.js';
+
 export function open(state, firebaseEnv) {
-    
+
     document.body.innerHTML = html;
     defaultPage();
 
     const storage = getStorage(firebaseEnv.app);
-    
+
     const defaults = 'Select a site'
     const s = { value: defaults };
 
-    
+
     const functions = getFunctions(firebaseEnv.app);
     const listUsers = httpsCallable(functions, 'listUsers');
-    const allSites = httpsCallable(functions, 'allSites');
 
     const userTable = new UserTable(document.getElementById('table'), defaults);
     var allUsersM = [];
 
-    
+
     if (firebaseEnv.auth.currentUser) {
         let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
         if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
 
             document.getElementById('perms').addEventListener('click', savePerms);
-            
-            var availableSites = [];
 
-            var accessibleSites = [];
 
             var allUsersM = [];
+            if (state.params.siteList != undefined) {
+                let elem = siteListElem(state.params.siteList);
+                document.getElementById('info').appendChild(elem);
+            } else {
+                //console.log('no stparm');
+            }
 
-            var folderRef = ref(storage, '/Sites');
-            
-            allSites();
             listUsers().
                 then((u) => {
                     u.data.users.forEach((user) => {
@@ -69,7 +72,7 @@ export function open(state, firebaseEnv) {
                 });
         }
     }
-    
+
     async function savePerms() {
 
         var itemRef = ref(storage, '/Sites/' + s.value + '/' + s.value + '.glb')
@@ -103,5 +106,10 @@ export function open(state, firebaseEnv) {
         });
     };
 
+    return Promise.resolve();
 
+}
+
+export function close() {
+    return Promise.resolve();
 }

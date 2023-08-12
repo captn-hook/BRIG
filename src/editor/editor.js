@@ -54,19 +54,20 @@ export function open(state, firebaseEnv) {
 
     const functions = getFunctions(firebaseEnv.app);
     //connectFunctionsEmulator(functions, 'localhost', 5001);
-    const allSites = httpsCallable(functions, 'allSites');
+    //const allSites = httpsCallable(functions, 'allSites');
 
     if (firebaseEnv.auth.currentUser) {
         let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
         if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
 
-            console.log(allSites());
-            allSites().then((result) => {
-                console.log(result);
-                V.siteList(result.data);
-            }).catch((error) => {
-                console.log(error);
+            import('../shared/allSites.js').then(({ allSites }) => {
+                module.default(storage).then((result) => {
+                    console.log(result);
+                    V.siteList(result.data);
+                }).catch((error) => {
+                    console.log(error);
+                })
             })
         }
     }
@@ -199,7 +200,7 @@ export function open(state, firebaseEnv) {
                 i++;
             }
         })
-        V.leftPanel.groups[i] = await saveGroup(db,V.dropd.value, i, V.tracers, V.leftPanel.text)
+        V.leftPanel.groups[i] = await saveGroup(db, V.dropd.value, i, V.tracers, V.leftPanel.text)
 
     }
 

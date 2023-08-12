@@ -19,10 +19,6 @@ import {
 } from "./index.html";
 
 import {
-	userSites
-} from '../shared/Data.js';
-
-import {
 	doc,
 	getFirestore
 } from 'firebase/firestore';
@@ -35,7 +31,10 @@ import {
     connectFunctionsEmulator
 } from 'firebase/functions';
 
-// Initialize Firebase
+import {
+	getStorage, list
+} from 'firebase/storage';
+
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
@@ -80,12 +79,22 @@ function clogin() {
 
 function getList(app, uid) {
 	const db = getFirestore(app);
-	return userSites(db, uid);
+	return import('../shared/userSites.js').then((module) => { return module.default(db, uid); });
 }
+
+async function allSites(storage) {
+	return import('../shared/allSites.js').then((module) => { return module.default(storage); }).catch((error) => { 
+		console.error(error); 
+		//getlist
+		return getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid);
+		
+	});
+}
+
 
 const functions = getFunctions(firebaseEnv.app);
 //connectFunctionsEmulator(functions, 'localhost', 5001);
-const allSites = httpsCallable(functions, 'allSites');
+//
 
 onAuthStateChanged(firebaseEnv.auth, (user) => {
 	console.log('auth');
@@ -93,18 +102,18 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 		let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
 		if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
-			allSites().then((list) => {
+			allSites(getStorage(firebaseEnv.app)).then((list) => {
+				console.log('list: ' + list);
 				currentParams.siteList = list;
 				currentPage.open({ params: currentParams }, firebaseEnv);
 				clogin();
-			})
-			.catch((error) => {
-				console.error(error);
-			});
+			} );
 
 			if (document.getElementById('manager')) {
 				document.getElementById('manager').style.display = 'block';
 			}
+			// currentPage.open({ params: currentParams }, firebaseEnv);
+			// clogin();
 		} else {
 			//console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
 			//console.log('RELOADING PAGE', currentParams);
@@ -194,7 +203,9 @@ function openPage(state) {
 	currentPath = currentPath.replace('/', '').replace('/', '');
 	if (pageName != currentPath && currentPath != '') {
 		console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
-		document.location.pathname = pageName;
+		//reload root
+		window.location.href = '/';
+
 	}
 	currentAction = currentAction
 		// Close the current page

@@ -1,7 +1,6 @@
 import {
-    navigate 
-} from '../index/index.js';
-
+    default as siteListElem
+} from './siteListElem.js';
 import {
     default as defaultPage
 } from '../index/DefaultPage.js';
@@ -82,23 +81,4 @@ export function open(state, firebaseEnv = null) {
 
 export function close() {
     return Promise.resolve();
-}
-
-function siteListElem(sites) {
-    //returns a scrollable list of sites populated from 
-    let list = document.createElement('div');
-    list.id = 'siteList';
-    list.classList.add('siteList');
-
-    sites.forEach((site) => {
-        console.log('SITE: ', site);
-        let siteElem = document.createElement('div');
-        siteElem.classList.add('siteElem');
-        siteElem.innerHTML = site;
-        siteElem.addEventListener('click', function () { navigate('viewer', site); });
-
-        list.appendChild(siteElem);
-    });
-
-    return list;
 }
