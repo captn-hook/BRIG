@@ -10,22 +10,18 @@ import {
 import {
     getStorage,
     ref,
-    listAll,
-    getBlob,
-    updateMetadata,
-    getMetadata,
+    //listAll,
+    //getBlob,
+    //updateMetadata,
+    //getMetadata,
 } from 'firebase/storage';
 
 import {
     getFirestore,
-    setDoc,
+    //setDoc,
     deleteDoc,
     doc
 } from 'firebase/firestore';
-
-import {
-    UserTable
-} from './UserTable.js';
 
 import {
     Raycaster,
@@ -39,7 +35,7 @@ import {
 import {
     getFunctions,
     httpsCallable,
-    //connectFunctionsEmulator
+    connectFunctionsEmulator
 } from 'firebase/functions';
 
 //I NEED
@@ -57,35 +53,21 @@ export function open(state, firebaseEnv) {
     const storage = getStorage(app);
 
     const functions = getFunctions(firebaseEnv.app);
-    const listUsers = httpsCallable(functions, 'listUsers');
-
-    const userTable = new UserTable(document.getElementById('table'), V.defaultDropd);
-    var allUsersM = [];
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+    const allSites = httpsCallable(functions, 'allSites');
 
     if (firebaseEnv.auth.currentUser) {
         let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
         if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
 
-
-            var availableSites = [];
-
-            var accessibleSites = [];
-
-            var allUsersM = [];
-
-            var folderRef = ref(storage, '/Sites');
-            V.siteList([]);
-            allSites();
-            listUsers().
-                then((u) => {
-                    u.data.users.forEach((user) => {
-                        if (user.email.split('@')[1] != 'poppy.com') {
-                            allUsersM.push([user.uid, user.email]);
-                        }
-                    });
-                    userTable.populateTable(storage, allUsersM, V.dropd.value, state.params.darkTheme);
-                });
+            console.log(allSites());
+            allSites().then((result) => {
+                console.log(result);
+                V.siteList(result.data);
+            }).catch((error) => {
+                console.log(error);
+            })
         }
     }
 
@@ -133,41 +115,6 @@ export function open(state, firebaseEnv) {
         V.textbox.readOnly = !V.textbox.readOnly;
         e.target.innerHTML = (V.textbox.readOnly) ? 'Read Only' : 'Editable';
     })
-
-    document.getElementById('perms').addEventListener('click', savePerms);
-
-    async function savePerms() {
-
-        var itemRef = ref(storage, '/Sites/' + V.dropd.value + '/' + V.dropd.value + '.glb')
-        var inner = '';
-        let d = {}
-
-        userTable.inUsers.forEach((user) => {
-            inner += '"' + user[1] + '":"' + user[0] + '",';
-            d[user[1]] = user[0];
-            setDoc(doc(db, user[0], V.dropd.value), {
-                'access': true,
-            })
-        })
-
-        userTable.allUsers.forEach((user) => {
-            inner += '"' + user[1] + '":"false",';
-            d[user[1]] = 'false';
-            setDoc(doc(db, user[0], V.dropd.value), {
-                'access': false,
-            })
-        })
-
-        inner = inner.slice(0, -1);
-        inner = '{"customMetadata":{' + inner + '}}';
-        const newMetadata = JSON.parse(inner);
-
-        updateMetadata(itemRef, newMetadata).then((metadata) => {
-            userTable.populateTable();
-        }).catch((error) => {
-            //console.log(error)
-        });
-    };
 
     dataInput.addEventListener('change', (e) => {
         V.handleFiles(dataInput.files[0]);
@@ -316,39 +263,6 @@ export function open(state, firebaseEnv) {
             }
         }
     })
-
-    function allSites() {
-        listAll(folderRef).then((e) => {
-
-            for (var i = 0; i < e.prefixes.length; i++) {
-                availableSites.push(e.prefixes[i].name)
-            }
-
-            var promises = [];
-            for (var i = 0; i < availableSites.length; i++) {
-
-                var fileRef = ref(storage, '/Sites/' + availableSites[i] + '/' + availableSites[i] + '.glb');
-
-                promises.push(getMetadata(fileRef)
-                    .then((data) => {
-                        availableSites.sort();
-                        accessibleSites.sort();
-                        accessibleSites.push(data.name.split('.')[0])
-
-                    })
-                    .catch((err) => {
-
-                        //console.error(err);
-
-                    }));
-            }
-
-            Promise.all(promises).then(() => {
-                V.siteList(accessibleSites);
-            });
-
-        })
-    }
 
     return Promise.resolve();
 }

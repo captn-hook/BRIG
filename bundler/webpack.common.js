@@ -1,7 +1,6 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
-const OfflinePlugin = require('offline-plugin')
 const path = require('path')
 
 const pages = [
@@ -9,6 +8,7 @@ const pages = [
     'viewer',
     'editor',
     'account',
+    'manager',
 ]
 
 module.exports = {
@@ -61,7 +61,12 @@ module.exports = {
             filename: 'account.html',
             chunks: ['index', 'account']
         }),
-    ],
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, '../src/manager/manager.html'),
+            filename: 'manager.html',
+            chunks: ['index', 'manager']
+        }),
+	],
     module: {
         rules: [
             // HTML

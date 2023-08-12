@@ -36,6 +36,10 @@ div {
     font-size: medium;
 }
 
+.btn-g-large button {
+    font-size: x-large !important;
+}
+
 .spDark {
     background-color: #2b2b2b;
     color: white;
@@ -430,8 +434,28 @@ a:hover {
 }
 
 .btn-group button {
-    /* change with screen size */
-    font-size: small;
+    font-size: larger;
+}
+
+@media screen and (max-width: 1200px) {
+    .btn-group button {
+        /* change with screen size */
+        font-size: medium !important;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .btn-group button {
+        /* change with screen size */
+        font-size: small !important;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .btn-group button {
+        /* change with screen size */
+        font-size: smaller !important;
+    }
 }
 
 .btn-group3 {
@@ -453,9 +477,6 @@ a:hover {
     
 }
 
-.btn-group button {
-    font-size: x-small;
-}
 /* Add a background color on hover */
 .btn-group button:hover {
     transition: .2s;

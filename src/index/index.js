@@ -28,6 +28,8 @@ import {
 
 import defaultPage from './DefaultPage.js';
 
+
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
@@ -124,7 +126,7 @@ export function bootstrapAsync(pageName) {
 	registerRouter();
 }
 export function regMatchPath(path) {
-	const pages = ['editor', 'account', 'viewer'];
+	const pages = ['editor', 'account', 'viewer', 'manager'];
 	//regex matches like /editor/whatever/doesnt/matter -> editor
 	//                   /editor -> editor
 	//                   /account -> account

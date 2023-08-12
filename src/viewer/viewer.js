@@ -129,7 +129,7 @@ export function siteList(s) {
     while (dropd.firstChild) {
         dropd.removeChild(dropd.firstChild);
     }
-
+    console.log(s);
     //add default option
     var def = document.createElement('option');
     def.text = defaultDropd;
