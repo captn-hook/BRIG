@@ -133,6 +133,7 @@ export function open(state, firebaseEnv) {
                     });
                     userTable.populateTable(storage, allUsersM, s.value, state.params.darkTheme);
                 });
+                
         }).catch((error) => {
             //console.log(error)
         });

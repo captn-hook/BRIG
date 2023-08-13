@@ -95,7 +95,7 @@ export function siteList(s) {
     while (dropd.firstChild) {
         dropd.removeChild(dropd.firstChild);
     }
-    console.log(s);
+    //console.log(s);
     //add default option
     var def = document.createElement('option');
     def.text = defaultDropd;
@@ -179,10 +179,10 @@ export function cont(pp, firebaseEnv) {
     sizes = new ScreenSizes();
     // Lights
     const light = new AmbientLight(0x404040); // soft white light
-    light.intensity = 3;
+    light.intensity = 15;
     scene.add(light);
     //log light
-    console.log(light);
+    //console.log(light);
     
 
     // Canvassesses
@@ -524,9 +524,19 @@ export function cont(pp, firebaseEnv) {
                     //insights
                     if (leftPanel.spreadsheet) {
                         textbox.value = (insights[leftPanel.n + 2] == null) ? '' : decodeURI(insights[leftPanel.n + 2]).replaceAll('~', ',');
+                        if (textbox.value == '') {
+                            textbox.style.display = 'none';
+                        } else {
+                            textbox.style.display = 'block';
+                        }
                     } else {
 
                         textbox.value = (leftPanel.text == null) ? '' : decodeURI(leftPanel.text).replaceAll('~', ',');
+                        if (textbox.value == '') {
+                            textbox.style.display = 'none';
+                        } else {
+                            textbox.style.display = 'block';
+                        }
                     }
 
 

@@ -15,7 +15,7 @@ export default function defaultPage() {
 		var navElements = nav.getElementsByClassName('Btn');
 		for (var i = 0; i < navElements.length; i++) {
 			navElements[i].addEventListener('click', function() {
-				navigate(this.id);
+				navigate(this.id, window.location.hash);
 			});
 		}
 	}

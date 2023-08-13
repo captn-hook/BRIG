@@ -453,6 +453,7 @@ function assemble(ms, ts, tracers, insights, views) {
 }
 
 export async function sendFile(ms, ts, tracers, insights, views, db, name) {
+    console.log('sending file', name);
 
     let dataArray = assemble(ms, ts, tracers, insights, views);
 
@@ -460,15 +461,23 @@ export async function sendFile(ms, ts, tracers, insights, views, db, name) {
 
     for (let i = 0; i < dataArray.length; i++) {
 
-        document[i] = dataArray[i];
+        //for every element in da[i] arr if it is undefined set it to ''
+        for (let j = 0; j < dataArray[i].length; j++) {
+            if (dataArray[i][j] == undefined) {
+                dataArray[i][j] = '';
+            }
+            document[i] = dataArray[i];
 
+        }
+        
     }
 
     try {
+        console.log('sending file', document);
         await setDoc(doc(db, name, 'data'), document);
         console.log("Document 1 written");
     } catch (e) {
-        console.error("Error adding document");
+        console.error("Error adding document", e);
     }
 
     //create distance table

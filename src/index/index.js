@@ -20,7 +20,7 @@ import {
 } from "./index.html";
 
 import {
-	doc,
+	//doc,
 	getFirestore
 } from 'firebase/firestore';
 
@@ -28,18 +28,18 @@ import defaultPage from './DefaultPage.js';
 
 import {
     getFunctions,
-    httpsCallable,
-    connectFunctionsEmulator
+    //httpsCallable,
+    //connectFunctionsEmulator
 } from 'firebase/functions';
 
 import {
-	getStorage, list
+	getStorage,// list
 } from 'firebase/storage';
 
 const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
-console.log('init');
+//console.log('init');
 // Router state
 let currentPage;
 let currentAction;
@@ -98,7 +98,7 @@ const functions = getFunctions(firebaseEnv.app);
 //
 
 onAuthStateChanged(firebaseEnv.auth, (user) => {
-	console.log('auth');
+	//console.log('auth');
 	if (user) {
 		let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 

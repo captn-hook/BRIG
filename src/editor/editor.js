@@ -60,8 +60,7 @@ export function open(state, firebaseEnv) {
 
             import('../shared/allSites.js').then((module) => {
                 module.default(storage).then((result) => {
-                    console.log(result);
-                    V.siteList(result.data);
+                    V.siteList(result);
                 }).catch((error) => {
                     console.log(error);
                 })
@@ -87,8 +86,9 @@ export function open(state, firebaseEnv) {
     })
 
     document.getElementById('sendFiles').addEventListener('click', (e) => {
-        if (V.dropd.value != V.defaultDropd)
+        if (V.dropd.value != V.defaultDropd) {
             sendFile(V.ms, V.ts, V.tracers, V.insights, V.views, db, V.dropd.value);
+        }
     })
 
     document.getElementById('saveCam').addEventListener('click', (e) => {
@@ -102,15 +102,20 @@ export function open(state, firebaseEnv) {
     document.getElementById('editPos').addEventListener('click', (e) => {
         if (editPos) {
             editPos = false;
+            //clear style
+            e.target.style = '';
             e.target.innerHTML = 'Edit Position';
         } else {
             editPos = true;
+            //set style
+            e.target.style = 'background-color: #ff0000; color: #ffffff;';
             e.target.innerHTML = 'Stop Editing';
         }
     })
 
     document.getElementById('readOnly').addEventListener('click', (e) => {
         V.textbox.readOnly = !V.textbox.readOnly;
+        V.textbox.style.display = (V.textbox.readOnly) ? 'none' : 'block';
         e.target.innerHTML = (V.textbox.readOnly) ? 'Read Only' : 'Editable';
     })
 
@@ -125,12 +130,6 @@ export function open(state, firebaseEnv) {
         })
     }, false);
 
-
-    document.getElementById('title').addEventListener('click', (e) => {
-
-        userTable.bw = !userTable.bw;
-
-    });
 
     V.sizes.canvas2d.addEventListener('contextmenu', (e) => {
         e.preventDefault();

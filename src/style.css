@@ -56,22 +56,6 @@ div {
     transition: background-color 0s !important;
 }
 
-.ctrld {
-    z-index: 1;
-    position: absolute;
-    right: 0;
-    margin-left: auto;
-    margin-right: 0%;
-    margin-top: 0%;
-    width: 16%;
-}
-
-.ctrld button {
-    width: 40%;
-    font-size: smaller;
-
-}
-
 .spaDiv {
     height: 100vh;
 }
@@ -341,6 +325,30 @@ input {
 }
 
 .btn-group button:active {
+    transition: 0.1s;
+    background-color: #5eae51;
+    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);
+}
+
+.btn-group3 button:hover {
+    transition: .1s;
+    background-color: #3e8e41;
+    box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group3 button:active {
+    transition: 0.1s;
+    background-color: #5eae51;
+    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);
+}
+
+.btn-group4 button:hover {
+    transition: .1s;
+    background-color: #3e8e41;
+    box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group4 button:active {
     transition: 0.1s;
     background-color: #5eae51;
     box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);
