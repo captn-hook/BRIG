@@ -1,3 +1,6 @@
+import '../viewer/viewer.css';
+import './editor.css';
+
 import * as V from '../viewer/viewer.js';
 
 import { default as html } from "./editor.html";
@@ -31,13 +34,7 @@ import {
 import {
     Area,
 } from '../shared/Area.js';
-
-import {
-    getFunctions,
-    httpsCallable,
-    connectFunctionsEmulator
-} from 'firebase/functions';
-
+//  bg
 //I NEED
 //ms, ts, tracers, insights, views, db, dropd.value
 //camera, textbox, handleFiles, handlemodels, defaultDropd
@@ -45,14 +42,14 @@ export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
     V.cont(state, firebaseEnv);
     //add editor elements
-
+    
     const app = firebaseEnv.app;
-    const auth = firebaseEnv.auth;
-    const provider = firebaseEnv.provider;
+    //const auth = firebaseEnv.auth;
+    //const provider = firebaseEnv.provider;
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    const functions = getFunctions(firebaseEnv.app);
+    //const functions = getFunctions(firebaseEnv.app);
     //connectFunctionsEmulator(functions, 'localhost', 5001);
     //const allSites = httpsCallable(functions, 'allSites');
 
@@ -61,7 +58,7 @@ export function open(state, firebaseEnv) {
 
         if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
 
-            import('../shared/allSites.js').then(({ allSites }) => {
+            import('../shared/allSites.js').then((module) => {
                 module.default(storage).then((result) => {
                     console.log(result);
                     V.siteList(result.data);

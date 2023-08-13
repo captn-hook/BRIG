@@ -19,12 +19,20 @@ export class UserTable {
 
     }
     //set group to selected
+    emptyTable() {
+        this.allUsers = [];
+        this.inUsers = [];
+        this.aU = [];
+        this.iU = [];
 
-    populateTable(storage, allUsersM, dropdValue) {
+        this.table.innerHTML = '';
+    }
 
+
+    populateTable(storage, u, dropdValue) {
         if (dropdValue != this.defaultDropd && dropdValue != 'Empty' && dropdValue != 'Select a site' && dropdValue != '') {
 
-            this.allUsers = allUsersM;
+            this.allUsers = u;
             this.inUsers = [];
 
 

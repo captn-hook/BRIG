@@ -1,4 +1,5 @@
 import '../style.css';
+import './index.css';
 
 import {
 	initializeApp
@@ -103,7 +104,7 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 
 		if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
 			allSites(getStorage(firebaseEnv.app)).then((list) => {
-				console.log('list: ' + list);
+				//console.log('list: ' + list);
 				currentParams.siteList = list;
 				currentPage.open({ params: currentParams }, firebaseEnv);
 				clogin();
@@ -194,7 +195,7 @@ export function getCurrentPage() {
 // Start loading loading page
 //const loadingPage = import("./loading/page");
 // Router logic for loading and opening a page.
-function openPage(state) {
+function openPage(state, hash = '') {
 	//console.log('OPEN PAGING: ' + state);
 	//console.log('OPEN Params: ' + state.params);
 	//switchTheme(state.params.darkTheme);
@@ -205,7 +206,11 @@ function openPage(state) {
 		console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
 		//reload root
 		window.location.href = '/';
-
+	} else {
+		//set hash
+		if (hash != '') {
+			window.location.hash = hash;
+		}
 	}
 	currentAction = currentAction
 		// Close the current page
@@ -231,7 +236,7 @@ export function navigate(pageName, hash = '') {
 	const hist = { page: pageName };
 	state.params.hash = hash;
 	window.history.pushState(state, pageName, `${pageName}`);
-	openPage(state);
+	openPage(state, hash);
 }
 
 export function open(state, firebaseEnv = null) {

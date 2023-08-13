@@ -1,3 +1,4 @@
+import './sitelist.css';
 import { navigate } from '../index/index.js';
 
 export default function siteListElem(sites) {
@@ -7,12 +8,12 @@ export default function siteListElem(sites) {
     list.classList.add('siteList');
 
     sites.forEach((site) => {
-        console.log('SITE: ', site);
         let siteElem = document.createElement('div');
         siteElem.classList.add('siteElem');
+        siteElem.classList.add('BtnSite');
         siteElem.innerHTML = site;
-        siteElem.addEventListener('click', function () {  navigate('viewer', site); });
-
+        siteElem.id = site;
+        
         list.appendChild(siteElem);
     });
 

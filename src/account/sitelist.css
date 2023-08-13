@@ -1,0 +1,12 @@
+.BtnSite {
+    /* transparent */
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 1.5em;
+    color: #fff;
+    border: 0;
+}
+
+.BtnSite:hover {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.2);
+}

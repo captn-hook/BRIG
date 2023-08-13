@@ -1,3 +1,4 @@
+import './viewer.css';
 
 import {
     PerspectiveCamera,
@@ -180,6 +181,8 @@ export function cont(pp, firebaseEnv) {
     const light = new AmbientLight(0x404040); // soft white light
     light.intensity = 3;
     scene.add(light);
+    //log light
+    console.log(light);
     
 
     // Canvassesses
@@ -286,7 +289,7 @@ export function cont(pp, firebaseEnv) {
 
     if (pp.params.site) {
         //LOAD
-       //('LOADING SITE: ', pp.params.site);
+       ('LOADING SITE: ', pp.params.site);
     } else {
         interpHash();
     }
@@ -597,7 +600,10 @@ export function cont(pp, firebaseEnv) {
 
         getBlob(ref1)
             .then((blob) => {
-                handleModels(blob);
+                import('../viewer/modelHandler.js').then((module) => {
+                    module.handleModels(blob, scene);
+                })
+          
             })
             .catch((err) => {
                 console.error(err);

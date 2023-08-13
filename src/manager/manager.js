@@ -1,3 +1,4 @@
+import './manager.css';
 import { default as html } from './manager.html';
 
 import {
@@ -9,6 +10,11 @@ import {
     httpsCallable,
     //connectFunctionsEmulator
 } from 'firebase/functions';
+
+import {
+    setDoc,
+    doc,
+} from 'firebase/firestore';
 
 import {
     getStorage,
@@ -27,23 +33,27 @@ import {
     default as siteListElem
 } from '../account/siteListElem.js';
 
+import {
+	//doc,
+	getFirestore
+} from 'firebase/firestore';
+
 export function open(state, firebaseEnv) {
 
     document.body.innerHTML = html;
     defaultPage();
-
-    const storage = getStorage(firebaseEnv.app);
+    
+    const storage = getStorage(firebaseEnv.app);    
 
     const defaults = 'Select a site'
-    const s = { value: defaults };
+    var s = { value: defaults };
 
-
+    
+    const db = getFirestore(firebaseEnv.app);
     const functions = getFunctions(firebaseEnv.app);
     const listUsers = httpsCallable(functions, 'listUsers');
 
     const userTable = new UserTable(document.getElementById('table'), defaults);
-    var allUsersM = [];
-
 
     if (firebaseEnv.auth.currentUser) {
         let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
@@ -57,6 +67,19 @@ export function open(state, firebaseEnv) {
             if (state.params.siteList != undefined) {
                 let elem = siteListElem(state.params.siteList);
                 document.getElementById('info').appendChild(elem);
+              
+                function listener(idstring) {
+                    s.value = idstring;
+                    userTable.emptyTable();
+                    userTable.populateTable(storage, allUsersM, s.value, state.params.darkTheme);
+                }
+
+                for (let i = 0; i < elem.children.length; i++) {
+                    elem.children[i].addEventListener('click', function () {
+                        listener(elem.children[i].id);
+                    });
+                }
+
             } else {
                 //console.log('no stparm');
             }
@@ -100,7 +123,16 @@ export function open(state, firebaseEnv) {
         const newMetadata = JSON.parse(inner);
 
         updateMetadata(itemRef, newMetadata).then((metadata) => {
-            userTable.populateTable();
+            userTable.emptyTable();
+            listUsers().
+                then((u) => {
+                    u.data.users.forEach((user) => {
+                        if (user.email.split('@')[1] != 'poppy.com') {
+                            allUsersM.push([user.uid, user.email]);
+                        }
+                    });
+                    userTable.populateTable(storage, allUsersM, s.value, state.params.darkTheme);
+                });
         }).catch((error) => {
             //console.log(error)
         });

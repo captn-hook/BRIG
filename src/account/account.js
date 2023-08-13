@@ -1,3 +1,4 @@
+import './account.css';
 import {
     default as siteListElem
 } from './siteListElem.js';
@@ -17,6 +18,7 @@ import {
     logout,
     loginStyle
 } from '../shared/Log.js';
+import { navigate } from '../index';
 
 export function open(state, firebaseEnv = null) {
 
@@ -56,6 +58,19 @@ export function open(state, firebaseEnv = null) {
         if (state.params.siteList != undefined) {
             let elem = siteListElem(state.params.siteList);
             document.getElementById('info').appendChild(elem);
+            //for every child add listener set hash + navigate to viewer
+            function listener(idstring) {
+                let hash = idstring;
+                state.params.hash = hash;
+                window.location.hash = hash;
+                navigate('viewer', hash);
+            }
+
+            for (let i = 0; i < elem.children.length; i++) {
+                elem.children[i].addEventListener('click', function () {
+                    listener(elem.children[i].id);
+                });
+            }
         }
 
     } else {

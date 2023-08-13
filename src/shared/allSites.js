@@ -34,7 +34,7 @@ export default async function allSites(storage)  {
 
                 })
                 .catch((error) => {
-                    console.log(error);
+                    console.error(error);
                 } ) 
             ) 
         }
@@ -45,7 +45,7 @@ export default async function allSites(storage)  {
         )
     })
     .catch((error) => {
-        console.log(error);
+        console.error(error);
     }
     )
 }
