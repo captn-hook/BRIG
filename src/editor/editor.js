@@ -123,7 +123,9 @@ export function open(state, firebaseEnv) {
 
     modelInput.addEventListener('change', (e) => {
         //console.log('modelInput');
-        V.handleModels(modelInput.files[0]);
+        import('../viewer/modelHandler.js').then((module) => {
+            module.handleModels(modelInput.files[0], V.scene);
+        })
     }, false);
 
 

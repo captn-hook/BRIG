@@ -133,7 +133,8 @@ input {
 .siteList {
     margin: 2%;
     width: 40%;
-    height: 95%;
+    /*cutoff div and overflow scroll*/
+    max-height: 1000px;
     overflow-y: scroll;
     font-family: 'Arial';
     font-size: medium;
@@ -141,12 +142,25 @@ input {
     border-radius: 12px;
 }
 
+@media screen and (max-height: 800px) {
+    .siteList {
+        /* change with screen size */
+        max-height: 600px  !important;
+    }
+}
+
+@media screen and (max-height: 600px) {
+    .siteList {
+        /* change with screen size */
+        max-height: 400px !important;
+    }
+}
+
 .siteElem {
     border-radius: 12px;
     margin: 2%;
     padding: 2%;
     width: 40%;
-    height: 95%;
     font-family: 'Arial';
     font-size: medium;
 }

@@ -69,7 +69,7 @@ export var renderer;
 export const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 500);
 
 // three Scene
-const scene = new Scene();
+export const scene = new Scene();
 scene.background = new Color(0x000000);
 scene.add(camera);
 
@@ -88,41 +88,6 @@ export var sizes;
 export var globalObj;
 export var sceneMeshes = [];
 
-// onLoad callback
-export function onLoadLoad(obj) {
-
-    sceneMeshes = [];
-
-    sceneMeshes.push(obj.scene.children[0]);
-
-    obj.scene.children[0].children.forEach((e) => {
-        sceneMeshes.push(e);
-    })
-
-    scene.add(obj.scene);
-    globalObj = scene.children[scene.children.length - 1];
-}
-
-export function getGLTFLoader() {
-    return import('three/examples/jsm/loaders/GLTFLoader.js').then((GLTF) => {
-        return new GLTF.GLTFLoader;
-    });
-}
-
-export function getDRACOLoader() {
-    return getGLTFLoader().then((GLTFLoader) => {
-        return import('three/examples/jsm/loaders/DRACOLoader.js').then((DRACO) => {
-
-            const DRACOLoader = new DRACO.DRACOLoader();
-
-            DRACOLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-
-            GLTFLoader.setDRACOLoader(DRACOLoader);
-
-            return GLTFLoader;
-        });
-    })
-}
 
 export function siteList(s) {
     //empty dropdown
@@ -147,40 +112,6 @@ export function siteList(s) {
         }
     })
 
-}
-
-// onProgress callback
-export function onProgressLog(xhr) {
-    //console.log("LOADING: ", xhr.loaded / xhr.total * 100);
-}
-
-// onError callback
-export function onErrorLog(err) {
-    console.error(err)
-}
-
-export function handleModels(input) {
-    //remove old stuff first
-
-    if (globalObj != null) {
-        scene.remove(globalObj);
-    }
-
-    var read = new FileReader();
-
-    read.readAsArrayBuffer(input);
-
-
-    read.onloadend = function () {
-
-
-        getDRACOLoader().then((loader) => {
-
-            loader.parse(read.result, '', onLoadLoad, onErrorLog, onProgressLog);
-
-        })
-
-    }
 }
 
 export function handleFiles(input) {
@@ -632,7 +563,9 @@ export function cont(pp, firebaseEnv) {
 
         getBlob(ref)
             .then((blob) => {
-                handleModels(blob);
+                import('../viewer/modelHandler.js').then((module) => {
+                    module.handleModels(blob, scene);
+                })
             })
             .catch((err) => {
                 //console.error(err);
