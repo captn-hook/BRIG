@@ -82,8 +82,31 @@ export function open(state, firebaseEnv) {
     const modelInput = document.getElementById('modelpicker');
 
     const newSite = document.getElementById('newSite');
+    const newSiteBT = document.getElementById('newSiteBT');
 
+    const newRow = document.getElementById('newRow');
+    const newCol = document.getElementById('newCol');
+    const delRow = document.getElementById('delRow');
+    const delCol = document.getElementById('delCol');
+
+    const backview = document.getElementById('backView');
+    const lastview = undefined;
+    const topview = document.getElementById('topView');
     
+    const newM = document.getElementById('newM');
+    const newT = document.getElementById('newT');
+
+
+    function topView() {
+        V.camera.position.set(0, 0, 0);
+        V.camera.rotation.set(0, 0, 0);
+    }
+
+    newSite.addEventListener('click', (e) => {
+        newSiteBT.style.display = 'grid';
+    })
+
+
     document.getElementById('saveFiles').addEventListener('click', (e) => {
         saveFile(V.ms, V.ts, V.tracers, V.insights, V.views);
     })
@@ -108,11 +131,16 @@ export function open(state, firebaseEnv) {
             //clear style
             e.target.style = '';
             e.target.innerHTML = 'Edit Position';
+
+            newSiteBT.style.display = 'none';
         } else {
             editPos = true;
+            topView();
             //set style
             e.target.style = 'background-color: #ff0000; color: #ffffff;';
             e.target.innerHTML = 'Stop Editing';
+
+            newSiteBT.style.display = 'grid';
         }
     })
 
