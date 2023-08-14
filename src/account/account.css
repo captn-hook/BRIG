@@ -1,0 +1,30 @@
+
+
+.googAcnt {  /* google svg in login button */
+ 
+  
+    min-height: 35px;
+    min-width: 35px;
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    box-sizing: content-box;
+    margin-left: 20px;
+    padding: 6px;;
+    background-color: white !important;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    /*shadow*/
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    transform: translate(40%, 27%) !important;
+}
+
+.btn-group button {
+    font-size: large;
+    padding: 5px 10px;
+}
+
+.mins button {
+    min-height: 45px;
+}

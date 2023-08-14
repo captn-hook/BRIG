@@ -15,9 +15,11 @@ import {
     createAccountButton,
     googleLoginButton,
     resetPassButton,
-    logout,
-    loginStyle
+    logout
 } from '../shared/Log.js';
+
+import LoginStyle from '../shared/LoginStyle.js';
+
 import { navigate } from '../index';
 
 export function open(state, firebaseEnv = null) {
@@ -37,7 +39,7 @@ export function open(state, firebaseEnv = null) {
         let usrname = document.getElementById('username');
         usrname.innerHTML = firebaseEnv.auth.currentUser.email;
 
-        loginStyle();
+        LoginStyle();
 
         let logoutBtn = document.createElement('button');
         let accntBtns = document.getElementById('accountBtns');

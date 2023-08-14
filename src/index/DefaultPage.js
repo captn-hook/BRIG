@@ -5,7 +5,7 @@ import { navigate } from './index.js';
 import switchTheme from './SwitchTheme';'./SwitchTheme.js';
 // The application shell with shared visual components
 export default function defaultPage() {
-    switchTheme();
+   
 	//switchTheme(currentParams.darkTheme);
 	var icon = document.getElementById('icon');
 	icon.href = favi;
@@ -19,4 +19,7 @@ export default function defaultPage() {
 			});
 		}
 	}
+	
+	import('../shared/LoginStyle.js').then((module) => { module.default(); });
+	switchTheme();
 }

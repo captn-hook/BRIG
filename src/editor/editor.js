@@ -81,6 +81,9 @@ export function open(state, firebaseEnv) {
 
     const modelInput = document.getElementById('modelpicker');
 
+    const newSite = document.getElementById('newSite');
+
+    
     document.getElementById('saveFiles').addEventListener('click', (e) => {
         saveFile(V.ms, V.ts, V.tracers, V.insights, V.views);
     })

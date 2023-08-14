@@ -77,6 +77,7 @@ export function open(state, firebaseEnv) {
                 for (let i = 0; i < elem.children.length; i++) {
                     elem.children[i].addEventListener('click', function () {
                         listener(elem.children[i].id);
+                        document.getElementById('sname').innerHTML = elem.children[i].id;
                     });
                 }
 

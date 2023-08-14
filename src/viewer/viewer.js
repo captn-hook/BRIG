@@ -80,6 +80,7 @@ export var textbox;
 
 export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
+    
     return cont(state, firebaseEnv);
 }
 
