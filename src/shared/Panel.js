@@ -1,6 +1,5 @@
 class Panel {
     constructor(c) {
-
         this.state = {
             0: 'spreadsheet',
             1: 'groups',
@@ -221,7 +220,9 @@ class Panel {
     }
 
     place(e) {
-
+        console.log('e', e)
+        console.log('this.spreadsheet', this.spreadsheet)
+        console.log('ms', this.ms)
         if (this.spreadsheet == this.state[0]) {
             if (this.camFree) {
                 this.looking = true;

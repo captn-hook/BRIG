@@ -80,7 +80,7 @@ export var textbox;
 
 export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
-    
+
     return cont(state, firebaseEnv);
 }
 
@@ -140,11 +140,11 @@ export function handleFiles(input) {
 
 
 export function cont(pp, firebaseEnv) {
-    
+
     defaultPage();
     //console.log('viewer open', pp);
     //console.log('WITH: ', pp.params);
-    
+
     //firebase
     const app = firebaseEnv.app;
     const auth = firebaseEnv.auth;
@@ -154,27 +154,31 @@ export function cont(pp, firebaseEnv) {
 
     leftPanel = new Panel(document.getElementById('left'));
 
+    leftPanel.ms = ms;
+    leftPanel.ts = ts;
+    leftPanel.tracers = tracers;
+
     dropd = document.getElementById('dropdown');
     textbox = document.getElementById('textbox');
-    
+
     camera.position.set(5, 5, 5);
     camera.lookAt(new Vector3(0, 0, 0));
     var cameraTargPos = new Vector3(5, 5, 5);
     var cameraTargView = new Vector3(0, 0, 0);
-    
+
     var alpha = true;
     var camFree = false;
-    
+
     var bw = pp.params.darkTheme;
-    
+
     var stupid = null;
-    
+
     var doVals = false;
-    
+
     var lastgi = -1;
     var lastai = -1;
 
-    
+
     window.dispatchEvent(new Event('hashchange'));
 
     sizes = new ScreenSizes();
@@ -184,7 +188,7 @@ export function cont(pp, firebaseEnv) {
     scene.add(light);
     //log light
     //console.log(light);
-    
+
 
     // Canvassesses
     const canvas3d = document.querySelector('canvas.webgl'); //viewer
@@ -193,16 +197,16 @@ export function cont(pp, firebaseEnv) {
     const controls = new OrbitControls(camera, canvas2d);
 
 
-    sizes.updateSizes(leftPanel);
+    sizes.updateSizes(leftPanel, ms, ts, tracers);
 
     renderer = new WebGLRenderer({
         canvas: canvas3d
     });
-    
-    
+
+
     renderer.setSize(sizes.width, sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    
+
     const clock = new Clock();
 
 
@@ -212,7 +216,7 @@ export function cont(pp, firebaseEnv) {
     const bug2 = document.getElementById('bug2');
     const bug3 = document.getElementById('bug3');
 
-    //load files from google storage by dropdown name
+    //popstate check if leftpanel has lost data
     dropd.addEventListener('change', (event) => {
 
         //console.log("DROPD", event.target.value);
@@ -236,22 +240,11 @@ export function cont(pp, firebaseEnv) {
 
         if (targ != defaultDropd) {
 
+            loadSite(targ);
+
             var modelRef = ref(storage, '/Sites/' + targ + '/' + targ + '.glb');
-
-            // .glb, load model
-
-            //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
-
-            //loadRefs(modelRef, dataRef)
-            leftPanel.groups = GetGroups(db, targ);
-            leftPanel.areas = GetAreas(db, targ);
-            //console.log("AREAS", leftPanel.areas);
-            //console.log("GROUPS", leftPanel.groups);
-            //console.log("GETING", targ);
+            
             loadRefAndDoc(modelRef, targ);
-
-            leftPanel.siteheader = targ;
-
         } else {
             //load default
 
@@ -279,6 +272,20 @@ export function cont(pp, firebaseEnv) {
 
     })
 
+    function loadSite(targ) {
+        // .glb, load model
+
+        //var dataRef = ref(storage, '/Sites/' + event.target.value + '/data.csv');
+
+        //loadRefs(modelRef, dataRef)
+        leftPanel.groups = GetGroups(db, targ);
+        leftPanel.areas = GetAreas(db, targ);
+        //console.log("AREAS", leftPanel.areas);
+        //console.log("GROUPS", leftPanel.groups);
+        //console.log("GETING", targ);
+
+        leftPanel.siteheader = targ;
+    }
 
     const vs = document.getElementById('valueBtnS')
 
@@ -290,7 +297,7 @@ export function cont(pp, firebaseEnv) {
 
     if (pp.params.site) {
         //LOAD
-       ('LOADING SITE: ', pp.params.site);
+        ('LOADING SITE: ', pp.params.site);
     } else {
         interpHash();
     }
@@ -298,12 +305,12 @@ export function cont(pp, firebaseEnv) {
     if (pp.params.siteList) {//have to wait for resolve
         siteList(pp.params.siteList);
     }
-    
+
     vs.addEventListener('click', valueButton);
     document.getElementById('valueBtnG').addEventListener('click', valueButton);
     document.getElementById('valueBtnA').addEventListener('click', valueButton);
 
-    
+
     function valueButton(e) {
         if (e.target.innerHTML == 'Show values') {
             e.target.innerHTML = 'Hide values';
@@ -315,7 +322,7 @@ export function cont(pp, firebaseEnv) {
             doVals = false;
         }
     }
-    
+
     document.getElementById('opacityBtnS').addEventListener('click', opacityButton);
     document.getElementById('opacityBtnG').addEventListener('click', opacityButton);
     document.getElementById('opacityBtnA').addEventListener('click', opacityButton);
@@ -332,7 +339,7 @@ export function cont(pp, firebaseEnv) {
         }
     }
 
-    
+
     document.getElementById('flipBtn').addEventListener('click', (e) => {
 
         if (e.target.innerHTML == 'Flip ◐') {
@@ -371,7 +378,7 @@ export function cont(pp, firebaseEnv) {
         }
     })
 
-    
+
     document.getElementById('camBtn').addEventListener('click', (e) => {
         if (e.target.innerHTML == 'Multi 🎥') {
             e.target.innerHTML = 'Locked 📷';
@@ -497,7 +504,7 @@ export function cont(pp, firebaseEnv) {
 
         //console.log(leftPanel.camFree, leftPanel.looking, leftPanel.spreadsheet, leftPanel.n, leftPanel.gi)
 
-        if (leftPanel.camFree && leftPanel.spreadsheet == state[0] ) {
+        if (leftPanel.camFree && leftPanel.spreadsheet == state[0]) {
             try {
                 //fail quietly if cannot set camera
                 if (leftPanel.mt == 0) {
@@ -555,7 +562,7 @@ export function cont(pp, firebaseEnv) {
             try {
                 cameraTargPos = new Vector3(leftPanel.groups[i]['pos'][0] + 5, leftPanel.groups[i]['pos'][2] + 10, leftPanel.groups[i]['pos'][1] + 3);
                 cameraTargView = new Vector3(leftPanel.groups[i]['pos'][0], leftPanel.groups[i]['pos'][2], leftPanel.groups[i]['pos'][1]);
-            } catch (e) {}
+            } catch (e) { }
 
             //console.log(cameraTargPos, cameraTargView)
 
@@ -569,7 +576,7 @@ export function cont(pp, firebaseEnv) {
             try {
                 cameraTargPos = new Vector3(leftPanel.areas[i].avgPos()[0] + 5, leftPanel.areas[i].avgPos()[2] + 10, leftPanel.areas[i].avgPos()[1] + 3);
                 cameraTargView = new Vector3(leftPanel.areas[i].avgPos()[0], leftPanel.areas[i].avgPos()[2], leftPanel.areas[i].avgPos()[1]);
-            } catch (e) {}
+            } catch (e) { }
         }
     }
 
@@ -590,7 +597,7 @@ export function cont(pp, firebaseEnv) {
             [ms, ts, tracers, insights, views] = data;
 
             //console.log(ms, ts, tracers, insights, views)
-            
+
             leftPanel.setTracers(ms, ts, tracers)
 
             if (stupid != null) {
@@ -614,7 +621,7 @@ export function cont(pp, firebaseEnv) {
                 import('../viewer/modelHandler.js').then((module) => {
                     module.handleModels(blob, scene);
                 })
-          
+
             })
             .catch((err) => {
                 console.error(err);
@@ -631,7 +638,7 @@ export function cont(pp, firebaseEnv) {
             })
 
     }
-    
+
     document.addEventListener('DOMContentLoaded', (e) => {
         sizes.updateSizes(leftPanel);
     })
@@ -676,15 +683,15 @@ export function cont(pp, firebaseEnv) {
     })
 
     sizes.canvas2d.addEventListener('click', (e) => {
-            stoplookin();
+        stoplookin();
 
-            //store pos in link
-            var pos = String('P=' + Math.round(camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
+        //store pos in link
+        var pos = String('P=' + Math.round(camera.position.x * 100) / 100) + '/' + String(Math.round(camera.position.y * 100) / 100) + '/' + String(Math.round(camera.position.z * 100) / 100) + '/' + String(Math.round(camera.rotation.x * 100) / 100) + '/' + String(Math.round(camera.rotation.y * 100) / 100) + '/' + String(Math.round(camera.rotation.z * 100) / 100)
 
-            if (pos[0] != null) {
-                window.location.hash = leftPanel.siteheader + '&' + pos;
-            }
-        },
+        if (pos[0] != null) {
+            window.location.hash = leftPanel.siteheader + '&' + pos;
+        }
+    },
         false);
 
     textbox.addEventListener('input', e => {
@@ -699,17 +706,17 @@ export function cont(pp, firebaseEnv) {
     })
 
     function interpHash() {
-        
+
         var hash = window.location.hash.substring(1)
 
         if (hash[0] != '&') {
             var params = hash.split('&');
 
-      
+
             if (params[0] != leftPanel.siteheader && params[0][0] != 'X' && params[0][0] != 'P' && params[0][0] != 'G') {
                 leftPanel.siteheader = params[0];
                 dropd.value = params[0];
-                dropd.dispatchEvent(new Event('change'));   
+                dropd.dispatchEvent(new Event('change'));
             }
 
             if (params[1] && params[1][0] == 'G') {
@@ -827,12 +834,12 @@ export function cont(pp, firebaseEnv) {
         //Tracers
         if (leftPanel.spreadsheet != state[2]) {
             tracers.forEach(t => t.drawTracer(leftPanel, camera, sizes, alpha, doVals));
-    
+
             //Points
             ms.forEach(pt => pt.drawPt(leftPanel, camera, sizes, pp.params.darkTheme));
             ts.forEach(pt => pt.drawPt(leftPanel, camera, sizes, pp.params.darkTheme));
         }
-        
+
         if (leftPanel) {
             if (pp.params.darkTheme) {
                 leftPanel.ctx.fillStyle = 'black';

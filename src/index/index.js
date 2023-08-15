@@ -243,7 +243,7 @@ function openPage(state, hash = '') {
 // Router logic, Called by pages
 // Starts navigating to another page
 export function navigate(pageName, hash = '') {
-	console.log('navigate: ', pageName, hash);
+	//console.log('navigate: ', pageName, hash);
 	if (hash == '') {
 		hash = location.hash;
 	}

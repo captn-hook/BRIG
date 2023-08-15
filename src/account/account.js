@@ -35,7 +35,7 @@ export function open(state, firebaseEnv = null) {
     //if there is a user, show logout, otherwise show login'
     //put username in user field
     if (firebaseEnv.auth.currentUser) {
-        console.log('user: ', firebaseEnv.auth.currentUser.email);
+        //console.log('user: ', firebaseEnv.auth.currentUser.email);
         let usrname = document.getElementById('username');
         usrname.innerHTML = firebaseEnv.auth.currentUser.email;
 
