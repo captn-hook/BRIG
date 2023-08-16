@@ -34,11 +34,29 @@ import {
 import {
     Area,
 } from '../shared/Area.js';
+
+import { navigate } from '../index';
+
+import {
+    Point2d
+} from '../shared/Point.js';
+
+
 //  bg
 //I NEED
 //ms, ts, tracers, insights, views, db, dropd.value
 //camera, textbox, handleFiles, handlemodels, defaultDropd
 export function open(state, firebaseEnv) {
+    if (!firebaseEnv.auth.currentUser) {
+        //set timeout to give time for login refresh from local storage
+        setTimeout(() => {
+            if (!firebaseEnv.auth.currentUser) {
+                navigate('account');
+            }
+        }
+            , 2000);
+    }
+
     document.body.innerHTML = html;
     V.cont(state, firebaseEnv);
     //add editor elements
@@ -84,6 +102,8 @@ export function open(state, firebaseEnv) {
     const newSite = document.getElementById('newSite');
     const newSiteBT = document.getElementById('newSiteBT');
 
+    const uploadPanel = document.getElementById('selectPanel2');
+
     const newRow = document.getElementById('newRow');
     const newCol = document.getElementById('newCol');
     const delRow = document.getElementById('delRow');
@@ -104,6 +124,39 @@ export function open(state, firebaseEnv) {
 
     newSite.addEventListener('click', (e) => {
         newSiteBT.style.display = 'grid';
+
+        let newsitename = prompt("Enter Site Name");
+
+        if (newsitename != null) {
+            //upload blank csv to create storage folder
+            sendFile([], [], [], [], [], db, newsitename);
+            
+            V.leftPanel.siteheader = newsitename;
+            V.dropd.value = newsitename;
+            var option = document.createElement('option');
+            option.text = newsitename;
+            V.dropd.add(option);
+            V.dropd.selectedIndex = V.dropd.length - 1;
+         
+            V.dropd.dispatchEvent(new Event('change'));
+            document.getElementById('editPos').dispatchEvent(new Event('click'));
+            uploadPanel.style.display = 'block';
+        }
+    })
+
+    newRow.addEventListener('click', (e) => {
+        //somehow get a click event with drag and follow mouse onto canvas2d
+        let pos = new Vector3(0, 0, 0);
+        let i = V.ms.length;
+        V.ms.push(new Point2d("M", i - 1, 'red', pos, 7));
+        V.reloadPanel();
+    })
+
+    newCol.addEventListener('click', (e) => {
+        let pos = new Vector3(0, 0, 0);
+        let i = V.ts.length;
+        V.ts.push(new Point2d("D", i - 1, 'blue', pos, 3.5));
+        V.reloadPanel();
     })
 
 
@@ -216,7 +269,11 @@ export function open(state, firebaseEnv) {
 
     async function plant1() {
         if (V.leftPanel.gi != 0 && V.leftPanel.gi != -1) {
-            V.leftPanel.groups[V.leftPanel.gi] = await saveGroup(db, V.dropd.value, V.leftPanel.gi, V.tracers, V.leftPanel.text)
+            // await saveGroup(db, V.dropd.value, V.leftPanel.gi, V.tracers, V.leftPanel.text)
+            import('../shared/saveGroup.js').then((module) => { 
+                V.leftPanel.groups[V.leftPanel.gi] = module.default(db, V.dropd.value, V.leftPanel.gi, V.tracers, V.leftPanel.text)
+                console.log(V.leftPanel.groups[V.leftPanel.gi])
+            })
         }
     }
 
@@ -229,8 +286,11 @@ export function open(state, firebaseEnv) {
                 i++;
             }
         })
-        V.leftPanel.groups[i] = await saveGroup(db, V.dropd.value, i, V.tracers, V.leftPanel.text)
-
+        //await saveGroup(db, V.dropd.value, i, V.tracers, V.leftPanel.text)
+        import('../shared/saveGroup.js').then((module) => { 
+            V.leftPanel.groups[i] = module.default(db, V.dropd.value, i, V.tracers, V.leftPanel.text)
+            console.log(V.leftPanel.groups[i])
+        })   
     }
 
     dGroup.addEventListener('click', (e) => {

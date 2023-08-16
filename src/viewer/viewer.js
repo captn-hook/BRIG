@@ -138,6 +138,13 @@ export function handleFiles(input) {
     }
 }
 
+export function reloadPanel() {
+    leftPanel.setTracers(ms, ts, tracers)
+    //resize sheet if sizes isnt undefined
+    if (sizes != undefined) {
+        sizes.updateSizes(leftPanel);
+    }
+}
 
 export function cont(pp, firebaseEnv) {
 

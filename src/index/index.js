@@ -107,7 +107,6 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 		let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
 		if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
-			//console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
 			allSites(getStorage(firebaseEnv.app)).then((list) => {
 				//console.log('list: ' + list);
 				currentParams.siteList = list;
@@ -117,8 +116,6 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 			} );
 
 		} else {
-			//console.log('AUTH STATE logged in', firebaseEnv.auth.currentUser);
-			console.log('RELOADING PAGE', currentParams);
 			getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
 				currentParams.siteList = list;
 

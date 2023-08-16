@@ -182,7 +182,6 @@ class Panel {
         } else if (this.spreadsheet == this.state[1]) {
             if (this.gi != this.cellY - 1) {
                 this.gi = this.cellY - 1
-                this.text = this.groups[this.gi]['text']
 
                 if (this.groups[this.gi] != undefined) {
                     this.text = this.groups[this.gi]['text']
@@ -220,9 +219,6 @@ class Panel {
     }
 
     place(e) {
-        console.log('e', e)
-        console.log('this.spreadsheet', this.spreadsheet)
-        console.log('ms', this.ms)
         if (this.spreadsheet == this.state[0]) {
             if (this.camFree) {
                 this.looking = true;
@@ -342,41 +338,41 @@ class Panel {
     }
 
     groupFrame(textbox) {
-
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        if (this.groups && this.groups.length > 0) {
+            for (var i in this.groups) { //plus scroll?
+                if (this.groups[i] && i != 0) { //safety check, omit first group
 
-        for (var i in this.groups) { //plus scroll?
-            if (this.groups[i] && i != 0) { //safety check, omit first group
+                    var h = Math.ceil(this.cellHeight)
 
-                var h = Math.ceil(this.cellHeight)
+                    i = parseInt(i)
 
-                i = parseInt(i)
+                    if (i < this.cellY && this.cellY <= (i + 1)) {
+                        this.ctx.fillStyle = 'yellow'
+                    } else if (i == this.gi) {
+                        this.ctx.fillStyle = 'lightgrey'
+                    } else {
+                        this.ctx.fillStyle = 'grey'
+                    }
 
-                if (i < this.cellY && this.cellY <= (i + 1)) {
-                    this.ctx.fillStyle = 'yellow'
-                } else if (i == this.gi) {
-                    this.ctx.fillStyle = 'lightgrey'
-                } else {
-                    this.ctx.fillStyle = 'grey'
+                    this.ctx.fillRect(0, i * h, this.canvas.width, h);
+
+                    this.ctx.lineJoin = "round";
+                    this.ctx.font = String(this.fontsize) + "px Arial";
+                    this.ctx.textAlign = "center";
+                    this.ctx.strokeStyle = 'black';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.fillStyle = 'white';
+
+                    var text = this.groups[i]['name'];
+
+
+                    this.ctx.strokeText(text, this.canvas.width / 2, i * h + h / 1.3);
+                    this.ctx.fillStyle = this.color;
+                    this.ctx.fillText(text, this.canvas.width / 2, i * h + h / 1.3);
+
+                    textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
                 }
-
-                this.ctx.fillRect(0, i * h, this.canvas.width, h);
-
-                this.ctx.lineJoin = "round";
-                this.ctx.font = String(this.fontsize) + "px Arial";
-                this.ctx.textAlign = "center";
-                this.ctx.strokeStyle = 'black';
-                this.ctx.lineWidth = 2;
-                this.ctx.fillStyle = 'white';
-
-                var text = this.groups[i]['name'];
-
-
-                this.ctx.strokeText(text, this.canvas.width / 2, i * h + h / 1.3);
-                this.ctx.fillStyle = this.color;
-                this.ctx.fillText(text, this.canvas.width / 2, i * h + h / 1.3);
-
-                textbox.value = (this.text == null) ? '' : decodeURI(this.text).replaceAll('~', ',');
             }
         }
     }

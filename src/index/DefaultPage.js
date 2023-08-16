@@ -20,6 +20,6 @@ export default function defaultPage() {
 		}
 	}
 	
-	import('../shared/LoginStyle.js').then((module) => { module.default(); });
+	//import('../shared/LoginStyle.js').then((module) => { module.default(); });
 	switchTheme();
 }

@@ -39,7 +39,11 @@ import {
 } from 'firebase/firestore';
 
 export function open(state, firebaseEnv) {
-
+    if (!firebaseEnv.auth.currentUser) {
+        navigate('account');
+        return Promise.resolve();
+    }
+    
     document.body.innerHTML = html;
     defaultPage();
     
