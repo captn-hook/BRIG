@@ -77,6 +77,7 @@ scene.add(camera);
 export const defaultDropd = 'Select a site';
 export var dropd;
 export var textbox;
+export var camFree = false;
 
 export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
@@ -86,10 +87,6 @@ export function open(state, firebaseEnv) {
 
 export var leftPanel;
 export var sizes;
-
-export var globalObj;
-export var sceneMeshes = [];
-
 
 export function siteList(s) {
     //empty dropdown
@@ -138,6 +135,10 @@ export function handleFiles(input) {
     }
 }
 
+export function setTracer(tracers2) {
+    tracers = tracers2;
+}
+
 export function reloadPanel() {
     leftPanel.setTracers(ms, ts, tracers)
     //resize sheet if sizes isnt undefined
@@ -174,7 +175,6 @@ export function cont(pp, firebaseEnv) {
     var cameraTargView = new Vector3(0, 0, 0);
 
     var alpha = true;
-    var camFree = false;
 
     var bw = pp.params.darkTheme;
 
@@ -385,7 +385,7 @@ export function cont(pp, firebaseEnv) {
         }
     })
 
-
+    leftPanel.setcam(camFree);
     document.getElementById('camBtn').addEventListener('click', (e) => {
         if (e.target.innerHTML == 'Multi 🎥') {
             e.target.innerHTML = 'Locked 📷';
@@ -403,6 +403,7 @@ export function cont(pp, firebaseEnv) {
             camFree = true;
             leftPanel.setcam(camFree)
         }
+
     })
 
     document.getElementById('resetBtn').addEventListener('click', (e) => {

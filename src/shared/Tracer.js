@@ -109,9 +109,10 @@ class Tracer extends CanvasObject {
 
 }
 
+//constructor(m = 0, t = 0, value = 0, headroom = 40, lift = 60) 
 class Tracer2d extends Tracer {
 
-    constructor(m, t, value, headroom, lift) {
+    constructor(m, t, value, headroom = 40, lift = 60) {
 
         super(m, t, value, headroom, lift);
 
