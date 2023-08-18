@@ -12,7 +12,7 @@
     margin-left: 20px;
     padding: 6px;;
     background-color: white !important;
-    border-radius: 12px;
+    border-radius: 12px !important;
     border: none;
     cursor: pointer;
     /*shadow*/

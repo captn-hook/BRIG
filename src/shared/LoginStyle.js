@@ -1,6 +1,7 @@
 
 export default function loginStyle() {
 	//remove restricted classes for logged in users
+    console.log("loginStyle");
 	var elements = document.querySelectorAll('[class*="restricted"]')
     //console.log(elements);
 	for (var i = 0; i < elements.length; i++) {

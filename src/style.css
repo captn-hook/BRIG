@@ -164,7 +164,7 @@ input {
     max-height: 30px;
     max-width: 30px;
     background-color: white !important;
-    border-radius: 12px;
+    border-radius: 12px !important;
     border: none;
     cursor: pointer;
     /*shadow*/
@@ -270,6 +270,9 @@ input {
 
 .btn-group button {
     font-size: larger;
+    border: none;
+    border-radius: 5px;
+    margin: 2px;
 }
 
 @media screen and (max-width: 1200px) {

@@ -79,18 +79,18 @@ export function open(state, firebaseEnv) {
     //const allSites = httpsCallable(functions, 'allSites');
 
     if (firebaseEnv.auth.currentUser) {
-        let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
+        // let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
-        if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
+        // if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
 
-            import('../shared/allSites.js').then((module) => {
-                module.default(storage).then((result) => {
-                    V.siteList(result);
-                }).catch((error) => {
-                    console.log(error);
-                })
-            })
-        }
+        //     import('../shared/allSites.js').then((module) => {
+        //         module.default(storage).then((result) => {
+        //             V.siteList(result);
+        //         }).catch((error) => {
+        //             console.log(error);
+        //         })
+        //     })
+        // }
     }
 
 

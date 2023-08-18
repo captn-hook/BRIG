@@ -73,6 +73,9 @@ export const camera = new PerspectiveCamera(75, window.innerWidth / window.inner
 export const scene = new Scene();
 scene.background = new Color(0x000000);
 scene.add(camera);
+const light = new AmbientLight(0x404040); // soft white light
+light.intensity = 15;
+scene.add(light);
 
 export const defaultDropd = 'Select a site';
 export var dropd;
@@ -152,7 +155,9 @@ export function cont(pp, firebaseEnv) {
     defaultPage();
     //console.log('viewer open', pp);
     //console.log('WITH: ', pp.params);
-
+    if (firebaseEnv.auth.currentUser) {
+        import('../shared/LoginStyle.js').then((module) => { module.default(); });
+    }
     //firebase
     const app = firebaseEnv.app;
     const auth = firebaseEnv.auth;
@@ -190,9 +195,7 @@ export function cont(pp, firebaseEnv) {
 
     sizes = new ScreenSizes();
     // Lights
-    const light = new AmbientLight(0x404040); // soft white light
-    light.intensity = 15;
-    scene.add(light);
+    
     //log light
     //console.log(light);
 
