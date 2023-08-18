@@ -296,19 +296,22 @@ input {
     }
 }
 
-.btn-group3 {
-    transition: 0.2s;
-    /*grid styling on buttons*/
+.g3 {
     display: grid;
     grid-template-columns: auto auto auto;
     grid-template-rows: auto auto auto;
 }
 
-.btn-group4 {
-    transition: 0.2s;
+.g4 {
     display: grid;
     grid-template-columns: auto auto auto auto;
     grid-template-rows: auto auto auto auto;    
+}
+
+.g5 {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto;
 }
 
 /* Add a background color on hover */
@@ -319,30 +322,6 @@ input {
 }
 
 .btn-group button:active {
-    transition: 0.1s;
-    background-color: #5eae51;
-    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);
-}
-
-.btn-group3 button:hover {
-    transition: .1s;
-    background-color: #3e8e41;
-    box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.1);
-}
-
-.btn-group3 button:active {
-    transition: 0.1s;
-    background-color: #5eae51;
-    box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);
-}
-
-.btn-group4 button:hover {
-    transition: .1s;
-    background-color: #3e8e41;
-    box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.1);
-}
-
-.btn-group4 button:active {
     transition: 0.1s;
     background-color: #5eae51;
     box-shadow: inset 0 0 10px 5px rgba(0, 0, 0, 0.5);

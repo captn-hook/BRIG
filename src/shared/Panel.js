@@ -316,6 +316,20 @@ class Panel {
        
     }
 
+    selectLastX() {
+        this.firstClickY = 1;
+        this.secondClickY = 1;
+        this.firstClickX = this.ts.length + 1;
+        this.secondClickX = this.ts.length + 1;
+    }
+
+    selectLastY() {
+        this.firstClickX = 1;
+        this.secondClickX = 1;
+        this.firstClickY = this.ms.length + 1;
+        this.secondClickY = this.ms.length + 1;
+    }
+
     bounds(x1, y1, x2, y2) {
         //returns the bounds of the current selection
         var x = (((x1 < x2) ? x1 : x2) - 1) * this.cellWidth

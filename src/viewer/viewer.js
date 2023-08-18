@@ -142,8 +142,19 @@ export function setTracer(tracers2) {
     tracers = tracers2;
 }
 
-export function reloadPanel() {
+export function reloadPanel(bool = undefined) {
+    //if undefined, do nothing, if true new M, if false new T
     leftPanel.setTracers(ms, ts, tracers)
+    //select if new 
+    if (bool != undefined) {
+        leftPanel.blankClicks();
+        if (bool) {
+            leftPanel.selectLastY();
+        } else {
+            leftPanel.selectLastX();
+        }
+    }
+
     //resize sheet if sizes isnt undefined
     if (sizes != undefined) {
         sizes.updateSizes(leftPanel);

@@ -106,24 +106,24 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 	if (user) {
 		let ext = firebaseEnv.auth.currentUser.email.split('@')[1];
 
-		if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
-			allSites(getStorage(firebaseEnv.app)).then((list) => {
-				//console.log('list: ' + list);
-				currentParams.siteList = list;
-				//console.log('currentpage: ', currentPage);
-				currentPage.open({ params: currentParams }, firebaseEnv);
-				clogin();
-			} );
+		//if (ext[1] == 'poppy.com' || firebaseEnv.auth.currentUser.email == 'tristanskyhook@gmail.com') {
+		allSites(getStorage(firebaseEnv.app)).then((list) => {
+			//console.log('list: ' + list);
+			currentParams.siteList = list;
+			//console.log('currentpage: ', currentPage);
+			currentPage.open({ params: currentParams }, firebaseEnv);
+			clogin();
+		} );
 
-		} else {
-			getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
-				currentParams.siteList = list;
+		// } else {
+		// 	getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
+		// 		currentParams.siteList = list;
 
-				currentPage.open({ params: currentParams }, firebaseEnv);
+		// 		currentPage.open({ params: currentParams }, firebaseEnv);
 
-				clogin();
-			});
-		}
+		// 		clogin();
+		// 	});
+		// }
 	} else {
 		//console.log('AUTH STATE  not logged in', location.pathname);
 	}
@@ -204,19 +204,8 @@ function openPage(state, hash = '') {
 	//console.log('OPEN PAGING: ' + state);
 	//console.log('OPEN Params: ' + state.params);
 	//switchTheme(state.params.darkTheme);
-	const pageName = state.page;
-	// var currentPath = document.location.pathname
-	// currentPath = currentPath.replace('/', '').replace('/', '');
-	// if (pageName != currentPath && currentPath != '') {
-	// 	console.error('pathname: ' + currentPath + ' does not match pageName: ' + pageName);
-	// 	//reload root
-	// 	window.location.href = '/';
-	// } else {
-	// 	//set hash
-	// 	if (hash != '') {
-	// 		window.location.hash = hash;
-	// 	}
-	// }
+	const pageName = firebaseEnv.auth.currentUser ? state.page : 'account';
+
 	currentAction = currentAction
 		// Close the current page
 		.then(() => currentPage && currentPage.close())

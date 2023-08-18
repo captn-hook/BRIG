@@ -145,7 +145,7 @@ export function open(state, firebaseEnv) {
             V.ts.push(new Point2d("D", i + 1, 'blue', pos, 3.5));
             appendNewTTracers(V.ts[V.ts.length - 1]);
         }
-        V.reloadPanel();
+        V.reloadPanel(bool);
     }
 
     /* record the position of the touch
@@ -239,7 +239,6 @@ export function open(state, firebaseEnv) {
 
             V.dropd.dispatchEvent(new Event('change'));
             document.getElementById('editPos').dispatchEvent(new Event('click'));
-            uploadPanel.style.display = 'block';
         }
     })
 
@@ -338,6 +337,8 @@ export function open(state, firebaseEnv) {
             e.target.innerHTML = 'Edit Position';
 
             newSiteBT.style.display = 'none';
+            
+            uploadPanel.style.display = 'none';
         } else {
             editPos = true;
             topView();
@@ -347,6 +348,7 @@ export function open(state, firebaseEnv) {
             e.target.innerHTML = 'Stop Editing';
 
             newSiteBT.style.display = 'grid';
+            uploadPanel.style.display = 'block';
         }
     })
 

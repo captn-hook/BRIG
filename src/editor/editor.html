@@ -10,12 +10,12 @@
 
 <body class="bgDark">
     <div id="ctrl" class="ctrld btn-group fgDark">
-        <button class="smallBt Btn btDark" id="saveFiles" title="Download spreadsheet data">Download data</button>
-        <button class="smallBt Btn btDark" id="sendFiles" title="Send spreadsheet data">Save data</button>
-        <button class="smallBt Btn btDark" id="saveCam" title="Save camera position to data file">Save Camera</button>
-        <button class="smallBt Btn btDark" id="editPos" title="Edit point position">Edit positions</button>
+        <button class="smallbt Btn btDark" id="saveFiles" title="Download spreadsheet data">Download data</button>
+        <button class="smallbt Btn btDark" id="sendFiles" title="Send spreadsheet data">Save data</button>
+        <button class="smallbt Btn btDark" id="saveCam" title="Save camera position to data file">Save Camera</button>
+        <button class="smallbt Btn btDark" id="editPos" title="Edit point position">Edit positions</button>
         
-        <button class="smallBt Btn btDark" id="readOnly" title="Edit text box">Edit text</button>
+        <button class="smallbt Btn btDark" id="readOnly" title="Edit text box">Edit text</button>
     </div>
 
     <div id="root" class="bgDark spaDiv spWid">
@@ -25,13 +25,13 @@
             <!-- Vertical Div 0, title -->
             <div>
                 <img id="title" class="logo smalltit" src="../images/logoDark.png" alt="Poppy Logo">
-                <nav class="btn-group4 smallbt" id="nav">
+                <nav class="btn-group g5 smallbt" id="nav">
                     <button id="viewer" class="smallbt Btn btDark">Viewer</button><button id="editor" class="smallbt Btn btDark defRestrictDark">Editor</button><button id="index" class="smallbt Btn btDark">Home</button><button id="account" class="smallbt Btn btDark">Account</button><button id="manager" class="smallbt Btn btDark">Manager</button>
                 </nav>
             </div>
             <!-- Vertical Div 1 site buttons -->
-            <div id="siteButtons" class="spDark smallbt btn-group4" title="Site Dropdown">
-                <label id="tx" for="sites">Choose a site:</label>
+            <div id="siteButtons" class="spDark smallbt btn-group g4" title="Site Dropdown">
+                <label id="tx" for="sites"></label>
                 <select name="sites" id="dropdown" title="Dropdown">
                     <option value="Empty">Example</option> <!-- This is a placeholder, filled in on load -->
                 </select>
@@ -39,22 +39,23 @@
                 <button class="smallbt BtnRounded btDark" id="groups" title="Groups Menu">Groups</button>
             </div>
             <div id="selectPanel2" class="spDark" title="Data Input" style="display: none;">
-                <label for="modelpicker" title="Input Model"> Upload model:</label><input type="file" id="modelpicker" accept=".glb,.gltf" title=" ">
-                <label for="datapicker" title="Input Data"> Upload data:</label><input type="file" id="datapicker" accept=".csv,.txt" title=" ">               
+                <button class="Btn btDark smallbt" onclick="document.getElementById('modelpicker').click()">GLB Upload</button><button class="Btn btDark smallbt" onclick="document.getElementById('datapicker').click()">CSV Upload</button>
+                <input type="file" id="modelpicker" accept=".glb,.gltf" title="GLB" name="modelpicker" style="display: none;">
+                <input type="file" id="datapicker" accept=".csv,.txt" title="CSV" name="datapicker" style="display: none;">
             </div>
             <!-- Vertical Div 2.0 Spreadsheet control-->
-            <div class="btn-group3" id="bug1">
+            <div class="btn-group g3" id="bug1">
                 <button class="Btn btDark" id="valueBtnS" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnS" class="opacityBtn" title="Toggle Transparency">Transparent</button><button class="Btn btDark" id="flipBtn" title="Flip visibility">Flip ◐</button>
                 <button class="Btn btDark" id="camBtn" title="Change camera control mode">Free 📹</button><button class="Btn btDark" id="resetBtn" title="Toggle all visibility">Toggle all ❎</button><button class="Btn btDark" id="toggleBtn" title="Toggle visibility">Toggle ◧</button>
             </div>
 
             <!-- Vertical Div 2.1 Groups -->
-            <div style="display: none;" class="btn-group3" id="bug2">
+            <div style="display: none;" class="btn-group g3" id="bug2">
                 <button class="Btn btDark" id="saveGroup" title="Save current display as group">Save Group</button><button class="Btn btDark" id="addGroup" title="Save as new group">New Group</button><button class="Btn btDark" id="deleteGroup" title="Delete Group">Delete Group</button>
                 <button class="Btn btDark" id="valueBtnG" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnG" class="opacityBtn" title="Toggle Transparency">Transparent</button>
             </div>
             <!-- Vertical Div 2.3 Areas -->
-            <div style="display: none;" class="btn-group3" id="bug3">
+            <div style="display: none;" class="btn-group g3" id="bug3">
                 <button class="Btn btDark" id="saveArea" title="Save current display as area">Save Area</button><button class="Btn btDark" id="addArea" title="Save as new area">Save New Area</button><button class="Btn btDark" id="deleteArea" title="Delete Area">Delete Area</button>
                 <button class="Btn btDark" id="valueBtnA" class="valueBtn" title="Show values">Show values</button><button class="Btn btDark" id="opacityBtnA" class="opacityBtn" title="Toggle Transparency">Transparent</button>
             </div>
@@ -67,9 +68,9 @@
                 <textarea id="textbox" style="background-color:grey; color:white;" readOnly>  </textarea>
             </div>
             <!-- Vertical Div 5 newsite buttons-->
-            <div style="height: 15%; display: none;" class="btn-group4" id="newSiteBT">
-                <button class="Btn btDark" id="newRow" title="Add row">Add Row</button><button class="Btn btDark" id="newCol" title="Add column">Add Column</button><button class="Btn btDark" id="aboveView" title="Top down view">Top 📹</button><button class="Btn btDark MB" id="newM" draggable="true" title="New M Point">M</button>
-                <button class="Btn btDark" id="deleteRow" title="Delete row">Delete Row</button><button class="Btn btDark" id="deleteCol" title="Delete column">Delete Column</button><button class="Btn btDark" id="backView" title="Go back to last viewpoint">Last 📹</button><button class="Btn btDark TB" id="newT" draggable="true" title="New T Point">T</button>
+            <div style="height: 15%; display: none;" class="btn-group g4" id="newSiteBT">
+                <button class="Btn btDark" id="newRow" title="Add row">Add Row</button><button class="Btn btDark" id="newCol" title="Add column">Add Column</button><button class="Btn btDark" id="aboveView" title="Top down view">Top 📹</button><button class="Btn btDark M B" id="newM" draggable="true" title="New M Point">M</button>
+                <button class="Btn btDark" id="deleteRow" title="Delete row">Delete Row</button><button class="Btn btDark" id="deleteCol" title="Delete column">Delete Column</button><button class="Btn btDark" id="backView" title="Go back to last viewpoint">Last 📹</button><button class="Btn btDark T B" id="newT" draggable="true" title="New T Point">T</button>
             </div>
 
         </div>
