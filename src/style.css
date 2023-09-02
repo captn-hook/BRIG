@@ -224,8 +224,8 @@ input {
     /*preserve aspect ratio*/
     width: auto;
 }
-
-@media screen and (max-height: 800px) {
+/* size under 500px y */
+@media screen and (max-height: 500px) {
     .logo {
         /* change with screen size */
         display: none !important;

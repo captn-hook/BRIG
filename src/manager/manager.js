@@ -34,25 +34,25 @@ import {
 } from '../account/siteListElem.js';
 
 import {
-	//doc,
-	getFirestore
-} from 'firebase/firestore';
+    //doc,
+    getFirestore
+} from 'firebase/firestore';    
+
+import {
+    navigate
+} from '../index/index.js'
 
 export function open(state, firebaseEnv) {
-    if (!firebaseEnv.auth.currentUser) {
-        navigate('account');
-        return Promise.resolve();
-    }
-    
+
     document.body.innerHTML = html;
     defaultPage();
-    
-    const storage = getStorage(firebaseEnv.app);    
+
+    const storage = getStorage(firebaseEnv.app);
 
     const defaults = 'Select a site'
     var s = { value: defaults };
 
-    
+
     const db = getFirestore(firebaseEnv.app);
     const functions = getFunctions(firebaseEnv.app);
     const listUsers = httpsCallable(functions, 'listUsers');
@@ -71,7 +71,7 @@ export function open(state, firebaseEnv) {
             if (state.params.siteList != undefined) {
                 let elem = siteListElem(state.params.siteList);
                 document.getElementById('info').appendChild(elem);
-              
+
                 function listener(idstring) {
                     s.value = idstring;
                     userTable.emptyTable();
@@ -138,7 +138,7 @@ export function open(state, firebaseEnv) {
                     });
                     userTable.populateTable(storage, allUsersM, s.value, state.params.darkTheme);
                 });
-                
+
         }).catch((error) => {
             //console.log(error)
         });
