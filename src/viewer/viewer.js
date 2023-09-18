@@ -74,14 +74,6 @@ export var renderer;
 export const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 500);
 
 // three Scene
-export const scene = new Scene();
-
-scene.background = new Color(0x000000);
-scene.add(camera);
-const light = new AmbientLight(0x404040); // soft white light
-light.intensity = 3;
-scene.add(light);
-
 export const defaultDropd = 'Select a site';
 export var dropd;
 export var textbox;
@@ -90,17 +82,12 @@ export var camFree = false;
 export function open(state, firebaseEnv) {
     document.body.innerHTML = html;
 
-
-    //clean scene
-    while(scene.children.length > 0){ 
-        scene.remove(scene.children[0]); 
-    }       
-
     return cont(state, firebaseEnv);
 }
 
 export var leftPanel;
 export var sizes;
+export var scene;
 
 export function siteList(s) {
     //empty dropdown
@@ -187,6 +174,16 @@ export function cont(pp, firebaseEnv) {
     const db = getFirestore(app);
     const storage = getStorage(app);
 
+    if (scene == undefined) {
+        scene = new Scene();
+        scene.background = new Color(0x000000);
+        scene.add(camera);
+        const light = new AmbientLight(0x404040); // soft white light
+        light.intensity = 10;
+        scene.add(light);
+    }
+
+    //console.log('viewer cont', light);
 
     leftPanel = new Panel(document.getElementById('left'));
 
@@ -619,11 +616,13 @@ export function cont(pp, firebaseEnv) {
         getBlob(ref)
             .then((blob) => {
                 import('../viewer/modelHandler.js').then((module) => {
+                    console.log('model transfered RD, loading...');
                     module.handleModels(blob, scene);
                 })
             })
             .catch((err) => {
-                //console.error(err);
+                console.error('transfer error...');
+                console.error(err);
             })
 
         RemoteData(db, doc).then((data) => {
@@ -653,11 +652,13 @@ export function cont(pp, firebaseEnv) {
         getBlob(ref1)
             .then((blob) => {
                 import('../viewer/modelHandler.js').then((module) => {
+                    console.log('model transfered, loading...');
                     module.handleModels(blob, scene);
                 })
 
             })
             .catch((err) => {
+                console.error('transfer error...');
                 console.error(err);
             })
 

@@ -110,8 +110,8 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 		allSites(getStorage(firebaseEnv.app)).then((list) => {
 			//console.log('list: ' + list);
 			currentParams.siteList = list;
-			console.log('OPENING PAGE: ', getCurrentPage());
-			console.log('WITH: ', currentPage);
+			//console.log('OPENING PAGE: ', getCurrentPage());
+			//console.log('WITH: ', currentPage);
 			currentPage.open({ params: currentParams }, firebaseEnv);
 			clogin();
 		} );
@@ -144,7 +144,7 @@ function registerRouter() {
 
 export function bootstrapAsync(pageName) {
 	currentAction = Promise.resolve();
-	console.log('boots: ', pageName, location.hash);
+	//console.log('boots: ', pageName, location.hash);
 	openPage({
 		page: pageName,
 		params: currentParams
@@ -182,7 +182,7 @@ export function getCurrentPage() {
 	let match = regMatchPath(location.pathname);
 	//enforce match on location.pathname
 
-	console.log('match: ', match);
+	//console.log('match: ', match);
 	return match;
 }
 

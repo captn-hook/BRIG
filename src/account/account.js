@@ -23,9 +23,9 @@ import LoginStyle from '../shared/LoginStyle.js';
 import { navigate } from '../index';
 
 export function open(state, firebaseEnv = null) {
-    console.log('account open'); //traceback
-    console.error('account open'); //traceback  
-    console.trace('account open'); //traceback
+    // console.log('account open'); //traceback
+    // console.error('account open'); //traceback  
+    // console.trace('account open'); //traceback
     document.body.innerHTML = html;
     defaultPage();
 
