@@ -60,6 +60,10 @@ export var views = []
 
 export var workingArea = new Area([]);
 
+export function resetWorkingArea() {
+    workingArea = new Area([]);
+}
+
 export const state = {
     0: 'spreadsheet',
     1: 'groups',

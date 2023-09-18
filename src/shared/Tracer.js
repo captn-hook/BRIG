@@ -116,7 +116,7 @@ class Tracer2d extends Tracer {
 
         super(m, t, value, headroom, lift);
 
-        const maxwidth = 20;
+        const maxwidth = 10;
 
         const minwidth = 3;
 

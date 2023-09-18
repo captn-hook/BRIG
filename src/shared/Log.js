@@ -138,7 +138,7 @@ export function login(auth, provider) {
         .catch((error) => {
             //const errorCode = error.code;
             //const errorMessage = error.message;
-            console.log(errorCode, errorMessage);
+            console.log(error);
             displaySignInError('login');
             //console.log("Popup Sign In Failed");
         });

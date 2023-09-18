@@ -9,6 +9,7 @@ import {
     saveModel,
     saveFile,
     sendFile,
+    saveArea,
 } from '../shared/Data.js';
 
 import {
@@ -485,8 +486,8 @@ export function open(state, firebaseEnv) {
 
             V.leftPanel.areas.push(a);
             //console.log("A", leftPanel.ai)
-            saveArea(db, dropd.value, i + 1, a)
-            V.workingArea = new Area([]);
+            saveArea(db, V.dropd.value, i + 1, a)
+            V.resetWorkingArea();
         }
     }
 
