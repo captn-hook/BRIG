@@ -55,15 +55,6 @@ import {
 //ms, ts, tracers, insights, views, db, dropd.value
 //camera, textbox, handleFiles, handlemodels, defaultDropd
 export function open(state, firebaseEnv) {
-    if (!firebaseEnv.auth.currentUser) {
-        //set timeout to give time for login refresh from local storage
-        setTimeout(() => {
-            if (!firebaseEnv.auth.currentUser) {
-                navigate('account');
-            }
-        }
-            , 2000);
-    }
 
     document.body.innerHTML = html;
     V.cont(state, firebaseEnv);

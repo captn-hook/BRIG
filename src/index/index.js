@@ -110,23 +110,12 @@ onAuthStateChanged(firebaseEnv.auth, (user) => {
 		allSites(getStorage(firebaseEnv.app)).then((list) => {
 			//console.log('list: ' + list);
 			currentParams.siteList = list;
-			//console.log('currentpage: ', currentPage);
+			console.log('OPENING PAGE: ', getCurrentPage());
+			console.log('WITH: ', currentPage);
 			currentPage.open({ params: currentParams }, firebaseEnv);
 			clogin();
 		} );
-
-		// } else {
-		// 	getList(firebaseEnv.app, firebaseEnv.auth.currentUser.uid).then((list) => {
-		// 		currentParams.siteList = list;
-
-		// 		currentPage.open({ params: currentParams }, firebaseEnv);
-
-		// 		clogin();
-		// 	});
-		// }
-	} else {
-		//console.log('AUTH STATE  not logged in', location.pathname);
-	}
+	} 
 });
 
 
@@ -148,18 +137,18 @@ function registerRouter() {
 			openPage(event.state || {
 				page: getCurrentPage(),
 				params: currentParams
-			});
+			}, location.hash);
 		}
 	});
 }
 
 export function bootstrapAsync(pageName) {
 	currentAction = Promise.resolve();
-	//console.log('boots: ', pageName);
+	console.log('boots: ', pageName, location.hash);
 	openPage({
 		page: pageName,
 		params: currentParams
-	})
+	}, location.hash);
 	registerRouter();
 }
 
@@ -193,7 +182,7 @@ export function getCurrentPage() {
 	let match = regMatchPath(location.pathname);
 	//enforce match on location.pathname
 
-	//console.log('match: ', match);
+	console.log('match: ', match);
 	return match;
 }
 
@@ -204,8 +193,8 @@ function openPage(state, hash = '') {
 	//console.log('OPEN PAGING: ' + state);
 	//console.log('OPEN Params: ' + state.params);
 	//switchTheme(state.params.darkTheme);
-	const pageName = firebaseEnv.auth.currentUser ? state.page : 'account';
-
+	//const pageName = firebaseEnv.auth.currentUser ? state.page : 'account';
+	const pageName = state.page;
 	currentAction = currentAction
 		// Close the current page
 		.then(() => currentPage && currentPage.close())
@@ -229,7 +218,6 @@ function openPage(state, hash = '') {
 // Router logic, Called by pages
 // Starts navigating to another page
 export function navigate(pageName, hash = '') {
-	//console.log('navigate: ', pageName, hash);
 	if (hash == '') {
 		hash = location.hash;
 	}
