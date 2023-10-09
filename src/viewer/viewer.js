@@ -173,13 +173,13 @@ export function cont(pp, firebaseEnv) {
     const provider = firebaseEnv.provider;
     const db = getFirestore(app);
     const storage = getStorage(app);
-
+    console.log(scene);
+    
+    const light = new AmbientLight(0xffffff, 1.3);
     if (scene == undefined) {
         scene = new Scene();
         scene.background = new Color(0x000000);
         scene.add(camera);
-        const light = new AmbientLight(0x404040); // soft white light
-        light.intensity = 10;
         scene.add(light);
     }
 
@@ -217,7 +217,7 @@ export function cont(pp, firebaseEnv) {
     // Lights
     
     //log light
-    //console.log(light);
+    console.log(light);
 
 
     // Canvassesses

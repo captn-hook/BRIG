@@ -11,7 +11,14 @@ export function handleModels(input, scene) {
     // }
     console.log("reloading 3d scene...");
     while(scene.children.length > 0){ 
-        scene.remove(scene.children[0]); 
+        //if not a light
+        if (scene.children[0].type != "AmbientLight") {
+            scene.remove(scene.children[0]); 
+        } else if (scene.children.length > 1) {
+            scene.remove(scene.children[1]); 
+        } else {
+            break;
+        }
     }
 
     //re add the light

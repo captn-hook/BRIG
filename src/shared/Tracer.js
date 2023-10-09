@@ -158,7 +158,7 @@ class Tracer2d extends Tracer {
             sizes.ctx.lineWidth = this.outline;
 
             if (alpha) {
-                var opac = this.a + 0.2;
+                var opac = this.a;
             } else {
                 var opac = 1;
             }
