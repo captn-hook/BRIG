@@ -3,13 +3,19 @@ import { AmbientLight } from 'three';
 export var globalObj;
 export var sceneMeshes = [];
 
-export function handleModels(input, scene) {
-    //remove old stuff first
+function newLight(scene) {
+    //look for a light
+    for (let i = 0; i < scene.children.length; i++) {
+        if (scene.children[i].type == "AmbientLight") {
+            return;
+        }
+    }
+    const light = new AmbientLight(0x404040); // soft white light
+    light.intensity = 10;
+    scene.add(light);
+}
 
-    // if (globalObj != null) {
-    //     scene.remove(globalObj);
-    // }
-    console.log("reloading 3d scene...");
+function emptyS(scene) {
     while(scene.children.length > 0){ 
         //if not a light
         if (scene.children[0].type != "AmbientLight") {
@@ -20,19 +26,23 @@ export function handleModels(input, scene) {
             break;
         }
     }
+}
+
+export function handleModels(input, scene) {
+    //remove old stuff first
+    emptyS(scene);
+    // if (globalObj != null) {
+    //     scene.remove(globalObj);
+    // }
 
     //re add the light
-    const light = new AmbientLight(0x404040); // soft white light
-    light.intensity = 10;
-    scene.add(light);
+    newLight(scene);
 
     var read = new FileReader();
 
     read.readAsArrayBuffer(input);
 
-
     read.onloadend = function () {
-
 
         getDRACOLoader().then((loader) => {
 
@@ -43,74 +53,56 @@ export function handleModels(input, scene) {
     }
 }
 
-var GsceneR = null;
-
-export function exHandleModels(input) {
-    if (GsceneR == null) {
-        return;
-    }
+export function exHandleModels(input, scene) {
     //remove old stuff first
-    while(scene.children.length > 0){ 
-        GsceneR.remove(GsceneR.children[0]); 
-    }
+    emptyS(scene);
 
     var read = new FileReader();
 
     read.readAsArrayBuffer(input);
 
-
     read.onloadend = function () {
 
-
         getDRACOLoader().then((loader) => {
-
-            loader.parse(read.result, '', onLoadWrapper(GsceneR), onErrorLog, onProgressLog);
+            loader.parse(read.result, '', onLoadWrapper(scene), onErrorLog, onProgressLog);
 
         })
 
     }
 }
 
-export function obHandleModels(input, mat) {
-    if (GsceneR == null) {
-        return;
-    }
-    //remove old stuff first
-    while(scene.children.length > 0){ 
-        GsceneR.remove(GsceneR.children[0]); 
-    }
+export function obHandleModels(input, inmat, scene) {
+    emptyS(scene);
 
     var read = new FileReader();
-
-    read.readAsArrayBuffer(input);
+    //input is a file
+    read.readAsDataURL(input);
 
     read.onloadend = function () {
-        getOBJLoaders().then((loaders) => {
-            const mtlLoader = new loaders[0]();
-            const objLoader = new loaders[1]();
-            mtlLoader.load(mat, (mtl) => {
-                mtl.preload();
-                objLoader.setMaterials(mtl);
-                objLoader.load(read.result, onLoadWrapper(GsceneR), onProgressLog, onErrorLog);
+        var obj = read.result;
+
+        read.readAsText(inmat);
+
+        read.onloadend = function () {
+            var mat = read.result;
+
+            getOBJLoaders().then((loaders) => {
+                const mtlLoader = new loaders[0]();
+                const objLoader = new loaders[1]();
+                mtlLoader.load(mat, (mtl) => {
+                    mtl.preload();
+                    objLoader.setMaterials(mtl);
+                    objLoader.load(obj, onLoadWrapper(scene, true), onProgressLog, onErrorLog);
+                });
             });
-        });
+        }
     }
 }
 
+function onLoadWrapper(scene, isObj = false) {
 
-export function setGsceneR(sceneR) {
-    GsceneR = sceneR;
-}
-
-function onLoadWrapper(sceneR) {
-    if (sceneR == null) {
-        sceneR = GsceneR;
-    } else {
-        GsceneR = sceneR;
-    }
     // onLoad callback
     function onLoadLoad(obj) {
-        const scene = sceneR;
 
         sceneMeshes = [];
 
@@ -121,11 +113,22 @@ function onLoadWrapper(sceneR) {
         })
 
         scene.add(obj.scene);
-        //console.log("LOADED: ", obj);
-        //console.log("SCENE: ", scene);
         //globalObj = scene.children[scene.children.length - 1];
     }
-    return onLoadLoad;
+
+    function onLoadOBJ(obj) {
+        //obj loads as a group, so we need to add each child to the scene
+        obj.children.forEach((e) => {
+            scene.add(e);
+        })
+        //globalObj = scene.children[scene.children.length - 1];
+    }
+
+    if (isObj) {
+        return onLoadOBJ;
+    } else {
+        return onLoadLoad;
+    }
 }
 
 // onProgress callback

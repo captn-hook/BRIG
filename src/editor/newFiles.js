@@ -1,87 +1,115 @@
 import { popUp } from '../shared/popUp.js';
+import { exHandleModels, obHandleModels } from '../viewer/modelHandler.js';
 //const uploadPanel = document.getElementById('selectPanel2');
 
 const filePicker = document.getElementById('filepicker');
 
-const glbInput = document.getElementById('modelpicker');
-const objInput = document.getElementById('objpicker');
-const mtlInput = document.getElementById('mtlpicker');
+var fileStore = [];
 
-var objmtl = [null, null];
+var data = false;
+var model = false;
+var model2 = false;
 
-objInput.addEventListener('change', (e) => {
-    //objs need mtl to wait for a mtl file
-    console.log('objInput', objInput.files);
-    objmtl[0] = objInput.files[0];
-    if (objmtl[1] != null) {
-        import('../viewer/modelHandler.js').then((module) => {
-            module.obHandleModels(objmtl[0], objmtl[1]);
-            objmtl = [null, null];
-        })
+function clickLi(e) {
+    //set its var to false
+    if (data == e.target.innerHTML) {
+        data = false;
+    } else if (model == e.target.innerHTML) {
+        model = false;
+    } else if (model2 == e.target.innerHTML) {
+        model2 = false;
     }
-}, false);
-
-mtlInput.addEventListener('change', (e) => {
-    //mtl needs obj to wait for a obj file
-    console.log('mtlInput', mtlInput.files);
-    objmtl[1] = mtlInput.files[0];
-    if (objmtl[0] != null) {
-        import('../viewer/modelHandler.js').then((module) => {
-            module.obHandleModels(objmtl[0], objmtl[1]);
-            objmtl = [null, null];
-        })
+    //remove it from filestore
+    for (let i = 0; i < fileStore.length; i++) {
+        if (fileStore[i].name == e.target.innerHTML) {
+            fileStore.splice(i, 1);
+        }
     }
-}, false);
+    //and reset filePicker
+    filePicker.value = '';
+    filePicker.dispatchEvent(new CustomEvent('change'));
+}
 
-glbInput.addEventListener('change', (e) => {
-    //glbs are self contained so just process
-    //console.log('glbInput');
-    import('../viewer/modelHandler.js').then((module) => {
-        module.exHandleModels(glbInput.files[0]);
-    })
-}, false);
+function listChangeListener(e) {
+    //shows all the files in filePicker and highlights the ones that are selected
+    //those being data, model, and model2 if they arent false
+    //first empty the list
+    var list = e.target;
+    
+    while (list.firstChild) {
+        list.removeChild(list.firstChild);
+    }
+
+    //then add all the files
+    for (let i = 0; i < fileStore.length; i++) {
+        var li = document.createElement('li');
+        li.innerHTML = fileStore[i].name;
+        if (fileStore[i].name == data || fileStore[i].name == model || fileStore[i].name == model2) {
+            li.className = 'Fselected';
+        }
+        li.addEventListener('click', clickLi, false);
+        list.appendChild(li);
+    }
+}
+
+export function newFiles(dfunc, scene) {
+    //in the future this should let you set data dimensions if no data file detected
+
+    //pop up, with a list of uploaded files
+    var list = document.createElement('ul');
+    list.addEventListener('fpchange', listChangeListener, false);
+    list.className = 'fileList';
+    list.id = 'fileDisplayList';
+    //and two buttons: add files, confirm
+    var pop = new popUp('Upload Files', [list]);
+    pop.createButton('Add Files', filePicker.click.bind(filePicker));
+    pop.createButton('Confirm', () => {
+        if (data) {
+            //get file from fileStore
+            dfunc(fileStore.find((e) => {return e.name == data}));
+        }
+        if (model.split('.')[1] == 'obj' && model2) {
+            obHandleModels(fileStore.find((e) => {return e.name == model}), fileStore.find((e) => {return e.name == model2}), scene);
+        } else if (model) {
+            console.log('glb: ', model);
+            console.log(fileStore.find((e) => {return e.name == model}));
+            exHandleModels(fileStore.find((e) => {return e.name == model}), scene);
+        }
+        pop.remove();
+    });
+        
+    filePicker.click();
+}
 
 filePicker.addEventListener('change', (e) => {
     //needs to forward glb, obj, mtl, csv, and txt to respective pickers
     //should be able to handle one model (glb OR obj/mtl) and one data file (csv OR txt)
-    console.log('filePicker', filePicker.files);
-
-    var data = false;
-    var model = false;
-    var model2 = false;
-
-    for (let i = 0; i < filePicker.files.length; i++) {
-        var ext = filePicker.files[i].name.split('.')[1];
-        console.log(ext);
+    function proc(fname) {
+        var ext = fname.split('.')[1];
         if (!data && (ext == 'csv' || ext == 'txt')) {
-            data = true;
-            dataInput.files[0] = filePicker.files[i];
+            data = fname;
         } else if (!model && ext == 'glb') {
-            model = true;
-            glbInput.files[0] = filePicker.files[i];
+            model = fname;
         } else if (!model && ext == 'obj') {
-            model = true;
-            objInput.files[0] = filePicker.files[i];
+            model = fname;
         } else if (!model2 && ext == 'mtl') {
-            model2 = true;
-            mtlInput.files[0] = filePicker.files[i];
+            model2 = fname;
         }
     }
-    console.log(data, model, model2);
+    for (let i = 0; i < fileStore.length; i++) {
+        proc(fileStore[i].name);
+    }
 
+    for (let i = 0; i < filePicker.files.length; i++) {
+        proc(filePicker.files[i].name);
+        //if file already exists, replace it
+        for (let j = 0; j < fileStore.length; j++) {
+            if (fileStore[j].name == filePicker.files[i].name) {
+                fileStore.splice(j, 1);
+            }
+        }
+        fileStore.push(filePicker.files[i]);
+    }
+    //propogate change to list
+    document.getElementById('fileDisplayList').dispatchEvent(new CustomEvent('fpchange'));
 }, false);
-
-export function newFiles() {
-    //pop up, with a list of uploaded files
-    var list = document.createElement('ul');
-    //and two buttons: add files, confirm
-    var pop = new popUp('Upload Files');
-    console.log(pop);
-    pop.createButton('Add Files', () => {
-        filePicker.click();
-    });
-    pop.createButton('Confirm', () => {
-        //file picker should be checking for correct file types
-        console.log('confirm');
-    });
-}

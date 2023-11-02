@@ -173,7 +173,6 @@ export function cont(pp, firebaseEnv) {
     const provider = firebaseEnv.provider;
     const db = getFirestore(app);
     const storage = getStorage(app);
-    console.log(scene);
     
     const light = new AmbientLight(0xffffff, 1.3);
     if (scene == undefined) {
@@ -215,10 +214,6 @@ export function cont(pp, firebaseEnv) {
 
     sizes = new ScreenSizes();
     // Lights
-    
-    //log light
-    console.log(light);
-
 
     // Canvassesses
     const canvas3d = document.querySelector('canvas.webgl'); //viewer

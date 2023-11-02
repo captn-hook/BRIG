@@ -14,19 +14,21 @@
 import './popUp.css'; 
 
 class popUpButton {
-    constructor(name, cls = 'popUpButton') {
+    constructor(name, func, cls = 'popUpButton') {
         this.name = name;
 
         this.elem = document.createElement('button');
         this.elem.className = cls;
         this.elem.innerHTML = name;
 
+        this.elem.addEventListener('click', func, false);
+
         return this.elem;
     }
 }
 
 export class popUp {
-    constructor(title, contentlist = [], buttonlist = [], cls = 'popUp') {
+    constructor(title, contentlist = [], buttonlist = [], cls = 'bgDark popUp') {
         //lists should be arrays of html elements
 
         this.elem = document.createElement('div');
@@ -34,11 +36,10 @@ export class popUp {
 
         this.titleElem = document.createElement('h1');
         this.titleElem.innerHTML = title;
+        this.titleElem.className = 'fgDark';
         this.elem.appendChild(this.titleElem);
-
-        this.cancelButton = new popUpButton('X', () => {
-            this.elem.remove();
-        }, 'popUpCancel');
+        
+        this.cancelButton = new popUpButton('X', this.remove.bind(this), 'popUpCancel');
         this.elem.appendChild(this.cancelButton);
 
         this.contentElem = document.createElement('div');
@@ -46,7 +47,7 @@ export class popUp {
         this.elem.appendChild(this.contentElem);
 
         this.buttonElem = document.createElement('div');
-        this.buttonElem.className = 'popUpButtons';
+        this.buttonElem.className = 'btn-group popUpButtons';
         this.elem.appendChild(this.buttonElem);
 
         for (let i = 0; i < contentlist.length; i++) {
@@ -62,7 +63,7 @@ export class popUp {
         return this;
     }
 
-    createButton(name, func, cls = 'popUpButton') {
+    createButton(name, func, cls = 'btDark popUpButton') {
         var button = new popUpButton(name, func, cls);
         this.buttonElem.appendChild(button);
         return button;

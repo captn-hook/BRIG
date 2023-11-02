@@ -95,7 +95,6 @@ export function open(state, firebaseEnv) {
     const dArea = document.getElementById('deleteArea');
 
     //this is here because it should respond as soon as data is input
-    const dataInput = document.getElementById('datapicker');
 
     const newSite = document.getElementById('newSite');
     const newSiteBT = document.getElementById('newSiteBT');
@@ -219,11 +218,11 @@ export function open(state, firebaseEnv) {
         if (newsitename != null) {
             //popup window to upload files
             import('./newFiles.js').then((module) => {
-                module.newFiles();
+                module.newFiles(V.handleFiles, V.scene);
             })
 
             //create storage folder
-            sendFile([], [], [], [], [], db, newsitename);
+            //sendFile([], [], [], [], [], db, newsitename);
 
             V.leftPanel.siteheader = newsitename;
             V.dropd.value = newsitename;
@@ -360,11 +359,6 @@ export function open(state, firebaseEnv) {
         V.textbox.style.display = (V.textbox.readOnly) ? 'none' : 'block';
         e.target.innerHTML = (V.textbox.readOnly) ? 'Read Only' : 'Editable';
     })
-
-    dataInput.addEventListener('change', (e) => {
-        V.handleFiles(dataInput.files[0]);
-    }, false);
-
 
 
 
