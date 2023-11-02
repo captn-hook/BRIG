@@ -84,6 +84,7 @@ function clogin() {
 
 function getList(app, uid) {
 	const db = getFirestore(app);
+	console.log('getting user list');
 	return import('../shared/userSites.js').then((module) => { return module.default(db, uid); });
 }
 

@@ -44,9 +44,5 @@ export default async function allSites(storage)  {
         }
         )
     })
-    .catch((error) => {
-        console.error(error);
-    }
-    )
 }
         

@@ -71,6 +71,32 @@ export function exHandleModels(input) {
     }
 }
 
+export function obHandleModels(input, mat) {
+    if (GsceneR == null) {
+        return;
+    }
+    //remove old stuff first
+    while(scene.children.length > 0){ 
+        GsceneR.remove(GsceneR.children[0]); 
+    }
+
+    var read = new FileReader();
+
+    read.readAsArrayBuffer(input);
+
+    read.onloadend = function () {
+        getOBJLoaders().then((loaders) => {
+            const mtlLoader = new loaders[0]();
+            const objLoader = new loaders[1]();
+            mtlLoader.load(mat, (mtl) => {
+                mtl.preload();
+                objLoader.setMaterials(mtl);
+                objLoader.load(read.result, onLoadWrapper(GsceneR), onProgressLog, onErrorLog);
+            });
+        });
+    }
+}
+
 
 export function setGsceneR(sceneR) {
     GsceneR = sceneR;
@@ -129,6 +155,16 @@ function getDRACOLoader() {
             GLTFLoader.setDRACOLoader(DRACOLoader);
 
             return GLTFLoader;
+        });
+    })
+}
+
+ function getOBJLoaders() {
+//     import { MTLLoader } from '../js/examples/jsm/loaders/MTLLoader.js';
+//     import { OBJLoader } from '../js/examples/jsm/loaders/OBJLoader.js';
+    return import('three/examples/jsm/loaders/MTLLoader.js').then((MTLLoader) => {
+        return import('three/examples/jsm/loaders/OBJLoader.js').then((OBJLoader) => {
+            return [MTLLoader.MTLLoader, OBJLoader.OBJLoader];
         });
     })
 }

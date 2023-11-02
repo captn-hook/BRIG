@@ -1,0 +1,17 @@
+/*needs to be front and center of the screen*/
+.popUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /*background-color: #f1f1f1;*/
+    background-color: #fff;
+    border: 1px solid #888;
+    width: 80%;
+    height: 80%;
+    z-index: 9;
+    overflow: auto;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 50px 0 rgba(0, 0, 0, 0.5);
+}

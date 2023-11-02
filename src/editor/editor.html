@@ -55,13 +55,11 @@
                 <button class="smallbt BtnRounded btDark" id="groups" title="Groups Menu">Groups</button>
             </div>
             <div id="selectPanel2" class="spDark" title="Data Input" style="display: none;">
-                <button class="Btn btDark smallbt" onclick="document.getElementById('modelpicker').click()">GLB
-                    Upload</button><button class="Btn btDark smallbt"
-                    onclick="document.getElementById('datapicker').click()">CSV Upload</button>
-                <input type="file" id="modelpicker" accept=".glb,.gltf" title="GLB" name="modelpicker"
-                    style="display: none;">
-                <input type="file" id="datapicker" accept=".csv,.txt" title="CSV" name="datapicker"
-                    style="display: none;">
+                <input type="file" id="filepicker" accept=".glb,.gltf,.obj,.mtl,.csv,.txt" title="GLB, OBJ, MTL, CSV, TXT" name="filepicker" style="display: none;" multiple>
+                <input type="file" id="modelpicker" accept=".glb,.gltf" title="GLB" name="modelpicker" style="display: none;">
+                <input type="file" id="objpicker" accept=".obj" title="OBJ" name="objpicker" style="display: none;">
+                <input type="file" id="mtlpicker" accept=".mtl" title="MTL" name="mtlpicker" style="display: none;">
+                <input type="file" id="datapicker" accept=".csv,.txt" title="CSV" name="datapicker" style="display: none;">
             </div>
             <!-- Vertical Div 2.0 Spreadsheet control-->
             <div class="btn-group g3" id="bug1">

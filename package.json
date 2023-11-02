@@ -18,7 +18,7 @@
     "copy-webpack-plugin": "latest",
     "css-loader": "latest",
     "file-loader": "latest",
-    "firebase": "latest",
+    "firebase": "^10.5.2",
     "firebase-functions": "^4.4.1",
     "html-loader": "latest",
     "html-webpack-plugin": "latest",

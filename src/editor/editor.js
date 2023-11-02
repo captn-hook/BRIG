@@ -94,14 +94,11 @@ export function open(state, firebaseEnv) {
     const aArea = document.getElementById('addArea');
     const dArea = document.getElementById('deleteArea');
 
+    //this is here because it should respond as soon as data is input
     const dataInput = document.getElementById('datapicker');
-
-    const modelInput = document.getElementById('modelpicker');
 
     const newSite = document.getElementById('newSite');
     const newSiteBT = document.getElementById('newSiteBT');
-
-    const uploadPanel = document.getElementById('selectPanel2');
 
     const newRow = document.getElementById('newRow');
     const newCol = document.getElementById('newCol');
@@ -214,12 +211,18 @@ export function open(state, firebaseEnv) {
     topview.addEventListener('click', topView);
 
     newSite.addEventListener('click', (e) => {
+        //this is the buttons for editing the data
         newSiteBT.style.display = 'grid';
 
         let newsitename = prompt("Enter Site Name");
 
         if (newsitename != null) {
-            //upload blank csv to create storage folder
+            //popup window to upload files
+            import('./newFiles.js').then((module) => {
+                module.newFiles();
+            })
+
+            //create storage folder
             sendFile([], [], [], [], [], db, newsitename);
 
             V.leftPanel.siteheader = newsitename;
@@ -330,7 +333,6 @@ export function open(state, firebaseEnv) {
 
             newSiteBT.style.display = 'none';
             
-            uploadPanel.style.display = 'none';
         } else {
             editPos = true;
             topView();
@@ -340,7 +342,6 @@ export function open(state, firebaseEnv) {
             e.target.innerHTML = 'Stop Editing';
 
             newSiteBT.style.display = 'grid';
-            uploadPanel.style.display = 'block';
         }
     })
 
@@ -364,12 +365,7 @@ export function open(state, firebaseEnv) {
         V.handleFiles(dataInput.files[0]);
     }, false);
 
-    modelInput.addEventListener('change', (e) => {
-        //console.log('modelInput');
-        import('../viewer/modelHandler.js').then((module) => {
-            module.exHandleModels(modelInput.files[0]);
-        })
-    }, false);
+
 
 
     V.sizes.canvas2d.addEventListener('contextmenu', (e) => {
