@@ -218,21 +218,8 @@ export function open(state, firebaseEnv) {
         if (newsitename != null) {
             //popup window to upload files
             import('./newFiles.js').then((module) => {
-                module.newFiles(V.handleFiles, V.scene);
+                module.newFiles(V, newsitename);
             })
-
-            //create storage folder
-            //sendFile([], [], [], [], [], db, newsitename);
-
-            V.leftPanel.siteheader = newsitename;
-            V.dropd.value = newsitename;
-            var option = document.createElement('option');
-            option.text = newsitename;
-            V.dropd.add(option);
-            V.dropd.selectedIndex = V.dropd.length - 1;
-
-            V.dropd.dispatchEvent(new Event('change'));
-            document.getElementById('editPos').dispatchEvent(new Event('click'));
         }
     })
 

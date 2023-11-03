@@ -39,6 +39,9 @@
 
 .fileList {
     background-color: #474747;
+    /*needs to turn to scroll when it gets too long*/
+    overflow: auto;
+    max-height: 50vh;
 }
 
 .fileList li {

@@ -9,6 +9,7 @@ var fileStore = [];
 var data = false;
 var model = false;
 var model2 = false;
+var tex = [];
 
 function clickLi(e) {
     //set its var to false
@@ -46,13 +47,15 @@ function listChangeListener(e) {
         li.innerHTML = fileStore[i].name;
         if (fileStore[i].name == data || fileStore[i].name == model || fileStore[i].name == model2) {
             li.className = 'Fselected';
+        } else if (fileStore[i].name.split('.')[1] == 'jpg' && model2) {
+            li.className = 'Fselected';
         }
         li.addEventListener('click', clickLi, false);
         list.appendChild(li);
     }
 }
 
-export function newFiles(dfunc, scene) {
+export function newFiles(V, newsitename) {
     //in the future this should let you set data dimensions if no data file detected
 
     //pop up, with a list of uploaded files
@@ -60,29 +63,47 @@ export function newFiles(dfunc, scene) {
     list.addEventListener('fpchange', listChangeListener, false);
     list.className = 'fileList';
     list.id = 'fileDisplayList';
+    let h1 = document.createElement('h1')
+    h1.innerHTML = newsitename;
     //and two buttons: add files, confirm
-    var pop = new popUp('Upload Files', [list]);
+    var pop = new popUp('Upload Files', [list, h1]);
     pop.createButton('Add Files', filePicker.click.bind(filePicker));
     pop.createButton('Confirm', () => {
         if (data) {
             //get file from fileStore
-            dfunc(fileStore.find((e) => {return e.name == data}));
+            V.handleFiles(fileStore.find((e) => {return e.name == data}));
         }
-        if (model.split('.')[1] == 'obj' && model2) {
-            obHandleModels(fileStore.find((e) => {return e.name == model}), fileStore.find((e) => {return e.name == model2}), scene);
+        if (model && model.split('.')[1] == 'obj' && model2) {
+            console.log('obj loading with ', tex.length, 'textures');
+            let texture = []; //fileStore.find((e) => {return e.name == tex});
+            for (let i = 0; i < tex.length; i++) {
+                texture.push(fileStore.find((e) => {return e.name == tex[i]}));
+            }
+            obHandleModels(fileStore.find((e) => {return e.name == model}), fileStore.find((e) => {return e.name == model2}), texture, V.scene);
         } else if (model) {
-            console.log('glb: ', model);
-            console.log(fileStore.find((e) => {return e.name == model}));
-            exHandleModels(fileStore.find((e) => {return e.name == model}), scene);
+            exHandleModels(fileStore.find((e) => {return e.name == model}), V.scene);
         }
         pop.remove();
+    
+        //create storage folder
+        //sendFile([], [], [], [], [], db, newsitename);
+
+        V.leftPanel.siteheader = newsitename;
+        V.dropd.value = newsitename;
+        var option = document.createElement('option');
+        option.text = newsitename;
+        V.dropd.add(option);
+        V.dropd.selectedIndex = V.dropd.length - 1;
+
+        //V.dropd.dispatchEvent(new Event('change'));
+        document.getElementById('editPos').dispatchEvent(new Event('click'));
     });
         
     filePicker.click();
 }
 
 filePicker.addEventListener('change', (e) => {
-    //needs to forward glb, obj, mtl, csv, and txt to respective pickers
+    //needs to forward glb, obj, mtl, csv, and txt to respective pickers, and jpg for textures
     //should be able to handle one model (glb OR obj/mtl) and one data file (csv OR txt)
     function proc(fname) {
         var ext = fname.split('.')[1];
@@ -94,7 +115,9 @@ filePicker.addEventListener('change', (e) => {
             model = fname;
         } else if (!model2 && ext == 'mtl') {
             model2 = fname;
-        }
+        } else if (ext == 'jpg') {
+            tex.push(fname);
+        } 
     }
     for (let i = 0; i < fileStore.length; i++) {
         proc(fileStore[i].name);
