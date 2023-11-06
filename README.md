@@ -1,5 +1,18 @@
 ## Poppy Data Viz / BRIG
 
+## USAGE GUIDE
+# Login with a supplied account, or link to Google
+![Alt Text](https://raw.githubusercontent.com/captn-hook/BRIG/main/login.gif)
+# Different navigation and view options
+![Alt Text](https://github.com/captn-hook/BRIG/blob/main/navigation.gif)
+# Upload as a GLB, or as multiple parts for an OBJ.
+![Alt Text](https://raw.githubusercontent.com/captn-hook/BRIG/main/upload.gif)
+# Poppy accounts can manage other accounts.
+![Alt Text](https://raw.githubusercontent.com/captn-hook/BRIG/main/manager.gif)
+
+
+
+
 # Quick setup guide
 
 Clone this repo, make sure to have installed NPM
